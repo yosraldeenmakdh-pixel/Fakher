@@ -22,7 +22,7 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'required|string|max:255|unique:users,name' ,
+            'name'=>'required|string|max:255' ,
             'email'=>'required|email|unique:users,email' ,
             'password'=>'required|min:7|confirmed' ,
         ];
@@ -38,7 +38,7 @@ class StoreUserRequest extends FormRequest
             'email.email' => 'يجب أن يكون البريد الإلكتروني صالحاً.',
             'email.unique' => 'هذا البريد الإلكتروني مستخدم من قبل.',
             'password.required' => 'حقل كلمة المرور مطلوب.',
-            'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف.',
+            'password.min' => 'كلمة المرور يجب أن تكون 7 أحرف على الأقل.',
             'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
         ];
     }

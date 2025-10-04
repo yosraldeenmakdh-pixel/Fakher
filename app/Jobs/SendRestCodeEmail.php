@@ -2,14 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Mail\CodeMail;
-use App\Models\Code;
+use App\Mail\RestCodeMail;
+use App\Models\RestCode;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
-class SendVerificationEmail implements ShouldQueue
+class SendRestCodeEmail implements ShouldQueue
 {
     use Queueable;
 
@@ -27,11 +26,11 @@ class SendVerificationEmail implements ShouldQueue
      */
     public function handle(): void
     {
-        Code::create([
+        RestCode::create([
             'email' => $this->user->email,
             'code' => $this->code
         ]);
 
-        Mail::to($this->user)->send(new CodeMail($this->code));
+        Mail::to($this->user)->send(new RestCodeMail($this->code));
     }
 }
