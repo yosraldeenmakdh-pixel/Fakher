@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Queue;
 
 class UserController extends Controller
 {
-    use VerificationTrait ;
+
 
     public function register(StoreUserRequest $request){
 
