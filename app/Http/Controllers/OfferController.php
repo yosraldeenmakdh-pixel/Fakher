@@ -50,7 +50,7 @@ class OfferController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في جلب العروض',
+                'message' => 'حدثت مشكلة فشل في جلب العروض',
             ], 500);
         }
     }
