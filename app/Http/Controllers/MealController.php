@@ -78,7 +78,7 @@ class MealController extends Controller
                     'name' => $meal->name,
                     'description' => $meal->description,
                     'price' => (float) $meal->price,
-                    'image' => $meal->image ? asset('storage/' . $meal->image) : null,
+                    'image' => $meal->image ? asset('uploads/' . $meal->image) : null,
                     'is_available' => (bool) $meal->is_available,
                     'average_rating' => (float) $meal->average_rating,
                     'ratings_count' => (int) $meal->ratings_count,
