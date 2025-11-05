@@ -542,7 +542,7 @@ class UserController extends Controller
                     'email' => $user->email,
                     'phone' => $user->phone,
                     'address' => $user->address,
-                    'image' => $user->image ? asset('storage/' . $user->image) : null,
+                    'image' => $user->image ? asset('uploads/' . $user->image) : null,
                 ],
                 'message' => 'تم تحديث البروفايل بنجاح'
             ], 200);
