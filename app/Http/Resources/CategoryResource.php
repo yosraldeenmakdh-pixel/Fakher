@@ -13,7 +13,7 @@ class CategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'image' => $this->image ? asset('public/uploads' . $this->image) : null,
+            'image' => $this->image ? asset('public/uploads/' . $this->image) : null,
             'meals_count' => $this->meals_count,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
