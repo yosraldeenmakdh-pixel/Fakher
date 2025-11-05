@@ -55,7 +55,7 @@ class OrderForm
                                     ->required()
                                     ->searchable()
                                     ->preload()
-                                    ->reactive()
+                                    // ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         if ($state) {
                                             $meal = Meal::find($state);
@@ -98,7 +98,7 @@ class OrderForm
                                     ->required()
                                     ->minValue(0)
                                     ->step(0.01)
-                                    ->reactive()
+                                    // ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         $quantity = (int)($get('quantity') ?? 1);
                                         $unitPrice = (float)$state;
@@ -124,7 +124,7 @@ class OrderForm
                             ->minItems(1)
                             ->maxItems(50)
                             ->reorderable()
-                            // ->cloneable()
+                            ->disableItemDeletion()
                             ->collapsible()
                             ->itemLabel(fn (array $state): ?string =>
                                 isset($state['meal_id']) && $state['meal_id'] ?
@@ -132,7 +132,7 @@ class OrderForm
                                 'وجبة جديدة'
                             )
                             ->grid(1)
-                            ->live()
+                            // ->live()
                             ->afterStateUpdated(function (callable $set, callable $get) {
                                 self::updateOrderTotals($set, $get);
                             })
@@ -145,7 +145,7 @@ class OrderForm
 
                         Placeholder::make('items_total')
                             ->label('المجموع الكلي للوجبات')
-                            ->live() // أضفنا live هنا
+                            // ->live() // أضفنا live هنا
                             ->content(function (callable $get) {
                                 $items = $get('orderItems') ?? [];
                                 $total = 0;
@@ -158,27 +158,27 @@ class OrderForm
                             })
                             ->extraAttributes(['class' => 'text-lg font-bold text-green-600']),
 
-                        Action::make('updateTotals')
-                            ->label('تحديث الأسعار')
-                            ->icon('heroicon-o-calculator')
-                            ->action(function ($set, $get) {
-                                $items = $get('orderItems') ?? [];
-                                foreach ($items as $index => $item) {
-                                    $quantity = (int)($item['quantity'] ?? 1);
-                                    $unitPrice = (float)($item['unit_price'] ?? 0);
-                                    $totalPrice = $quantity * $unitPrice;
-                                    $set("orderItems.{$index}.total_price", number_format($totalPrice, 2, '.', ''));
-                                }
-                                // تحديث المجموع الكلي
-                                self::updateOrderTotals($set, $get);
-                            }),
+                        // Action::make('updateTotals')
+                        //     ->label('تحديث الأسعار')
+                        //     ->icon('heroicon-o-calculator')
+                        //     ->action(function ($set, $get) {
+                        //         $items = $get('orderItems') ?? [];
+                        //         foreach ($items as $index => $item) {
+                        //             $quantity = (int)($item['quantity'] ?? 1);
+                        //             $unitPrice = (float)($item['unit_price'] ?? 0);
+                        //             $totalPrice = $quantity * $unitPrice;
+                        //             $set("orderItems.{$index}.total_price", number_format($totalPrice, 2, '.', ''));
+                        //         }
+                        //         // تحديث المجموع الكلي
+                        //         self::updateOrderTotals($set, $get);
+                        //     }),
                     ]),
 
                 Section::make('الملخص النهائي')
                     ->schema([
                         Placeholder::make('final_total')
                             ->label('المجموع النهائي')
-                            ->live() // أضفنا live هنا أيضًا
+                            // ->live() // أضفنا live هنا أيضًا
                             ->content(function (callable $get) {
                                 $items = $get('orderItems') ?? [];
                                 $total = 0;

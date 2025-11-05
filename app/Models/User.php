@@ -25,7 +25,10 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',
+        'password' ,
+        'phone',
+        'address' ,
+        'image'
     ];
 
     /**
@@ -59,4 +62,23 @@ class User extends Authenticatable
     {
         return $this->hasMany(OrderOnline::class ,'user_id');
     }
+
+    public function officialInstitution()
+    {
+        return $this->hasOne(OfficialInstitution::class);
+    }
+    public function kitchen()
+    {
+        return $this->hasOne(Kitchen::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
 }

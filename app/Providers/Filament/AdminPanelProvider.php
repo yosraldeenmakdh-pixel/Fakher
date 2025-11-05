@@ -2,6 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\MostOrderedMeals;
+use App\Filament\Widgets\OrderStats;
+use App\Filament\Widgets\TestWidget;
+use App\Http\Middleware\CheckUserRole;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -25,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->brandName('Watan Food')
             ->default()
             ->id('admin')
             ->path('admin')
@@ -42,6 +47,8 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
+                OrderStats::class ,
+                // MostOrderedMeals::class
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -53,6 +60,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                CheckUserRole::class ,
 
             ])
             ->plugins([

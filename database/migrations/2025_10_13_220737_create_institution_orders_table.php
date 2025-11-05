@@ -19,8 +19,11 @@ return new class extends Migration
             $table->date('delivery_date');
             $table->time('delivery_time');
             $table->decimal('total_amount', 12, 2);
-            $table->enum('status', [ 'confirmed', 'delivered', 'cancelled']);
+            $table->enum('status', [ 'Pending ','confirmed', 'delivered', 'cancelled']);
             $table->text('special_instructions')->nullable();
+            $table->foreignId('kitchen_id')->nullable()->constrained()->onDelete('set null');
+            $table->timestamp('confirmed_at')->nullable();
+            $table->timestamp('delivered_at')->nullable();
             $table->timestamps();
         });
     }

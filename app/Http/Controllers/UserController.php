@@ -19,14 +19,38 @@ use App\Models\User;
 use App\Traits\VerificationTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
 
+    public function getAllUsersCount(Request $request){
+
+        try {
+            $users = User::count();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم جلب عدد المستخدمين بنجاح',
+                'data' => [
+                    'count' => $users
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل في جلب عدد المستخدمين',
+            ], 500);
+        }
+
+    }
 
     public function register(StoreUserRequest $request){
 
@@ -463,6 +487,105 @@ class UserController extends Controller
         }
     }
 
+
+    public function updateProfile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'nullable|string|max:10|regex:/^[0-9\+\-\s\(\)]+$/',
+            'address' => 'nullable|string|max:500',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            // 'name' => 'nullable|string|max:255'
+        ], [
+            'phone.regex' => 'رقم الهاتف يجب أن يحتوي على أرقام ورموز الهاتف فقط',
+            'image.image' => 'الملف يجب أن يكون صورة',
+            'image.mimes' => 'نوع الصورة يجب أن يكون: jpeg, png, jpg, gif, webp',
+            'image.max' => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'بيانات غير صالحة',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $user = Auth::user();
+            $data = $validator->validated();
+
+            // معالجة رفع الصورة
+            if ($request->hasFile('img')) {
+                // حذف الصورة القديمة إذا كانت موجودة
+                if ($user->image) {
+                    Storage::disk('public')->delete($user->image);
+                }
+
+                // حفظ الصورة الجديدة
+                $imagePath = $request->file('img')->store('users', 'public');
+                $data['image'] = $imagePath;
+            }
+
+
+            // تحديث بيانات المستخدم
+            $user->update($data);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'address' => $user->address,
+                    'image' => $user->image ? asset('storage/' . $user->image) : null,
+                ],
+                'message' => 'تم تحديث البروفايل بنجاح'
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء تحديث البروفايل',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+
+    }
+
+    public function show(Request $request){
+
+        try {
+            $user = Auth::user();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'Name'=>$user->name ,
+                    'Email'=>$user->email ,
+                    'phone' => $user->phone,
+                    'address' => $user->address,
+                    'image' => $user->image ? asset('storage/' . $user->image) : null,
+                    'Email'=>$user->email ,
+                    'Created_at' => $user->created_at->format('Y-m-d H:i:s'),
+                ] ,
+                'message' => 'تم جلب بيانات المستخدم بنجاح'
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ غير متوقع',
+            ], 500);
+        }
+    }
 
 
 }

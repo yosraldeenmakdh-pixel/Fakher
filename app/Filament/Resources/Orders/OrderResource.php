@@ -30,6 +30,40 @@ class OrderResource extends Resource
         return OrdersTable::configure($table);
     }
 
+
+
+    public static function beforeCreate(array $data): array
+    {
+        return self::updateFinalTotals($data);
+    }
+
+    // وإذا كنت تريد نفس الشيء للتحديث أيضاً
+    public static function beforeUpdate(array $data): array
+    {
+        return self::updateFinalTotals($data);
+    }
+
+    private static function updateFinalTotals(array $data): array
+    {
+        $items = $data['orderItems'] ?? [];
+        $totalAmount = 0;
+
+        foreach ($items as $index => $item) {
+            $quantity = (int)($item['quantity'] ?? 1);
+            $unitPrice = (float)($item['unit_price'] ?? 0);
+            $totalPrice = $quantity * $unitPrice;
+
+            // تحديث السعر الإجمالي لكل وجبة
+            $data['orderItems'][$index]['total_price'] = number_format($totalPrice, 2, '.', '');
+            $totalAmount += $totalPrice;
+        }
+
+        // تحديث المبلغ الإجمالي للطلب
+        $data['total_amount'] = $totalAmount;
+
+        return $data;
+    }
+
     public static function getRelations(): array
     {
         return [

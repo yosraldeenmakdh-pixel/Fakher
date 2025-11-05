@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('official_institutions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->enum('institution_type', ['scheduled', 'normal'])->default('normal');
             $table->string('name');
             $table->string('contract_number')->unique();
             $table->date('contract_start_date');
             $table->date('contract_end_date');
             $table->enum('contract_status', ['active', 'expired', 'suspended', 'renewed']);
             $table->decimal('Financial_debts', 12, 2)->default(0);
-            $table->string('contact_person');
+            // $table->string('contact_person');
             $table->string('contact_phone');
             $table->string('contact_email');
             $table->text('special_instructions')->nullable();

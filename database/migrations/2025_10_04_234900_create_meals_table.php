@@ -19,6 +19,10 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->boolean('is_available')->default(true);
             $table->foreignId('category_id')->constrained();
+
+            $table->decimal('average_rating', 3, 2)->default(0.00);
+            $table->integer('ratings_count')->default(0);
+
             $table->timestamps();
         });
     }
