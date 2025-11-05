@@ -15,7 +15,7 @@ class OfferResource extends JsonResource
             'description' => $this->description,
             'discount_value' => $this->discount_value,
             'is_active' => $this->is_active,
-            'image_url' => $this->image ? asset('storage/' . $this->image) : null,
+            'image_url' => $this->image ? asset('uploads/' . $this->image) : null,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];
