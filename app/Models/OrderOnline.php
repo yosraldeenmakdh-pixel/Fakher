@@ -33,7 +33,7 @@ class OrderOnline extends Model
 
     public function items()
     {
-        return $this->hasMany(OrderOnline::class , 'order_online_id');
+        return $this->hasMany(OrderOnlineItem::class , 'order_online_id');
     }
 
     public static function generateOrderNumber()

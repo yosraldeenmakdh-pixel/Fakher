@@ -4,10 +4,12 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OrderItemController;
+use App\Http\Controllers\OrderOnlineController;
 use App\Http\Controllers\PublicRatingController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\UserController;
+use App\Models\OrderOnline;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -74,11 +76,19 @@ Route::get('/meals/by-rating', [MealController::class, 'getMealsByRating']);
 
 Route::get('/rating', [PublicRatingController::class, 'index']);
 
+Route::get('/meals/{meal}/ratings', [RatingController::class, 'getMealRatings']);
+
+
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::post('/meals/{meal}/rate', [RatingController::class, 'store']);
-    Route::put('meals/rating/update', [RatingController::class, 'update']);
+    Route::post('/meals/{meal}/rate', [RatingController::class, 'storeOrUpdate']);
+    // Route::put('meals/rating/update', [RatingController::class, 'storeOrUpdate']);
     Route::post('/rating', [PublicRatingController::class, 'store']);
+
+    Route::get('/cart', [OrderOnlineController::class, 'getCart']);
+
+    Route::delete('/cart/item/{itemId}', [OrderItemController::class, 'removeItem']);
+
 
 
     Route::prefix('reservations')->group(function () {

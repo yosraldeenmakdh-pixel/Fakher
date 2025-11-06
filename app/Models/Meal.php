@@ -15,7 +15,7 @@ class Meal extends Model
 
     protected $casts = [
         'is_available' => 'boolean',
-        'average_rating' => 'decimal:2',
+        'average_rating' => 'decimal:1',
         'ratings_count' => 'integer'
     ];
 

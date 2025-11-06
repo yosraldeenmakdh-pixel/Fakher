@@ -55,28 +55,81 @@ class PublicRatingController extends Controller
     }
 
 
-    public function index()
+
+
+
+
+    public function index(Request $request)
     {
         try {
+            $page = $request->get('page', 1); // الحصول على رقم الصفحة من Request
+            $perPage = 1; // تعليق واحد لكل صفحة
+
             $ratings = PublicRating::with('user:id,name,email')
                 ->where('is_visible', true)
+                ->orderBy('rating', 'DESC')
                 ->orderBy('created_at', 'desc')
-                ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+                ->paginate($perPage, ['id', 'user_id', 'rating', 'comment', 'created_at'], 'page', $page);
+
+            // إذا كانت الصفحة المطلوبة أكبر من عدد الصفحات المتاحة
+            if ($page > $ratings->lastPage() && $ratings->total() > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا توجد تعليقات في هذه الصفحة'
+                ], 404);
+            }
 
             return response()->json([
                 'success' => true,
-                'data' => $ratings,
+                'data' => $ratings->items(),
+                'pagination' => [
+                    'current_page' => $ratings->currentPage(),
+                    'last_page' => $ratings->lastPage(),
+                    'per_page' => $ratings->perPage(),
+                    'total' => $ratings->total(),
+                    'has_more_pages' => $ratings->hasMorePages(),
+                    'next_page_url' => $ratings->nextPageUrl(),
+                    'prev_page_url' => $ratings->previousPageUrl(),
+                ],
                 'stats' => PublicRating::getRatingStats()
             ]);
 
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في جلب التقييمات' ,
-                'message' => $e->getMessage()
+                'message' => 'فشل في جلب التقييمات',
+                // 'error' => $e->getMessage() // تم التصحيح: كان هناك تكرار لمفتاح 'message'
             ], 500);
         }
     }
+
+
+
+
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 
 }

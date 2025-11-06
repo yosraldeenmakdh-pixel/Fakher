@@ -77,4 +77,93 @@ class OrderItemController extends Controller
     }
 
 
+
+    /**
+ * حذف عنصر من سلة المستخدم
+ */
+public function removeItem($itemId)
+{
+    try {
+        DB::beginTransaction();
+
+        $user = Auth::user();
+
+        // البحث عن الطلب pending للمستخدم
+        $order = $user->orders_online()
+            ->where('status', 'pending')
+            ->first();
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لا توجد سلة تسوق فعالة'
+            ], 404);
+        }
+
+        // البحث عن العنصر المراد حذفه والتأكد أنه ينتمي للطلب
+        $orderItem = $order->items()
+            ->where('id', $itemId)
+            ->first();
+
+        if (!$orderItem) {
+            return response()->json([
+                'success' => false,
+                'message' => 'العنصر غير موجود في السلة'
+            ], 404);
+        }
+
+        // حفظ سعر العنصر قبل الحذف لتحديث الإجمالي
+        $itemTotalPrice = $orderItem->total_price;
+
+        // حذف العنصر
+        $orderItem->delete();
+
+        // التحقق إذا كانت السلة أصبحت فارغة
+        $remainingItems = $order->items()->count();
+
+        if ($remainingItems === 0) {
+            // إذا كانت السلة فارغة، نحذف الطلب بالكامل
+            $order->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حذف العنصر والسلة أصبحت فارغة',
+                'data' => [
+                    'cart_empty' => true,
+                    'remaining_items' => 0
+                ]
+            ]);
+        }
+
+        // تحديث إجمالي الطلب
+        $this->updateOrderTotal($order->id);
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم حذف العنصر من السلة بنجاح',
+            'data' => [
+                'cart_empty' => false,
+                'remaining_items' => $remainingItems,
+                'deleted_item' => [
+                    'id' => $itemId,
+                    'total_price' => $itemTotalPrice
+                ]
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'success' => false,
+            'message' => 'فشل في حذف العنصر من السلة'
+        ], 500);
+    }
+}
+
+
 }
