@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\OrderOnlineController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\PublicRatingController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ReservationController;
@@ -77,6 +79,19 @@ Route::get('/meals/by-rating', [MealController::class, 'getMealsByRating']);
 Route::get('/rating', [PublicRatingController::class, 'index']);
 
 Route::get('/meals/{meal}/ratings', [RatingController::class, 'getMealRatings']);
+
+Route::get('/branches', [BranchController::class, 'index']);
+
+
+Route::prefix('posts')->group(function () {
+
+    Route::get('/news', [PostController::class, 'news']);
+
+    Route::get('/articles', [PostController::class, 'articles']);
+
+    Route::get('/{id}', [PostController::class, 'show']);
+
+}) ;
 
 
 Route::middleware('auth:sanctum')->group(function () {
