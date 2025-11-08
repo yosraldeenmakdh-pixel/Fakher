@@ -6,6 +6,8 @@ use App\Http\Requests\StoreOrderOnlineRequest;
 use App\Models\OrderOnline;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class OrderOnlineController extends Controller
 {
@@ -20,7 +22,7 @@ class OrderOnlineController extends Controller
                 ->with(['items.meal' => function($query) {
                     $query->select('id', 'name','description','price','image','average_rating');
                 }])
-                ->where('status', 'pending')
+                ->where('status', 'collecting')
                 ->first();
 
             if (!$order) {
@@ -83,6 +85,157 @@ class OrderOnlineController extends Controller
 
 
 
+    private function updateBasicFields(OrderOnline $order, array $data): void
+    {
+        $allowedFields = [
+            'branch_id', 'special_instructions',
+            'customer_phone', 'address', 'order_date'
+        ];
+
+        foreach ($allowedFields as $field) {
+            if (array_key_exists($field, $data)) {
+                $order->$field = $data[$field];
+            }
+        }
+    }
+
+
+
+
+
+    public function update(Request $request, $id)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'branch_id' => 'required|exists:branches,id',
+            'customer_phone' => 'required|string|digits:10',
+            'address' => 'required|string',
+            'special_instructions' => 'sometimes|string',
+            'order_date' => [
+                'required',
+                'date',
+                'after_or_equal:' . now()->addMinutes(30)->toDateTimeString()
+            ]
+        ], [
+            'order_date.after_or_equal' => 'يجب أن يكون وقت الاستلام بعد 30 دقيقة على الأقل من الوقت الحالي.'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'بيانات غير صالحة',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // البحث عن الطلب
+            $order = OrderOnline::find($id);
+
+
+            if (!$order) {
+                throw new \Exception('الطلب غير موجود', 404);
+            }
+
+            if($order->user_id != Auth::id()){
+                throw new \Exception('لا يمكنك تعديل طلب لشخص أخر', 403);
+            }
+
+
+            // حفظ الحالة القديمة
+            $oldStatus = $order->status;
+
+            if($oldStatus != 'collecting'){
+                throw new \Exception('لا يمكن تعديل الطلب في حالته الحالية', 422);
+            }
+
+            // تحديث الحقول الأساسية
+            $this->updateBasicFields($order, $request->all());
+
+            $order->customer_name = Auth::user()->name ;
+            $order->status = 'pending' ;
+
+            // حفظ التغييرات
+            $order->save();
+
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم تحديث الطلب بنجاح',
+                'data' => $order->fresh()
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+
+
+    public function myOrders(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            // الحصول على الطلبات مع تحميل جميع العلاقات
+            $orders = OrderOnline::where('user_id', $user->id)
+                ->with([
+                    'branch:id,name',
+                    'kitchen:id,name',
+                    'items.meal:id,name,image', // تحميل العناصر والوجبات المرتبطة
+                    'items' => function($query) {
+                        $query->select([
+                            'id',
+                            'order_online_id',
+                            'meal_id',
+                            'quantity',
+                            'unit_price',
+                            'total_price',
+                        ]);
+                    }
+                ])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // تقسيم الطلبات حسب الحالة
+            $groupedOrders = [
+                'pending' => $orders->where('status', 'pending')->values(),
+                'confirmed' => $orders->where('status', 'confirmed')->values(),
+                'delivered' => $orders->where('status', 'delivered')->values(),
+            ];
+
+            // إحصائيات
+            $stats = [
+                'total' => $orders->count(),
+                'pending' => $groupedOrders['pending']->count(),
+                'confirmed' => $groupedOrders['confirmed']->count(),
+                'delivered' => $groupedOrders['delivered']->count(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'orders' => $groupedOrders,
+                    'stats' => $stats
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل في جلب الطلبات: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 
 
@@ -90,10 +243,144 @@ class OrderOnlineController extends Controller
 
 
 
+    public function custom_update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'branch_id' => 'sometimes|required|exists:branches,id',
+            'customer_phone' => 'sometimes|required|string|digits:10',
+            'address' => 'sometimes|required|string',
+            'special_instructions' => 'nullable|string',
+            'order_date' => [
+                'sometimes',
+                'required',
+                'date',
+                'after_or_equal:' . now()->addMinutes(30)->toDateTimeString()
+            ]
+        ], [
+            'order_date.after_or_equal' => 'يجب أن يكون وقت الاستلام بعد 30 دقيقة على الأقل من الوقت الحالي.'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'بيانات غير صالحة',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $user = Auth::user();
+
+            // البحث عن الطلب مع العلاقات
+            $order = OrderOnline::with(['items'])->find($id);
+
+            if (!$order) {
+                throw new \Exception('الطلب غير موجود', 404);
+            }
+
+            if($order->user_id != $user->id){
+                throw new \Exception('لا يمكنك تعديل طلب لشخص آخر', 403);
+            }
+
+            // التحقق من إمكانية التعديل (فقط الطلبات في حالة collecting)
+            if ($order->status !== 'pending') {
+                throw new \Exception('لا يمكن تعديل الطلب في حالته الحالية', 422);
+            }
+
+            $this->updateBasicFields($order, $request->all());
+
+            $order->save();
+
+
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم تحديث الطلب بنجاح',
+                'data' => $order->fresh(['branch:id,name', 'items.meal:id,name,image'])
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 
 
 
 
+
+
+
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = Auth::user();
+
+            // البحث عن الطلب
+            $order = OrderOnline::find($id);
+
+            if (!$order) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'الطلب غير موجود'
+                ], 404);
+            }
+
+            // التحقق من ملكية الطلب
+            if ($order->user_id != $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكنك حذف طلب لشخص آخر'
+                ], 403);
+            }
+
+            // التحقق من إمكانية الحذف (فقط الطلبات في حالة collecting)
+            if ($order->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكن حذف الطلب في حالته الحالية'
+                ], 422);
+            }
+
+            $orderNumber = $order->order_number;
+
+            // حذف العناصر المرتبطة أولاً إذا كان لديك علاقة
+            if ($order->items) {
+                $order->items()->delete();
+            }
+
+            // حذف الطلب
+            $order->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حذف الطلب بنجاح',
+                'data' => [
+                    'deleted_order_number' => $orderNumber
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل في حذف الطلب: '
+            ], 500);
+        }
+    }
 
 
 

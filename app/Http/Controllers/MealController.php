@@ -119,4 +119,58 @@ class MealController extends Controller
             ], 500);
         }
     }
+
+
+
+public function getMealById($id)
+{
+    try {
+        // البحث عن الوجبة مع العلاقات
+        $meal = Meal::with(['category' => function($query) {
+            $query->select('id', 'name');
+        }])
+        ->where('is_available', true)
+        ->find($id);
+
+        // التحقق من وجود الوجبة
+        if (!$meal) {
+            return response()->json([
+                'success' => false,
+                'message' => 'الوجبة غير موجودة أو غير متاحة'
+            ], 404);
+        }
+
+        // تنسيق البيانات للإرجاع
+        $formattedMeal = [
+            'id' => $meal->id,
+            'name' => $meal->name,
+            'description' => $meal->description,
+            'price' => (float) $meal->price,
+            'image' => $meal->image ? asset('uploads/' . $meal->image) : null, // تأكد من المسار الصحيح
+            'is_available' => (bool) $meal->is_available,
+            'average_rating' => (float) $meal->average_rating,
+            'ratings_count' => (int) $meal->ratings_count,
+            'category' => $meal->category ? [
+                'id' => $meal->category->id,
+                'name' => $meal->category->name
+            ] : null,
+            'created_at' => $meal->created_at->toISOString(),
+            'updated_at' => $meal->updated_at->toISOString()
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم جلب الوجبة بنجاح',
+            'data' => $formattedMeal
+        ], 200);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => 'حدث خطأ أثناء جلب الوجبة'
+        ], 500);
+    }
+}
+
 }

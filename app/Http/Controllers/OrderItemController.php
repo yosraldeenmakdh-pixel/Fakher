@@ -36,7 +36,7 @@ class OrderItemController extends Controller
             ]);
 
             $user = Auth::user() ;
-            $order = $user->orders_online()->where('status','pending')->first() ;
+            $order = $user->orders_online()->where('status','collecting')->first() ;
 
 
             if($order){
@@ -90,7 +90,7 @@ public function removeItem($itemId)
 
         // البحث عن الطلب pending للمستخدم
         $order = $user->orders_online()
-            ->where('status', 'pending')
+            ->where('status', 'collecting')
             ->first();
 
         if (!$order) {

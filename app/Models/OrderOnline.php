@@ -13,12 +13,17 @@ class OrderOnline extends Model
         'order_number',
         'user_id',
         'branch_id',
+        'kitchen_id',
         'total',
         'status',
+        'order_date',
+        'confirmed_at',
+        'delivered_at',
         'special_instructions',
         'customer_name',
         'customer_phone',
-        'address'
+        'address' ,
+        'confirmed_by' ,
     ];
 
     public function user()
@@ -29,6 +34,11 @@ class OrderOnline extends Model
     public function branch()
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function kitchen()
+    {
+        return $this->belongsTo(Kitchen::class);
     }
 
     public function items()

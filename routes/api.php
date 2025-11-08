@@ -89,6 +89,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::delete('/cart/item/{itemId}', [OrderItemController::class, 'removeItem']);
 
+    Route::put('orders/{id}', [OrderOnlineController::class, 'update']);
+    Route::put('orders/custom/{id}', [OrderOnlineController::class, 'custom_update']);
+    Route::delete('/orders/{id}', [OrderOnlineController::class, 'destroy']);
+
+    Route::get('/my-orders', [OrderOnlineController::class, 'myOrders']);
+
+    Route::get('/meals/{id}', [MealController::class, 'getMealById']);
 
 
     Route::prefix('reservations')->group(function () {
