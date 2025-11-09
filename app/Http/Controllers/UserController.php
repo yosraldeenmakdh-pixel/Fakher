@@ -571,7 +571,7 @@ class UserController extends Controller
                     'Email'=>$user->email ,
                     'phone' => $user->phone,
                     'address' => $user->address,
-                    'image' => $user->image ? asset('storage/' . $user->image) : null,
+                    'image' => $user->image ? asset('uploads/' . $user->image) : null,
                     'Email'=>$user->email ,
                     'Created_at' => $user->created_at->format('Y-m-d H:i:s'),
                 ] ,

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ContactSettingController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OrderItemController;
@@ -92,6 +93,11 @@ Route::prefix('posts')->group(function () {
     Route::get('/{id}', [PostController::class, 'show']);
 
 }) ;
+
+Route::prefix('contact-settings')->group(function () {
+    Route::get('/', [ContactSettingController::class, 'index']);
+}) ;
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
