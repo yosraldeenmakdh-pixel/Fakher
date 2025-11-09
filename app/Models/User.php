@@ -81,4 +81,9 @@ class User extends Authenticatable
         return $this->hasMany(Reservation::class);
     }
 
+    public function complaints()
+    {
+        return $this->hasMany(Complaint::class);
+    }
+
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ContactSettingController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\OfferController;
@@ -101,6 +102,10 @@ Route::prefix('contact-settings')->group(function () {
 
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::prefix('complaints')->group(function () {
+        Route::post('/', [ComplaintController::class, 'store']);
+    }) ;
 
     Route::post('/meals/{meal}/rate', [RatingController::class, 'storeOrUpdate']);
     // Route::put('meals/rating/update', [RatingController::class, 'storeOrUpdate']);
