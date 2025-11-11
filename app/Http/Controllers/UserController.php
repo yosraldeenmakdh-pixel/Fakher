@@ -578,4 +578,25 @@ class UserController extends Controller
     }
 
 
+    public function logout(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if ($user) {
+                $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
+            }
+            return response()->json([
+                'success' => true,
+                'message' => 'تم تسجيل الخروج بنجاح',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء تسجيل الخروج',
+            ], 500);
+        }
+    }
+
 }

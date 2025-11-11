@@ -44,6 +44,8 @@ Route::prefix('user')->group(function(){
 
             Route::post('/profile','updateProfile');
             Route::get('/show','show');
+            Route::post('/logout', 'logout') ;
+
          }) ;
 
     }) ;
