@@ -80,6 +80,33 @@ class InstitutionOrderConfirmationsTable
                         'danger' => 'cancelled',
                     ]),
 
+                TextColumn::make('order_items')
+                    ->label('تفاصيل الوجبات')
+                    ->formatStateUsing(function ($state) {
+                        // إذا كان $state هو string، قم بتحويله إلى array
+                        if (is_string($state)) {
+                            $items = json_decode($state, true) ?? [];
+                        } else {
+                            $items = $state ?? [];
+                        }
+
+                        if (empty($items)) {
+                            return '---';
+                        }
+
+                        return collect($items)->take(2)->map(function ($item) {
+                            // تأكد من أن $item هي array وليس string
+                            if (is_array($item)) {
+                                $mealName = $item['meal_name'] ?? 'وجبة غير معروفة';
+                                $quantity = $item['quantity'] ?? 0;
+                                return "{$mealName} (×{$quantity})";
+                            } else {
+                                return 'بيانات غير صالحة';
+                            }
+                        })->implode(' - ') . (count($items) > 2 ? ' ...+' : '');
+                    })
+                    ->wrap(),
+
                 TextColumn::make('delivered_at')
                     ->label('✅ تم التسليم في') // إضافة أيقونة يدوياً
                     ->dateTime('d/m/Y h:i A')

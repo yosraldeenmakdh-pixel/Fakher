@@ -70,16 +70,16 @@ class UserController extends Controller
             DB::commit() ;
             return response()->json([
                 'message' => 'تم إنشاء الحساب بنجاح يرجى تفعيل الحساب باستخدام الكود المرسل إلى بريدك الإلكتروني.' ,
-                'User'=>new UserResource($user ,$token) ,
+                'User'=>$user ,
 
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack() ;
-            Log::error('User registration failed: ' . $e->getMessage(), [
-                'email' => $request->email,
-                'trace' => $e->getTraceAsString()
-            ]);
+            // Log::error('User registration failed: ' . $e->getMessage(), [
+            //     'email' => $request->email,
+            //     'trace' => $e->getTraceAsString()
+            // ]);
             return response()->json([
                 // 'message'=>$e->getMessage()
                 'message'=>'حدث خطأ أثناء إنشاء الحساب يرجى المحاولة مرة أخرى'
@@ -139,10 +139,10 @@ class UserController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack() ;
-            Log::error('Check Code operation failed: ' . $e->getMessage(), [
-                'email' => $user->email,
-                'trace' => $e->getTraceAsString()
-            ]);
+            // Log::error('Check Code operation failed: ' . $e->getMessage(), [
+            //     'email' => $user->email,
+            //     'trace' => $e->getTraceAsString()
+            // ]);
             return response()->json([
                 'message'=>'حدث خطأ أثناء يرجى المحاولة مرة أخرى'
             ], 500);
@@ -217,9 +217,9 @@ class UserController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack() ;
-            Log::error('Failed to resend code' . $e->getMessage(), [
-                'email' => $request->email
-            ]);
+            // Log::error('Failed to resend code' . $e->getMessage(), [
+            //     'email' => $request->email
+            // ]);
             return response()->json([
                 'message'=>'حدث خطأ أثناء يرجى المحاولة مرة أخرى'
             ], 500);
@@ -304,11 +304,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             DB::rollBack() ;
 
-            Log::error('Failed to reset the password', [
-                'email' => $request->email,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+
             return response()->json([
                 'message'=>'حدث خطأ أثناء عملية إعادة التعيين. يرجى المحاولة مرة أخرى'
             ], 500);
@@ -425,11 +421,10 @@ class UserController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack() ;
-            Log::error('Failed to resend code' . $e->getMessage(), [
-                'email' => $request->email
-            ]);
+
             return response()->json([
-                'message'=>'حدث خطأ أثناء يرجى المحاولة مرة أخرى'
+                'message'=>'حدث خطأ أثناء يرجى المحاولة مرة أخرى' ,
+                // 'message'=>$e->getMessage()
             ], 500);
         }
     }
@@ -474,12 +469,6 @@ class UserController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack() ;
-            Log::error('Password reset operation failed: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'reset_token' => $request->reset_token ?? 'none',
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
             return response()->json([
                 'message'=>'حدث خطأ أثناء يرجى المحاولة مرة أخرى'
             ], 500);

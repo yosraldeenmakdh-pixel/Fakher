@@ -49,21 +49,7 @@ class OfficialInstitutionForm
 
                             ]),
 
-                        Grid::make(2)
-                            ->schema([
-                                DatePicker::make('contract_start_date')
-                                    ->label('تاريخ بداية العقد')
-                                    ->required()
-                                    ->native(false),
-
-                                DatePicker::make('contract_end_date')
-                                    ->label('تاريخ نهاية العقد')
-                                    ->required()
-                                    ->native(false)
-                                    ->rule('after_or_equal:contract_start_date'),
-                            ]),
-
-                        Grid::make(2)
+                        Grid::make(3)
                             ->schema([
                                 Select::make('contract_status')
                                     ->label('حالة العقد')
@@ -76,14 +62,28 @@ class OfficialInstitutionForm
                                     ])
                                     ->default('active')
                                     ->native(false),
+                                DatePicker::make('contract_start_date')
+                                    ->label('تاريخ بداية العقد')
+                                    ->required()
+                                    ->native(false),
+
+                                DatePicker::make('contract_end_date')
+                                    ->label('تاريخ نهاية العقد')
+                                    ->required()
+                                    ->native(false)
+                                    ->rule('after_or_equal:contract_start_date'),
+                            ]),
+
+
+
 
                                 TextInput::make('Financial_debts')
                                     ->label('الرصيد')
                                     ->numeric()
-
+                                    ->hidden()
                                     ->default(0)
                                     ->required(),
-                            ]),
+
                     ]),
 
 

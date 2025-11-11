@@ -62,6 +62,17 @@ class InstitutionOrder extends Model
 
         return DB::transaction(function () {
 
+            $this->load(['orderItems.meal']);
+
+                $orderItems = $this->orderItems->map(function ($item) {
+                    return [
+                        'meal_name' => $item->meal->name ?? 'وجبة غير معروفة',
+                        'quantity' => $item->quantity,
+                    ];
+                })->toArray();
+
+                $orderItemsJson = json_encode($orderItems, JSON_UNESCAPED_UNICODE);
+
             $freshOrder = self::where('id', $this->id)
                 ->lockForUpdate()
                 ->first();
@@ -72,6 +83,7 @@ class InstitutionOrder extends Model
                     'delivery_date' => $this->delivery_date,
                     'delivery_time' => $this->delivery_time,
                     'total_amount' => $this->total_amount,
+                    'order_items' => $orderItemsJson,
                     'status' => $this->status,
                     'special_instructions' => $this->special_instructions,
                     'kitchen_id' => Auth::user()->kitchen->id,

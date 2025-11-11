@@ -88,7 +88,7 @@ class OrderOnlineController extends Controller
     private function updateBasicFields(OrderOnline $order, array $data): void
     {
         $allowedFields = [
-            'branch_id', 'special_instructions',
+            'branch_id','kitchen_id', 'special_instructions',
             'customer_phone', 'address', 'order_date'
         ];
 
@@ -108,6 +108,7 @@ class OrderOnlineController extends Controller
 
         $validator = Validator::make($request->all(), [
             'branch_id' => 'required|exists:branches,id',
+            'kitchen_id' => 'required|exists:kitchens,id',
             'customer_phone' => 'required|string|digits:10',
             'address' => 'required|string',
             'special_instructions' => 'sometimes|string',

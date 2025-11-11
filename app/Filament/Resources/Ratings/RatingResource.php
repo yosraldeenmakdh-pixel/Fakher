@@ -16,6 +16,7 @@ use Filament\Tables\Table;
 
 class RatingResource extends Resource
 {
+    // test
     protected static ?string $model = Rating::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

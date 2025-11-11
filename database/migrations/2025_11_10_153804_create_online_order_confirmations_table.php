@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('institution_order_confirmations', function (Blueprint $table) {
+        Schema::create('online_order_confirmations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained('institution_orders')->onDelete('cascade');
+            $table->foreignId('order_id')->constrained('order_onlines')->onDelete('cascade');
             $table->foreignId('kitchen_id')->constrained()->onDelete('cascade');
             $table->text('notes')->nullable();
             $table->string('order_number');
-            $table->date('delivery_date');
-            $table->time('delivery_time');
+            $table->dateTime('delivery_date'); // تاريخ الاستلام
             $table->decimal('total_amount', 12, 2);
-            $table->json('order_items')->nullable();
-            $table->enum('status', [ 'pending','confirmed', 'delivered', 'cancelled']);
+            $table->json('order_items')->nullable() ;
+            $table->enum('status', ['confirmed', 'delivered', 'cancelled']);
             $table->text('special_instructions')->nullable();
             $table->timestamp('delivered_at')->nullable();
             $table->timestamps();
@@ -33,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('institution_order_confirmations');
+        Schema::dropIfExists('online_order_confirmations');
     }
 };

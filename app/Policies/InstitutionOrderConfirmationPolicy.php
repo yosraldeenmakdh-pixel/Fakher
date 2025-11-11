@@ -11,7 +11,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class InstitutionOrderConfirmationPolicy
 {
     use HandlesAuthorization;
-
+    
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:InstitutionOrderConfirmation');
@@ -29,7 +29,6 @@ class InstitutionOrderConfirmationPolicy
 
     public function update(AuthUser $authUser, InstitutionOrderConfirmation $institutionOrderConfirmation): bool
     {
-
         return $authUser->can('Update:InstitutionOrderConfirmation');
     }
 

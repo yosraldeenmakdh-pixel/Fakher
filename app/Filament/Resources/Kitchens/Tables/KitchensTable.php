@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Kitchens\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -48,11 +49,50 @@ class KitchensTable
                     ->label('الهاتف')
                     ->searchable()
                     ->icon('heroicon-o-phone'),
-
-                TextColumn::make('contact_email')
-                    ->label('البريد الإلكتروني')
+                TextColumn::make('address')
+                    ->label('العنوان')
                     ->searchable()
                     ->icon('heroicon-o-envelope'),
+
+                TextColumn::make('opening_time')
+                    ->label('وقت الفتح')
+                    ->time('H:i')
+                    ->sortable(),
+
+                TextColumn::make('closing_time')
+                    ->label('وقت الإغلاق')
+                    ->time('H:i')
+                    ->sortable(),
+
+
+
+                TextColumn::make('Financial_debts')
+                    ->label('الرصيد')
+                    ->sortable()
+                    ->color(fn ($record) => $record->Financial_debts < 0 ? 'danger' : 'success')
+                    // ->weight('bold')s
+                    ->size('lg')
+                    ->formatStateUsing(function ($state, $record) {
+                        $icon = $state < 0 ? 'heroicon-o-arrow-trending-down' : 'heroicon-o-arrow-trending-up';
+                        $color = $state < 0 ? 'danger' : 'success';
+                        $formatted = number_format($state, 2) ;
+
+                        return "
+                            <div class='flex items-center gap-2 rtl:flex-row-reverse'>
+                                <x-heroicon-o-arrow-trending-up class='w-5 h-5 text-{$color}-500' />
+                                <span class='font-bold text-{$color}-600 text-lg'>{$formatted}</span>
+                            </div>
+                        ";
+                    })
+                    ->html() ,
+
+                IconColumn::make('is_active')
+                    ->label('الحالة')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
 
                 TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')

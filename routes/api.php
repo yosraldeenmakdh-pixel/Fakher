@@ -4,6 +4,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ContactSettingController;
+use App\Http\Controllers\KitchenController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OrderItemController;
@@ -99,6 +100,7 @@ Route::prefix('contact-settings')->group(function () {
     Route::get('/', [ContactSettingController::class, 'index']);
 }) ;
 
+Route::get('/kitchens', [KitchenController::class, 'index']);
 
 
 Route::middleware('auth:sanctum')->group(function () {

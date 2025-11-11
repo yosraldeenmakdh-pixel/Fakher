@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class InstitutionOrderConfirmation extends Model
+class OnlineOrderConfirmation extends Model
 {
     protected $fillable = [
         'order_id',
@@ -27,6 +27,19 @@ class InstitutionOrderConfirmation extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+
+    public function order()
+    {
+        return $this->belongsTo(OrderOnline::class, 'order_id');
+    }
+
+    public function kitchen()
+    {
+        return $this->belongsTo(Kitchen::class);
+    }
+
+
 
     protected static function boot()
     {
@@ -68,62 +81,39 @@ class InstitutionOrderConfirmation extends Model
                     $this->delivered_at = now() ;
                     $this->saveQuietly();
 
-                    $institutionOrder = \App\Models\InstitutionOrder::where('id', $freshConfirmation->order_id)
+                    $onlineOrder = OrderOnline::where('id', $freshConfirmation->order_id)
                         ->lockForUpdate()
                         ->first();
 
-                    if ($institutionOrder) {
-                        $institutionOrder->status = 'delivered' ;
-                        $institutionOrder->delivered_at = now() ;
-                        $institutionOrder->saveQuietly();
+                    if ($onlineOrder) {
+                        $onlineOrder->status = 'delivered' ;
+                        $onlineOrder->delivered_at = now() ;
+                        $onlineOrder->saveQuietly();
                     }
-                    $institution = $institutionOrder->institution ;
+                    $kitchen = $onlineOrder->kitchen ;
 
-                    $lockedInstitution = OfficialInstitution::where('id', $institution->id)
+                    $lockedKitchen = Kitchen::where('id', $kitchen->id)
                         ->lockForUpdate()
                         ->first();
 
-                    $budgetBefore = $lockedInstitution->Financial_debts;
+                    $budgetBefore = $lockedKitchen->Financial_debts;
                     $orderAmount = $this->total_amount;
 
                     $newBudget = $budgetBefore - $orderAmount;
 
-                    $lockedInstitution->Financial_debts = $newBudget;
-                    $lockedInstitution->save();
+                    $lockedKitchen->Financial_debts = $newBudget;
+                    $lockedKitchen->save();
 
 
 
                 } catch (\Exception $e) {
+                    DB::rollBack() ;
                     throw $e;
                 }
 
             }) ;
     }
 
-    public function order()
-    {
-        return $this->belongsTo(InstitutionOrder::class, 'order_id');
-    }
 
-    /**
-     * العلاقة مع المستخدم (المطبخ)
-     */
-    public function kitchen()
-    {
-        return $this->belongsTo(Kitchen::class, 'kitchen_id');
-    }
-
-    /**
-     * الحصول على معلومات التأكيد
-     */
-    // public function getConfirmationInfoAttribute()
-    // {
-    //     return [
-    //         'order_number' => $this->order->order_number,
-    //         'kitchen_name' => $this->kitchen->name,
-    //         'confirmed_at' => $this->created_at->format('Y-m-d H:i:s'),
-    //         'notes' => $this->notes,
-    //     ];
-    // }
 
 }

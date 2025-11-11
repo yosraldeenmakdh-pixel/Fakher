@@ -3,7 +3,10 @@
 namespace App\Filament\Resources\Kitchens\Schemas;
 
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -23,19 +26,28 @@ class KitchenForm
                             ->placeholder('أدخل اسم المطبخ')
                             ->columnSpanFull(),
 
-                        Select::make('user_id')
-                            ->label('الشخص المسؤول')
-                            ->relationship(
-                                name: 'user',
-                                titleAttribute: 'name',
-                                modifyQueryUsing: fn ($query) => $query->whereHas('roles', function ($q) {
-                                    $q->where('name', 'kitchen');
-                                })->whereDoesntHave('kitchen')
-                            )
-                            ->searchable()
-                            ->preload()
+                        Textarea::make('description')
+                            ->label('الوصف')
                             ->required()
-                            ->native(false),
+                            ->rows(3)
+                            ->placeholder('وصف مختصر عن المطبخ'),
+
+
+
+                        Select::make('user_id')
+                                    ->label('الشخص المسؤول')
+                                    ->relationship(
+                                        name: 'user',
+                                        titleAttribute: 'name',
+                                        modifyQueryUsing: fn ($query) => $query->whereHas('roles', function ($q) {
+                                            $q->where('name', 'kitchen');
+                                        })
+                                    )
+                                    ->required()
+                                    ->searchable()
+                                    ->preload()
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
+                                    ->native(false),
 
                         Select::make('branch_id')
                             ->label('الفرع')
@@ -63,6 +75,40 @@ class KitchenForm
                             ->email()
                             ->maxLength(255)
                             ->placeholder('email@example.com'),
+
+                        Textarea::make('address')
+                            ->label('العنوان')
+                            ->required()
+                            ->rows(2)
+                            ->placeholder('العنوان الكامل للمطبخ'),
+                    ])
+                    ->columns(2),
+                Section::make('أوقات العمل')
+                    ->schema([
+                        TimePicker::make('opening_time')
+                            ->label('وقت الفتح')
+                            ->required()
+                            ->seconds(false),
+                        TimePicker::make('closing_time')
+                            ->label('وقت الإغلاق')
+                            ->required()
+                            ->seconds(false),
+                    ])
+                    ->columns(2),
+
+                Section::make('المعلومات المالية والحالة')
+                    ->schema([
+                        Toggle::make('is_active')
+                            ->label('نشط')
+                            ->default(true)
+                            ->inline(false),
+
+                        TextInput::make('Financial_debts')
+                                    ->label('الرصيد')
+                                    ->numeric()
+                                    ->hidden()
+                                    ->default(0)
+                                    ->required(),
                     ])
                     ->columns(2),
 

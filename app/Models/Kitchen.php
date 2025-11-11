@@ -10,8 +10,14 @@ class Kitchen extends Model
         'user_id',
         'branch_id',
         'name',
+        'description',
+        'address',
+        'opening_time',
+        'closing_time',
         'contact_phone',
         'contact_email',
+        'is_active' ,
+        'Financial_debts',
     ];
 
     public function branch()

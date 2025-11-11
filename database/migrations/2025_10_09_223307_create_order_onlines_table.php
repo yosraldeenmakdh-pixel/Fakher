@@ -21,7 +21,7 @@ return new class extends Migration
 
 
             $table->decimal('total', 10, 2)->nullable();
-            $table->enum('status', ['collecting','pending','delivered', 'cancelled'])->default('collecting');
+            $table->enum('status', ['collecting','pending','confirmed','delivered', 'cancelled'])->default('collecting');
 
             $table->dateTime('order_date')->nullable(); // تاريخ الطلب
             $table->dateTime('confirmed_at')->nullable(); // وقت التأكيد من المطبخ
