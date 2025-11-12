@@ -248,6 +248,7 @@ class OrderOnlineController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'branch_id' => 'sometimes|required|exists:branches,id',
+            'kitchen_id' => 'required|exists:kitchens,id' ,
             'customer_phone' => 'sometimes|required|string|digits:10',
             'address' => 'sometimes|required|string',
             'special_instructions' => 'nullable|string',

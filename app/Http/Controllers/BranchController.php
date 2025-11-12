@@ -11,7 +11,7 @@ class BranchController extends Controller
     public function index()
     {
         try {
-            $branches = Branch::orderBy('created_at', 'desc')->get();
+            $branches = Branch::orderBy('created_at')->get();
 
             return response()->json([
                 'success' => true,
