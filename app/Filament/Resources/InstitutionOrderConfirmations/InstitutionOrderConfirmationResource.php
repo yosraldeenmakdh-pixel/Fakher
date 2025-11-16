@@ -24,7 +24,10 @@ class InstitutionOrderConfirmationResource extends Resource
     {
         return InstitutionOrderConfirmationForm::configure($schema);
     }
-
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Institutions');
+    }
     public static function table(Table $table): Table
     {
         return InstitutionOrderConfirmationsTable::configure($table);

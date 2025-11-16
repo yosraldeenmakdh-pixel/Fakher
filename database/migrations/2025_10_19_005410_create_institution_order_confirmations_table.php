@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('institution_order_confirmations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained('institution_orders')->onDelete('cascade');
-            $table->foreignId('kitchen_id')->constrained()->onDelete('cascade');
+            $table->foreignId('order_id')->nullable()->constrained('institution_orders')->onDelete('set null');
+            $table->foreignId('kitchen_id')->nullable()->constrained()->onDelete('set null');
             $table->text('notes')->nullable();
             $table->string('order_number');
             $table->date('delivery_date');

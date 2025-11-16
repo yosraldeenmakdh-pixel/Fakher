@@ -24,6 +24,10 @@ class InstitutionPaymentResource extends Resource
     {
         return InstitutionPaymentForm::configure($schema);
     }
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Institutions');
+    }
 
     public static function table(Table $table): Table
     {

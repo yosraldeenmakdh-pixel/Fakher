@@ -24,6 +24,10 @@ class OrderResource extends Resource
     {
         return OrderForm::configure($schema);
     }
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Orders from kitchem');
+    }
 
     public static function table(Table $table): Table
     {
@@ -80,9 +84,9 @@ class OrderResource extends Resource
         ];
     }
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::count();
+    // }
 
 }

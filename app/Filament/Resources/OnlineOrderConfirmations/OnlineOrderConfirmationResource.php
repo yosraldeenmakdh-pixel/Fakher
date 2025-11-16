@@ -19,7 +19,10 @@ class OnlineOrderConfirmationResource extends Resource
     protected static ?string $model = OnlineOrderConfirmation::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Orders from website');
+    }
     public static function form(Schema $schema): Schema
     {
         return OnlineOrderConfirmationForm::configure($schema);

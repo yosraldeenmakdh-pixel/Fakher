@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('branch_id')->constrained()->onDelete('cascade');
+            $table->foreignId('kitchen_id')->nullable()->constrained()->onDelete('set null');
             $table->string('name');
             $table->decimal('total', 10, 2);
             $table->text('special_instructions')->nullable();

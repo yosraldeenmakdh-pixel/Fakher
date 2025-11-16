@@ -24,6 +24,10 @@ class ComplaintResource extends Resource
     {
         return ComplaintForm::configure($schema);
     }
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Support');
+    }
 
     public static function table(Table $table): Table
     {

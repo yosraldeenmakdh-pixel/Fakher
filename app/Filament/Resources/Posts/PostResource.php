@@ -29,6 +29,10 @@ class PostResource extends Resource
     {
         return PostsTable::configure($table);
     }
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Content Management');
+    }
 
     public static function getRelations(): array
     {

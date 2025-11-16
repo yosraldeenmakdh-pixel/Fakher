@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('official_institutions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('branch_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('kitchen_id')->nullable()->constrained()->onDelete('set null');
             $table->enum('institution_type', ['scheduled', 'normal'])->default('normal');
             $table->string('name');
             $table->string('contract_number')->unique();
@@ -21,7 +23,6 @@ return new class extends Migration
             $table->date('contract_end_date');
             $table->enum('contract_status', ['active', 'expired', 'suspended', 'renewed']);
             $table->decimal('Financial_debts', 12, 2)->default(0);
-            // $table->string('contact_person');
             $table->string('contact_phone');
             $table->string('contact_email');
             $table->text('special_instructions')->nullable();

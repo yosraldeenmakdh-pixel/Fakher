@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\OfficialInstitutions\Schemas;
 
+use App\Models\Kitchen;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +22,6 @@ class OfficialInstitutionForm
         return $schema
             ->components([
                 Section::make('المعلومات الأساسية')
-                    ->description('المعلومات الأساسية للمؤسسة والعقد')
                     ->schema([
                         Grid::make(3)
                             ->schema([
@@ -48,53 +50,76 @@ class OfficialInstitutionForm
 
 
                             ]),
-
-                        Grid::make(3)
+                            Grid::make(3)
                             ->schema([
-                                Select::make('contract_status')
-                                    ->label('حالة العقد')
-                                    ->required()
-                                    ->options([
-                                        'active' => 'نشط',
-                                        'expired' => 'منتهي',
-                                        'suspended' => 'موقوف',
-                                        'renewed' => 'مجدد',
-                                    ])
-                                    ->default('active')
-                                    ->native(false),
-                                DatePicker::make('contract_start_date')
-                                    ->label('تاريخ بداية العقد')
-                                    ->required()
-                                    ->native(false),
 
-                                DatePicker::make('contract_end_date')
-                                    ->label('تاريخ نهاية العقد')
+                                Select::make('branch_id')
+                                    ->label('الفرع')
+                                    ->relationship('branch', 'name')
                                     ->required()
+                                    ->searchable()
+                                    ->preload()
                                     ->native(false)
-                                    ->rule('after_or_equal:contract_start_date'),
-                            ]),
+                                    ->live(), // إضافة live لتحديث الحقول المعتمدة عليه عند التغيير
 
+                                Select::make('kitchen_id')
+                                    ->label('المطبخ')
+                                    ->options(function (Get $get, Set $set) {
+                                        $branchId = $get('branch_id');
+                                        if (!$branchId) {
+                                            return [];
+                                        }
+                                        return Kitchen::where('branch_id', $branchId)->pluck('name', 'id');
+                                    })
+                                    ->required()
+                                    ->searchable()
+                                    ->preload()
+                                    ->native(false) ,
 
+                            ]) ,
 
-
-                                TextInput::make('Financial_debts')
-                                    ->label('الرصيد')
-                                    ->numeric()
-                                    ->hidden()
-                                    ->default(0)
-                                    ->required(),
+                            TextInput::make('Financial_debts')
+                                ->label('الرصيد')
+                                ->numeric()
+                                ->hidden()
+                                ->default(0)
+                                ->required(),
 
                     ]),
+
+                    Section::make('معلومات العقد')
+                        ->schema([
+                            Grid::make(3)
+                                ->schema([
+                                    Select::make('contract_status')
+                                        ->label('حالة العقد')
+                                        ->required()
+                                        ->options([
+                                            'active' => 'نشط',
+                                            'expired' => 'منتهي',
+                                            'suspended' => 'موقوف',
+                                            'renewed' => 'مجدد',
+                                        ])
+                                        ->default('active')
+                                        ->native(false),
+                                    DatePicker::make('contract_start_date')
+                                        ->label('تاريخ بداية العقد')
+                                        ->required()
+                                        ->native(false),
+
+                                    DatePicker::make('contract_end_date')
+                                        ->label('تاريخ نهاية العقد')
+                                        ->required()
+                                        ->native(false)
+                                        ->rule('after_or_equal:contract_start_date'),
+                                ]),
+                            ]),
 
 
                     Section::make('معلومات التواصل')
                     ->schema([
                         Grid::make(3)
                             ->schema([
-                                // TextInput::make('contact_person')
-                                //     ->label('الشخص المسؤول')
-                                //     ->required()
-                                //     ->maxLength(255),
                                  Select::make('user_id')
                                     ->label('الشخص المسؤول')
                                     ->relationship(

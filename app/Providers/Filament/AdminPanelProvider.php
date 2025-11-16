@@ -4,19 +4,18 @@ namespace App\Providers\Filament;
 
 use App\Filament\Widgets\MostOrderedMeals;
 use App\Filament\Widgets\OrderStats;
-use App\Filament\Widgets\TestWidget;
 use App\Http\Middleware\CheckUserRole;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -29,15 +28,19 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->brandName('Watan Food')
             ->default()
             ->id('admin')
             ->path('admin')
             ->login()
             ->passwordReset()
+            ->brandName('Watan Food')
+            ->brandLogo(asset('images/logo.jpg'))
+            ->brandLogoHeight('2rem')
+            ->favicon(asset('images/food_icon.png'))
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#dc2626'), // أحمر أنيق
             ])
+            ->font('Inter')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -46,9 +49,8 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
-                OrderStats::class ,
-                // MostOrderedMeals::class
+                OrderStats::class,
+                MostOrderedMeals::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -60,14 +62,27 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                CheckUserRole::class ,
-
+                CheckUserRole::class,
             ])
             ->plugins([
                 FilamentShieldPlugin::make()
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('إدارة المحتوى'),
+
+                NavigationGroup::make()
+                    ->label('إدارة المطعم'),
+
+                NavigationGroup::make()
+                    ->label('الطلبات'),
+
+                NavigationGroup::make()
+                    ->label('الإعدادات'),
+            ])
+            ->sidebarCollapsibleOnDesktop();
     }
 }

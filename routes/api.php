@@ -104,6 +104,7 @@ Route::prefix('contact-settings')->group(function () {
 
 Route::get('/kitchens', [KitchenController::class, 'index']);
 
+Route::get('/meals/{id}', [MealController::class, 'getMealById']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -125,7 +126,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/my-orders', [OrderOnlineController::class, 'myOrders']);
 
-    Route::get('/meals/{id}', [MealController::class, 'getMealById']);
+
 
 
     Route::prefix('reservations')->group(function () {

@@ -36,6 +36,10 @@ class BranchResource extends Resource
             //
         ];
     }
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Content Management');
+    }
 
     public static function getPages(): array
     {

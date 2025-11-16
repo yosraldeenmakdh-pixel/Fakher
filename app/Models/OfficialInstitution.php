@@ -8,6 +8,8 @@ class OfficialInstitution extends Model
 {
     protected $fillable = [
         'user_id' ,
+        'branch_id' ,
+        'kitchen_id' ,
         'name' ,
         'contract_number',
         'contract_start_date',
@@ -58,5 +60,15 @@ class OfficialInstitution extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function kitchen()
+    {
+        return $this->belongsTo(Kitchen::class);
     }
 }

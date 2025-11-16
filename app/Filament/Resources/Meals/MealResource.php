@@ -26,6 +26,10 @@ class MealResource extends Resource
     {
         return MealForm::configure($schema);
     }
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Content Management');
+    }
 
     public static function table(Table $table): Table
     {

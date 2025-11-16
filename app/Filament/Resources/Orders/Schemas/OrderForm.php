@@ -12,23 +12,49 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class OrderForm
 {
 
     public static function configure(Schema $schema): Schema
     {
+        $kitchen = Auth::user()->kitchen ;
+
         return $schema
             ->components([
                 Section::make('معلومات الطلب الأساسية')
                     ->schema([
-                        Select::make('branch_id')
-                            ->label('الفرع')
-                            ->relationship('branch', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload()
-                            ->native(false),
+
+                        ...(Auth::user()->hasRole('kitchen') ? [
+
+                                    Hidden::make('kitchen_id')
+                                        ->default($kitchen->id),
+
+                                    // عرض اسم المؤسسة للقراءة فقط
+                                    Placeholder::make('current_institution')
+                                        ->label('المطبخ')
+                                        ->content($kitchen->name ?? 'غير معين')
+                                        ->extraAttributes(['class' => 'font-bold']),
+
+                                ] : [
+
+                                    Select::make('kitchen_id')
+                                    ->label('المطبخ')
+                                    ->relationship('kitchen', 'name')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload()
+                                     ->native(false),
+                                ]) ,
+
+                        // Select::make('kitchen_id')
+                        //     ->label('المطبخ')
+                        //     ->relationship('kitchen', 'name')
+                        //     ->required()
+                        //     ->searchable()
+                        //     ->preload()
+                        //     ->native(false),
 
                         TextInput::make('name')
                             ->label('اسم العميل')
@@ -70,6 +96,7 @@ class OrderForm
                                         self::updateOrderTotals($set, $get);
                                     })
                                     ->native(false)
+
                                     ->columnSpan(2),
 
 
@@ -97,6 +124,7 @@ class OrderForm
                                     ->numeric()
                                     ->required()
                                     ->minValue(0)
+                                    ->readOnly()
                                     ->step(0.01)
                                     // ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
@@ -113,7 +141,7 @@ class OrderForm
                                     ->required()
                                     ->minValue(0)
                                     ->step(0.01)
-                                    ->disabled()
+                                    ->readOnly()
                                     ->dehydrated()
                                     ->columnSpan(1),
                             ])

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('public_ratings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->tinyInteger('rating');
             $table->text('comment')->nullable();
             $table->boolean('is_visible')->default(true);

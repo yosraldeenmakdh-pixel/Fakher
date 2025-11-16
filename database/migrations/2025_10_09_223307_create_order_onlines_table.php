@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('order_number')->unique();
 
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('branch_id')->nullable()->constrained()->onDelete('cascade');
-            $table->foreignId('kitchen_id')->nullable()->constrained()->onDelete('cascade'); // للمطبخ المسؤول
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('branch_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('kitchen_id')->nullable()->constrained()->onDelete('set null');
 
 
             $table->decimal('total', 10, 2)->nullable();
@@ -32,9 +32,6 @@ return new class extends Migration
             $table->string('customer_name')->nullable();
             $table->string('customer_phone')->nullable();
             $table->text('address')->nullable();
-
-
-            $table->foreignId('confirmed_by')->nullable()->constrained('users')->onDelete('set null');
 
 
             $table->timestamps();

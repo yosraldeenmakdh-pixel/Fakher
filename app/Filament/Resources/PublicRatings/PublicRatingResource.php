@@ -24,6 +24,10 @@ class PublicRatingResource extends Resource
     {
         return PublicRatingForm::configure($schema);
     }
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Ratings');
+    }
 
     public static function table(Table $table): Table
     {

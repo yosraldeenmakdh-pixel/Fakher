@@ -10,14 +10,14 @@ class InstitutionOrder extends Model
 {
     protected $fillable = [
         'institution_id',
-        'branch_id',
+        'branch_id' ,
+        'kitchen_id' ,
         'order_number',
         'delivery_date',
         'delivery_time',
         'total_amount',
         'status',
         'special_instructions',
-        'kitchen_id',
         'confirmed_at',
         'delivered_at'
     ];
@@ -49,10 +49,18 @@ class InstitutionOrder extends Model
                $this->getOriginal('status') === 'Pending' &&
                $this->status === 'confirmed' &&
                Auth::user() &&
-               Auth::user()->hasRole('kitchen');
+               Auth::user()->hasRole('kitchen') ;
+            //    $this->isAssignedToUserKitchen();
     }
 
+    protected function isAssignedToUserKitchen()
+    {
+        if ($this->institution && $this->institution->kitchen_id) {
+            return $this->institution->kitchen_id === Auth::user()->kitchen_id;
+        }
 
+        return false;
+    }
 
     public function recordOrderConfirmation()
     {
@@ -86,13 +94,13 @@ class InstitutionOrder extends Model
                     'order_items' => $orderItemsJson,
                     'status' => $this->status,
                     'special_instructions' => $this->special_instructions,
-                    'kitchen_id' => Auth::user()->kitchen->id,
+                    'kitchen_id' => $this->kitchen_id,
                     'notes' => 'تم تأكيد الطلب وبدء التحضير',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
 
-                $this->kitchen_id = Auth::user()->kitchen->id;
+                // $this->kitchen_id = Auth::user()->kitchen->id;
                 $this->confirmed_at = now();
                 $this->saveQuietly();
 

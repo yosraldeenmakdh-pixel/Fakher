@@ -53,4 +53,43 @@ class Meal extends Model
         ]);
     }
 
+    public function scheduledPrice()
+    {
+        return $this->hasOne(InstitutionalMealPrice::class)->where('is_active', true);
+    }
+
+    /**
+     * الحصول على السعر المجدول
+     */
+    public function getScheduledPriceAttribute()
+    {
+        return $this->scheduledPrice ? $this->scheduledPrice->scheduled_price : $this->price;
+    }
+
+    public function hasScheduledPrice()
+    {
+        return (bool) $this->scheduledPrice;
+    }
+
+    /**
+     * الحصول على معلومات السعر
+     */
+    public function getPriceInfo()
+    {
+        $scheduledPrice = $this->scheduledPrice;
+        $hasScheduledPrice = (bool) $scheduledPrice;
+        $scheduledPriceValue = $hasScheduledPrice ? $scheduledPrice->scheduled_price : null;
+
+        return [
+            'original_price' => $this->price,
+            'scheduled_price' => $scheduledPriceValue,
+            'final_price' => $scheduledPriceValue ?: $this->price,
+            'has_discount' => $hasScheduledPrice && $scheduledPriceValue < $this->price,
+            'discount_percentage' => $hasScheduledPrice && $this->price > 0
+                ? round((($this->price - $scheduledPriceValue) / $this->price) * 100, 2)
+                : 0,
+            'is_scheduled_price' => $hasScheduledPrice
+        ];
+    }
+
 }

@@ -42,7 +42,6 @@ class InstitutionOrderForm
                                     Hidden::make('institution_id')
                                         ->default($currentInstitution->id),
 
-                                    // عرض اسم المؤسسة للقراءة فقط
                                     Placeholder::make('current_institution')
                                         ->label('المؤسسة')
                                         ->content($currentInstitution->name ?? 'غير معين')
@@ -60,15 +59,44 @@ class InstitutionOrderForm
                                         ->disabled($isKitchen),
                                 ]) ,
 
+                                ...(Auth::user()->hasRole('institution') ? [
+                                    Hidden::make('branch_id')
+                                        ->default($currentInstitution->branch->id),
 
-                                Select::make('branch_id')
-                                    ->label('الفرع')
-                                    ->relationship('branch', 'name')
-                                    ->required()
-                                    ->searchable()
-                                    ->preload()
-                                    ->native(false)
-                                    ->disabled($isKitchen),
+                                    Placeholder::make('current_branch')
+                                        ->label('الفرع')
+                                        ->content($currentInstitution->branch->name ?? 'غير معين')
+                                        ->extraAttributes(['class' => 'font-bold']),
+                                ]:[
+                                    Select::make('branch_id')
+                                        ->label('الفرع')
+                                        ->relationship('branch', 'name')
+                                        ->required()
+                                        ->searchable()
+                                        ->preload()
+                                        ->native(false)
+                                        ->disabled($isKitchen),
+                                ]) ,
+
+
+                                ...(Auth::user()->hasRole('institution') ? [
+                                    Hidden::make('kitchen_id')
+                                        ->default($currentInstitution->kitchen->id),
+
+                                    Placeholder::make('current_kitchen')
+                                        ->label('المطبخ')
+                                        ->content($currentInstitution->kitchen->name ?? 'غير معين')
+                                        ->extraAttributes(['class' => 'font-bold']),
+                                ]:[
+                                    Select::make('branch_id')
+                                        ->label('المطبخ')
+                                        ->relationship('kitchen', 'name')
+                                        ->required()
+                                        ->searchable()
+                                        ->preload()
+                                        ->native(false)
+                                        ->disabled($isKitchen),
+                                ]) ,
                             ]),
 
 
@@ -187,7 +215,7 @@ class InstitutionOrderForm
                                     ->numeric()
                                     ->required()
                                     ->minValue(1)
-                                    ->maxValue(1001)
+                                    ->maxValue(1000001)
                                     // ->reactive()
                                     ->suffixAction(
                                         Action::make('updateQuantity')

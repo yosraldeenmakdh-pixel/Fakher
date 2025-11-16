@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     protected $fillable = [
-        'branch_id',
+        'kitchen_id',
         'name',
         'total',
         'special_instructions',
@@ -17,9 +17,9 @@ class Order extends Model
         'total' => 'decimal:2',
     ];
 
-    public function branch()
+    public function kitchen()
     {
-        return $this->belongsTo(Branch::class);
+        return $this->belongsTo(Kitchen::class);
     }
 
     public function orderItems()

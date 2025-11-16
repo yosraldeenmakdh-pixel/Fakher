@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('online_order_confirmations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained('order_onlines')->onDelete('cascade');
-            $table->foreignId('kitchen_id')->constrained()->onDelete('cascade');
+            $table->foreignId('order_id')->nullable()->constrained('order_onlines')->onDelete('set null');
+            $table->foreignId('kitchen_id')->nullable()->constrained()->onDelete('set null');
             $table->text('notes')->nullable();
             $table->string('order_number');
             $table->dateTime('delivery_date'); // تاريخ الاستلام

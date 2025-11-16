@@ -42,6 +42,16 @@ class OfficialInstitutionsTable
                         'scheduled' => 'جهة حكومية',
                         'normal' => 'مؤسسة خاصة' ,
                     }),
+                TextColumn::make('branch.name')
+                    ->label('الفرع')
+                    ->searchable()
+                    ->sortable(),
+
+
+                TextColumn::make('kitchen.name')
+                    ->label('المطبخ')
+                    ->searchable()
+                    ->sortable() ,
 
                 TextColumn::make('contract_start_date')
                     ->label('بداية العقد')

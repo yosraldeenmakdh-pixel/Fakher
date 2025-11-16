@@ -17,22 +17,32 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Support\Facades\Auth;
 
 class OrdersTable
 {
     public static function configure(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('id')
-                    ->label('#')
-                    ->sortable()
-                    ->searchable(),
+        $user = Auth::user();
 
-                TextColumn::make('branch.name')
-                    ->label('الفرع')
+        return $table
+
+            ->modifyQueryUsing(function ($query) use ($user) {
+                if ($user->hasRole('kitchen')) {
+                    return $query->where('kitchen_id',$user->kitchen->id);
+                }
+                return $query;
+            })
+            ->columns([
+                // TextColumn::make('id')
+                //     ->label('#')
+                //     ->sortable()
+                //     ->searchable(),
+
+                TextColumn::make('kitchen.name')
+                    ->label('المطبخ')
                     ->sortable()
+                    ->hidden(Auth::user()->hasRole('kitchen'))
                     ->searchable(),
 
                 TextColumn::make('name')
@@ -83,9 +93,9 @@ class OrdersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('branch_id')
-                    ->label('الفرع')
-                    ->relationship('branch', 'name')
+                SelectFilter::make('kitchen_id')
+                    ->label('المطبخ')
+                    ->relationship('kitchen', 'name')
                     ->searchable()
                     ->preload(),
 
@@ -165,7 +175,7 @@ class OrdersTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    // DeleteBulkAction::make(),
                 ]),
             ]);
 

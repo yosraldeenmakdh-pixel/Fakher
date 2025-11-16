@@ -30,6 +30,10 @@ class InstitutionOrderResource extends Resource
         return InstitutionOrdersTable::configure($table);
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Institutions');
+    }
 
 
 

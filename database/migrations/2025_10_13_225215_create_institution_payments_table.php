@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('institution_payments', function (Blueprint $table) {
             $table->id();
             // $table->string('barcode')->nullable(); // الباركود (يمكن حفظه كصورة أو نص)
-            $table->foreignId('institution_id')->constrained('official_institutions')->onDelete('cascade');
+            $table->foreignId('institution_id')->nullable()->constrained('official_institutions')->onDelete('set null');
             $table->decimal('amount', 12, 2);
             $table->string('transaction_reference')->nullable();
             $table->string('verification_file')->nullable();

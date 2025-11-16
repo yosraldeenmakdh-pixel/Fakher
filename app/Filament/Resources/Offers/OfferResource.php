@@ -26,7 +26,10 @@ class OfferResource extends Resource
     {
         return OfferForm::configure($schema);
     }
-
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Content Management');
+    }
     public static function table(Table $table): Table
     {
         return OffersTable::configure($table);

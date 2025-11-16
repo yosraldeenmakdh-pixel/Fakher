@@ -26,6 +26,10 @@ class KitchenResource extends Resource
     {
         return KitchenForm::configure($schema);
     }
+    public static function getNavigationGroup(): ?string
+    {
+        return __('kitchen');
+    }
 
     public static function table(Table $table): Table
     {

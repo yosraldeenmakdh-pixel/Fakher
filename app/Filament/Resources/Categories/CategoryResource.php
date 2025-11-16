@@ -31,7 +31,10 @@ class CategoryResource extends Resource
     {
         return CategoriesTable::configure($table);
     }
-
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Content Management');
+    }
     public static function getRelations(): array
     {
         return [

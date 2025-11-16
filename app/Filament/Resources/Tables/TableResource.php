@@ -26,7 +26,10 @@ class TableResource extends Resource
     {
         return TableForm::configure($schema);
     }
-
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Reservation');
+    }
     public static function table(Table $table): Table
     {
         return TablesTable::configure($table);

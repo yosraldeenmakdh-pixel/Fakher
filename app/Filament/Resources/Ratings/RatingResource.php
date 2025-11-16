@@ -24,6 +24,10 @@ class RatingResource extends Resource
     {
         return RatingForm::configure($schema);
     }
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Ratings');
+    }
 
     public static function table(Table $table): Table
     {

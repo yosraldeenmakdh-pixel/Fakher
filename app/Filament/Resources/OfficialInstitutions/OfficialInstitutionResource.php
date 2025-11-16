@@ -36,6 +36,11 @@ class OfficialInstitutionResource extends Resource
         return OfficialInstitutionsTable::configure($table);
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Institutions');
+    }
+
     public static function getRelations(): array
     {
         return [

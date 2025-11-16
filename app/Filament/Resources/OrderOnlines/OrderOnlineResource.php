@@ -30,6 +30,14 @@ class OrderOnlineResource extends Resource
         return OrderOnlinesTable::configure($table);
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Orders from website');
+    }
+
+
+
+
     public static function getRelations(): array
     {
         return [

@@ -7,11 +7,12 @@ namespace App\Policies;
 use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\InstitutionOrder;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Facades\Auth;
 
 class InstitutionOrderPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:InstitutionOrder');
@@ -27,14 +28,38 @@ class InstitutionOrderPolicy
         return $authUser->can('Create:InstitutionOrder');
     }
 
-    public function update(AuthUser $authUser, InstitutionOrder $institutionOrder): bool
+    public function update(AuthUser $authUser, InstitutionOrder $institutionOrder)
     {
-        return $authUser->can('Update:InstitutionOrder');
+
+        if ($authUser->hasRole('kitchen')) {
+            return $authUser->can('Update:InstitutionOrder');
+        }
+        if ($authUser->hasRole('institution')) {
+            if($institutionOrder->status === 'Pending'){
+                return $authUser->can('Update:InstitutionOrder');
+            }
+            else
+                return $authUser->can('');
+
+        }
+        return $authUser->can('Update:InstitutionOrder') ;
+
     }
 
     public function delete(AuthUser $authUser, InstitutionOrder $institutionOrder): bool
     {
+
+        if ($authUser->hasRole('institution')) {
+            if($institutionOrder->status === 'Pending'){
+                return $authUser->can('Delete:InstitutionOrder');
+            }
+            else
+                return $authUser->can('');
+
+        }
         return $authUser->can('Delete:InstitutionOrder');
+
+
     }
 
     public function restore(AuthUser $authUser, InstitutionOrder $institutionOrder): bool

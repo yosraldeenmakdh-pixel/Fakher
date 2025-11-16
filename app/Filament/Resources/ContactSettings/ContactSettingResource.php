@@ -24,6 +24,10 @@ class ContactSettingResource extends Resource
     {
         return ContactSettingForm::configure($schema);
     }
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Support');
+    }
 
     public static function table(Table $table): Table
     {
