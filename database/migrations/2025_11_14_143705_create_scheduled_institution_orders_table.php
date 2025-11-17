@@ -34,6 +34,8 @@ return new class extends Migration
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamp('delivered_at')->nullable();
 
+            $table->unique(['institution_id', 'branch_id', 'kitchen_id', 'order_date'], 'unique_order_per_day');
+
             $table->timestamps();
         });
     }

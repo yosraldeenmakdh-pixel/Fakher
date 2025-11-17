@@ -12,6 +12,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -29,7 +30,7 @@ class OrdersTable
 
             ->modifyQueryUsing(function ($query) use ($user) {
                 if ($user->hasRole('kitchen')) {
-                    return $query->where('kitchen_id',$user->kitchen->id);
+                    return $query->where('kitchen_id',$user->kitchen->id)->where('status','confirmed');
                 }
                 return $query;
             })
@@ -80,6 +81,22 @@ class OrdersTable
                         return $state;
                     }),
 
+                BadgeColumn::make('status')
+                    ->label('الحالة')
+                    ->colors([
+                        'primary' => 'confirmed',
+                        'success' => 'delivered',
+                    ])
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'confirmed' => 'مؤكد',
+                        'delivered' => 'تم التسليم',
+                    }),
+
+                TextColumn::make('delivered_at')
+                    ->label('تاريخ التسليم')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->label('تاريخ الطلب')
                     ->dateTime('d/m/Y H:i')
@@ -164,9 +181,26 @@ class OrdersTable
             ])
             ->recordActions([
                 ActionGroup::make([
+
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
+                Action::make('deliver')
+                    ->label('تسليم الطلب')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('تسليم الطلب')
+                    ->modalDescription('هل أنت متأكد من تسليم هذا الطلب؟')
+                    ->modalSubmitActionLabel('نعم، سلم الطلب')
+                    ->modalCancelActionLabel('إلغاء')
+                    ->action(function ($record) {
+                        $record->update([
+                            'status' => 'delivered',
+                            'delivered_at' => now()
+                        ]);
+                    })
+                    ->hidden(fn ($record) => $record->status === 'delivered' || $record->status === 'cancelled'),
                 PrintOrderAction::make('print')
                         ->label('تحميل')
                         ->icon('heroicon-o-printer')

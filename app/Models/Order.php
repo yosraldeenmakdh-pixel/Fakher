@@ -11,6 +11,8 @@ class Order extends Model
         'name',
         'total',
         'special_instructions',
+        'status',
+        'delivered_at',
     ];
 
     protected $casts = [

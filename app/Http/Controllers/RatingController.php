@@ -111,7 +111,7 @@ class RatingController extends Controller
             ->where('is_visible', true)
             ->orderBy('rating', 'DESC')
             ->orderBy('created_at', 'DESC')
-            ->paginate(1, ['*'], 'page', $page);
+            ->paginate(5, ['*'], 'page', $page);
 
         return response()->json([
             'meal_id' => $mealId,

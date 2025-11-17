@@ -17,6 +17,12 @@ return new class extends Migration
             $table->string('name');
             $table->decimal('total', 10, 2);
             $table->text('special_instructions')->nullable();
+
+            $table->enum('status', ['confirmed','delivered'])
+                  ->default('confirmed');
+
+            $table->timestamp('delivered_at')->nullable();
+
             $table->timestamps();
         });
     }
