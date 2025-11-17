@@ -215,6 +215,8 @@ class UserController extends Controller
 
             DB::commit() ;
 
+            $processingResult = $this->queueProcessor->processImmediately();
+
             return response()->json([
                 'message' => 'تم إرسال الكود بنجاح'
             ], 200);
@@ -302,6 +304,9 @@ class UserController extends Controller
             Queue::push(new SendRestCodeEmail($user, $code));
 
             DB::commit() ;
+
+            $processingResult = $this->queueProcessor->processImmediately();
+
             return response()->json([
                 'message'=>'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح'
             ], 200);
@@ -418,6 +423,9 @@ class UserController extends Controller
             Queue::push(new SendRestCodeEmail($user, $code));
 
             DB::commit() ;
+
+            $processingResult = $this->queueProcessor->processImmediately();
+
 
             return response()->json([
                 'message' => 'تم إرسال الكود بنجاح'

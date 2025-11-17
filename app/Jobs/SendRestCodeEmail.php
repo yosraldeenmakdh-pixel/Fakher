@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Mail\RestCodeMail;
 use App\Models\RestCode;
+use App\Services\QueueProcessorService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Mail;
@@ -32,5 +33,10 @@ class SendRestCodeEmail implements ShouldQueue
         ]);
 
         Mail::to($this->user)->send(new RestCodeMail($this->code));
+
+        if (app(QueueProcessorService::class)->getQueueSize() > 0) {
+            sleep(2); // انتظار 2 ثانية
+            app(QueueProcessorService::class)->processIfNeeded();
+        }
     }
 }
