@@ -16,6 +16,7 @@ use App\Models\Code;
 use App\Models\ResendAttempt;
 use App\Models\RestCode;
 use App\Models\User;
+use App\Services\QueueProcessorService;
 use App\Traits\VerificationTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -29,6 +30,12 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+    protected $queueProcessor;
+
+    public function __construct(QueueProcessorService $queueProcessor)
+    {
+        $this->queueProcessor = $queueProcessor;
+    }
 
     public function getAllUsersCount(Request $request){
 
@@ -58,16 +65,19 @@ class UserController extends Controller
 
             $validated = $request->validated() ;
             $validated['password'] = Hash::make($validated['password']) ;
+            // $validated['image'] = asset('images/user.webp');
             DB::beginTransaction() ;
             $user = User::create($validated) ;
             $code = $this->generateCode();
 
-            // $code = $this->sendCode($user) ;
             $token = $user->createToken('user')->plainTextToken ;
 
             Queue::push(new SendVerificationEmail($user, $code));
 
             DB::commit() ;
+
+            $processingResult = $this->queueProcessor->processImmediately();
+
             return response()->json([
                 'message' => 'تم إنشاء الحساب بنجاح يرجى تفعيل الحساب باستخدام الكود المرسل إلى بريدك الإلكتروني.' ,
                 'User'=>$user ,
@@ -76,12 +86,7 @@ class UserController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack() ;
-            // Log::error('User registration failed: ' . $e->getMessage(), [
-            //     'email' => $request->email,
-            //     'trace' => $e->getTraceAsString()
-            // ]);
             return response()->json([
-                // 'message'=>$e->getMessage()
                 'message'=>'حدث خطأ أثناء إنشاء الحساب يرجى المحاولة مرة أخرى'
             ], 500);
         }

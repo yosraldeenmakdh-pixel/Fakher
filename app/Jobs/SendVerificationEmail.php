@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Mail\CodeMail;
 use App\Models\Code;
+use App\Services\QueueProcessorService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Cache;
@@ -33,5 +34,10 @@ class SendVerificationEmail implements ShouldQueue
         ]);
 
         Mail::to($this->user)->send(new CodeMail($this->code));
+
+        if (app(QueueProcessorService::class)->getQueueSize() > 0) {
+            sleep(2); // انتظار 2 ثانية
+            app(QueueProcessorService::class)->processIfNeeded();
+        }
     }
 }

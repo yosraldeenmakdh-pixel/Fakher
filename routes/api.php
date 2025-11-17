@@ -15,7 +15,9 @@ use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\UserController;
 use App\Models\OrderOnline;
+use App\Services\QueueProcessorService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
 
 
@@ -147,4 +149,19 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
+Route::get('/queue/process', function (QueueProcessorService $processor) {
+    $result = $processor->processIfNeeded(true); // true = إجبار المعالجة
 
+    return response()->json($result);
+});
+
+// Route لفحص حالة الطابور
+Route::get('/queue/status', function () {
+    $queueSize = Queue::size();
+
+    return response()->json([
+        'queue_size' => $queueSize,
+        'has_jobs' => $queueSize > 0,
+        'timestamp' => now()->toDateTimeString()
+    ]);
+});
