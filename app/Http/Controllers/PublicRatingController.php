@@ -65,7 +65,7 @@ class PublicRatingController extends Controller
             $page = $request->get('page', 1); // الحصول على رقم الصفحة من Request
             $perPage = 5; // تعليق واحد لكل صفحة
 
-            $ratings = PublicRating::with('user:id,name,email')
+            $ratings = PublicRating::with('user:id,name,email,image')
                 ->where('is_visible', true)
                 ->orderBy('rating', 'DESC')
                 ->orderBy('created_at', 'desc')
@@ -78,6 +78,15 @@ class PublicRatingController extends Controller
                     'message' => 'لا توجد تعليقات في هذه الصفحة'
                 ], 404);
             }
+
+            $ratings->getCollection()->transform(function ($rating) {
+                if ($rating->user && $rating->user->image) {
+                    // إضافة URL كامل للصورة
+                    $rating->user->image_url = asset('uploads/' . $rating->user->image);
+                    // 'image' => $user->image ? asset('uploads/' . $user->image) : null,
+                }
+                return $rating;
+            });
 
             return response()->json([
                 'success' => true,
@@ -98,7 +107,6 @@ class PublicRatingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'فشل في جلب التقييمات',
-                // 'error' => $e->getMessage() // تم التصحيح: كان هناك تكرار لمفتاح 'message'
             ], 500);
         }
     }

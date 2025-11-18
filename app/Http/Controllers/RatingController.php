@@ -105,13 +105,22 @@ class RatingController extends Controller
         $page = $request->get('page', 1); // الحصول على رقم الصفحة من Request
 
         $ratings = Rating::with(['user' => function($query) {
-                $query->select('id', 'name', 'email');
+                $query->select('id', 'name', 'email', 'image');
             }])
             ->where('meal_id', $mealId)
             ->where('is_visible', true)
             ->orderBy('rating', 'DESC')
             ->orderBy('created_at', 'DESC')
             ->paginate(5, ['*'], 'page', $page);
+
+        $ratings->getCollection()->transform(function ($rating) {
+                if ($rating->user && $rating->user->image) {
+                    // إضافة URL كامل للصورة
+                    $rating->user->image_url = asset('uploads/' . $rating->user->image);
+                    // 'image' => $user->image ? asset('uploads/' . $user->image) : null,
+                }
+                return $rating;
+            });
 
         return response()->json([
             'meal_id' => $mealId,

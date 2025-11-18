@@ -86,7 +86,8 @@ class UserController extends Controller
                     'id'=>$user->id,
                     'name'=>$user->name,
                     'email'=>$user->email,
-                    'image' => $user->image ? asset('uploads/'.$user->image) : null,
+                    'image' => $user->image ? asset('uploads/' . $user->image) : null,
+
                     'created_at'=>$user->created_at,
                 ]
             ], 201);
