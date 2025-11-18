@@ -65,7 +65,9 @@ class UserController extends Controller
 
             $validated = $request->validated() ;
             $validated['password'] = Hash::make($validated['password']) ;
-            // $validated['image'] = asset('images/user.webp');
+
+            $validated['image'] = 'images/user.webp' ;
+
             DB::beginTransaction() ;
             $user = User::create($validated) ;
             $code = $this->generateCode();
@@ -80,8 +82,13 @@ class UserController extends Controller
 
             return response()->json([
                 'message' => 'تم إنشاء الحساب بنجاح يرجى تفعيل الحساب باستخدام الكود المرسل إلى بريدك الإلكتروني.' ,
-                'User'=>$user ,
-
+                'Data' => [
+                    'id'=>$user->id,
+                    'name'=>$user->name,
+                    'email'=>$user->email,
+                    'image' => $user->image ? asset($user->image) : null,
+                    'created_at'=>$user->created_at,
+                ]
             ], 201);
 
         } catch (\Exception $e) {
