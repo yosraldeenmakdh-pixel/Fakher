@@ -66,7 +66,7 @@ class UserController extends Controller
             $validated = $request->validated() ;
             $validated['password'] = Hash::make($validated['password']) ;
 
-            $validated['image'] = 'images/user.webp' ;
+            $validated['image'] = 'users/user.webp' ;
 
             DB::beginTransaction() ;
             $user = User::create($validated) ;
@@ -86,7 +86,7 @@ class UserController extends Controller
                     'id'=>$user->id,
                     'name'=>$user->name,
                     'email'=>$user->email,
-                    'image' => $user->image ? asset($user->image) : null,
+                    'image' => $user->image ? asset('uploads/'.$user->image) : null,
                     'created_at'=>$user->created_at,
                 ]
             ], 201);
