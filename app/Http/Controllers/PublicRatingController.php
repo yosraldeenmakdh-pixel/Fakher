@@ -79,6 +79,38 @@ class PublicRatingController extends Controller
                 ], 404);
             }
 
+            // $ratings->getCollection()->transform(function ($rating) {
+            //     if ($rating->user && $rating->user->image) {
+            //         // إضافة URL كامل للصورة
+            //         $rating->user->image_url = asset('uploads/' . $rating->user->image);
+            //         // 'image' => $user->image ? asset('uploads/' . $user->image) : null,
+            //     }
+            //     return $rating;
+            // });
+            // $ratings->getCollection()->transform(function ($rating) {
+            //     if ($rating->user && $rating->user->image) {
+            //         // إضافة URL كامل للصورة
+            //         $rating->user->image_url = asset('uploads/' . $rating->user->image);
+            //         // 'image' => $user->image ? asset('uploads/' . $user->image) : null,
+            //     }
+            //     return $rating;
+            // });
+            // $ratings->getCollection()->transform(function ($rating) {
+            //     if ($rating->user && $rating->user->image) {
+            //         // إضافة URL كامل للصورة
+            //         $rating->user->image_url = asset('uploads/' . $rating->user->image);
+            //         // 'image' => $user->image ? asset('uploads/' . $user->image) : null,
+            //     }
+            //     return $rating;
+            // });
+            // $ratings->getCollection()->transform(function ($rating) {
+            //     if ($rating->user && $rating->user->image) {
+            //         // إضافة URL كامل للصورة
+            //         $rating->user->image_url = asset('uploads/' . $rating->user->image);
+            //         // 'image' => $user->image ? asset('uploads/' . $user->image) : null,
+            //     }
+            //     return $rating;
+            // });
             $ratings->getCollection()->transform(function ($rating) {
                 if ($rating->user && $rating->user->image) {
                     // إضافة URL كامل للصورة
