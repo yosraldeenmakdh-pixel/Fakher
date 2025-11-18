@@ -141,3 +141,330 @@ class PublicRatingController extends Controller
     // }
 
 }
+
+
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function index()
+    // {
+    //     try {
+    //         $ratings = PublicRating::with('user:id,name,email')
+    //             ->where('is_visible', true)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $ratings,
+    //             'stats' => PublicRating::getRatingStats()
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'فشل في جلب التقييمات' ,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }

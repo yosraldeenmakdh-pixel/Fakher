@@ -142,9 +142,6 @@ class RatingController extends Controller
 
 
 
-
-
-
     // public function store(Request $request, $mealId)
     // {
     //     $request->validate([
@@ -280,5 +277,101 @@ class RatingController extends Controller
     //         'rating_distribution' => $meal->getRatingDistribution()
     //     ]);
     // }
+
+
+
+
+
+        //         // إنشاء التقييم
+    //         $rating = Rating::create([
+    //             'user_id' => Auth::id(),
+    //             'meal_id' => $mealId,
+    //             'rating' => $request->rating,
+    //             'comment' => $request->comment
+    //         ]);
+
+    //         // تحديث إحصائيات الوجبة
+    //         $meal->updateRatingStats();
+
+    //         DB::commit();
+
+    //         // إعادة تحميل البيانات المحدثة
+    //         $meal->refresh();
+
+    //         return response()->json([
+    //             'message' => 'تم إضافة التقييم بنجاح',
+    //             'rating' => $rat    //         // إنشاء التقييم
+    //         $rating = Rating::create([
+    //             'user_id' => Auth::id(),
+    //             'meal_id' => $mealId,
+    //             'rating' => $request->rating,
+    //             'comment' => $request->comment
+    //         ]);
+
+    //         // تحديث إحصائيات الوجبة
+    //         $meal->updateRatingStats();
+
+    //         DB::commit();
+
+    //         // إعادة تحميل البيانات المحدثة
+    //         $meal->refresh();
+
+    //         return response()->json([
+    //             'message' => 'تم إضافة التقييم بنجاح',
+    //             'rating' => $rat    //         // إنشاء التقييم
+    //         $rating = Rating::create([
+    //             'user_id' => Auth::id(),
+    //             'meal_id' => $mealId,
+    //             'rating' => $request->rating,
+    //             'comment' => $request->comment
+    //         ]);
+
+    //         // تحديث إحصائيات الوجبة
+    //         $meal->updateRatingStats();
+
+    //         DB::commit();
+
+    //         // إعادة تحميل البيانات المحدثة
+    //         $meal->refresh();
+
+    //         return response()->json([
+    //             'message' => 'تم إضافة التقييم بنجاح',
+    //             'rating' => $rat    //         // إنشاء التقييم
+    //         $rating = Rating::create([
+    //             'user_id' => Auth::id(),
+    //             'meal_id' => $mealId,
+    //             'rating' => $request->rating,
+    //             'comment' => $request->comment
+    //         ]);
+
+    //         // تحديث إحصائيات الوجبة
+    //         $meal->updateRatingStats();
+
+    //         DB::commit();
+
+    //         // إعادة تحميل البيانات المحدثة
+    //         $meal->refresh();
+
+    //         return response()->json([
+    //             'message' => 'تم إضافة التقييم بنجاح',
+    //             'rating' => $rat    //         // إنشاء التقييم
+    //         $rating = Rating::create([
+    //             'user_id' => Auth::id(),
+    //             'meal_id' => $mealId,
+    //             'rating' => $request->rating,
+    //             'comment' => $request->comment
+    //         ]);
+
+    //         // تحديث إحصائيات الوجبة
+    //         $meal->updateRatingStats();
+
+    //         DB::commit();
+
+    //         // إعادة تحميل البيانات المحدثة
+    //         $meal->refresh();
+
+    //         return response()->json([
+    //             'message' => 'تم إضافة التقييم بنجاح',
+    //             'rating' => $rat
 
 }
