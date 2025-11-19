@@ -506,12 +506,13 @@ class UserController extends Controller
     public function updateProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone' => 'nullable|string|max:10|regex:/^[0-9\+\-\s\(\)]+$/',
+            'phone' => 'nullable|string|size:10|regex:/^09[0-9]{8}$/',
             'address' => 'nullable|string|max:500',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            // 'name' => 'nullable|string|max:255'
         ], [
-            'phone.regex' => 'رقم الهاتف يجب أن يحتوي على أرقام ورموز الهاتف فقط',
+            'phone.size' => 'رقم الهاتف يجب أن يتكون من 10 أرقام بالضبط',
+            'phone.regex' => 'رقم الهاتف يجب أن يبدأ بـ 09 ويحتوي على أرقام فقط',
+            'address.max' => 'العنوان يجب ألا يتجاوز 500 حرف',
             'image.image' => 'الملف يجب أن يكون صورة',
             'image.mimes' => 'نوع الصورة يجب أن يكون: jpeg, png, jpg, gif, webp',
             'image.max' => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت',
