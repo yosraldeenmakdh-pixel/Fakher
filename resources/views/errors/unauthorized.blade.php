@@ -7,17 +7,17 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #111111 0%, #111111 100%);
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            color: #333;
+            color: #ffffff;
         }
         .error-container {
-            background: white;
+            background: rgb(55, 55, 55);
             padding: 3rem;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -64,7 +64,7 @@
 <body>
     <div class="error-container">
         <div class="error-icon">🚫</div>
-        <h1 class="error-title">غير مصرح بالدخول</h1>
+        <h1 class="error-title">غير مصرح لك بالدخول</h1>
 
         <div class="error-message">
             <strong>ليس لديك صلاحية للوصول إلى هذا القسم.</strong><br>
@@ -77,7 +77,7 @@
             المحاولات المتبقية: {{ $remaining }}
         </div> --}}
 
-        <a href="{{ url('watan-food-chain.com') }}" class="btn">العودة للصفحة الرئيسية</a>
+        <a href="{{ url('admin') }}" class="btn">العودة للصفحة الرئيسية</a>
     </div>
 </body>
 </html>
