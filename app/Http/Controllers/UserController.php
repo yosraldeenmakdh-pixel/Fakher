@@ -28,6 +28,8 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
+use function Symfony\Component\Clock\now;
+
 class UserController extends Controller
 {
     protected $queueProcessor;
@@ -272,6 +274,9 @@ class UserController extends Controller
             }
 
             $token = $user->createToken('user')->plainTextToken ;
+
+            $user->last_activity_at = now() ;
+            $user->save() ;
 
             return response()->json([
                 'user' => new UserResource($user,$token),

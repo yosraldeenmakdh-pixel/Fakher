@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckUserActivity;
 use App\Http\Middleware\CheckUserRole;
 use App\Http\Middleware\Guest;
 use Illuminate\Foundation\Application;
@@ -17,7 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'guest'=>Guest::class ,
             'checkUserRole' => CheckUserRole::class,
+            'checkUserActivity' => CheckUserActivity::class,
+
         ]);
+
+        // $middleware->appendToGroup('api', [
+        //     CheckUserActivity::class,
+        // ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

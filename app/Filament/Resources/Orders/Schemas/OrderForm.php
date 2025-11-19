@@ -186,6 +186,24 @@ class OrderForm
                             })
                             ->extraAttributes(['class' => 'text-lg font-bold text-green-600']),
 
+                        Select::make('status')
+                            ->label('حالة الطلب')
+                            ->visible(Auth::user()->hasRole('super_admin'))
+                            ->required()
+                            ->options(function ($get, $set) {
+                                $currentStatus = $get('status') ?? 'confirmed';
+
+                                $options = [
+                                    'confirmed' => 'مؤكد',
+                                    'delivered' => 'تم التسليم',
+                                ];
+
+                                return $options;
+                            })
+
+                            ->default('confirmed')
+                            ->native(false),
+
                         // Action::make('updateTotals')
                         //     ->label('تحديث الأسعار')
                         //     ->icon('heroicon-o-calculator')

@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+// تم الرفع
+
 class RatingController extends Controller
 {
 
@@ -87,63 +89,6 @@ class RatingController extends Controller
             ], 500);
         }
     }
-
-
-
-
-
-
-    // public function getMealRatings($mealId, Request $request)
-    // {
-    //     $meal = Meal::find($mealId);
-    //     if (!$meal) {
-    //         return response()->json([
-    //             'message' => 'الوجبة غير موجودة'
-    //         ], 404);
-    //     }
-
-    //     $page = $request->get('page', 1); // الحصول على رقم الصفحة من Request
-
-    //     $ratings = Rating::with(['user' => function($query) {
-    //             $query->select('id', 'name', 'email', 'image');
-    //         }])
-    //         ->where('meal_id', $mealId)
-    //         ->where('is_visible', true)
-    //         ->orderBy('rating', 'DESC')
-    //         ->orderBy('created_at', 'DESC')
-    //         ->paginate(5, ['*'], 'page', $page);
-
-    //     $ratings->getCollection()->transform(function ($rating) {
-    //             if ($rating->user && $rating->user->image) {
-    //                 // إضافة URL كامل للصورة
-    //                 $rating->user->image_url = asset('uploads/' . $rating->user->image);
-    //                 // 'image' => $user->image ? asset('uploads/' . $user->image) : null,
-    //             }
-    //             return $rating;
-    //         });
-
-    //     return response()->json([
-    //         'meal_id' => $mealId,
-    //         'meal_name' => $meal->name,
-    //         'total_ratings' => $ratings->total(),
-    //         'average_rating' => $meal->average_rating,
-    //         'current_page' => $ratings->currentPage(),
-    //         'last_page' => $ratings->lastPage(),
-    //         'per_page' => $ratings->perPage(),
-    //         'has_more_pages' => $ratings->hasMorePages(),
-    //         'next_page_url' => $ratings->nextPageUrl(),
-    //         'prev_page_url' => $ratings->previousPageUrl(),
-    //         'ratings' => $ratings->items()
-    //     ]);
-    // }
-
-
-
-
-
-
-
-
 
 
     public function getMealRatings($mealId, Request $request)

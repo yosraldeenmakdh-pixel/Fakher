@@ -42,22 +42,26 @@ Route::prefix('user')->group(function(){
 
 
 
-        Route::middleware('auth:sanctum')->group(function(){
+        Route::middleware(['auth:sanctum'])->group(function(){
+            Route::middleware(['checkUserActivity'])->group(function(){
 
-            Route::post('/profile','updateProfile');
-            Route::get('/show','show');
-            Route::post('/logout', 'logout') ;
+                Route::post('/profile','updateProfile');
+                Route::get('/show','show');
+                Route::post('/logout', 'logout') ;
 
+            }) ;
          }) ;
-
     }) ;
 
 }) ;
-Route::prefix('order')->middleware('auth:sanctum')->group(function(){
-    Route::controller(OrderItemController::class)->group(function(){
+Route::prefix('order')->middleware(['auth:sanctum'])->group(function(){
+    Route::middleware(['checkUserActivity'])->group(function(){
 
-        Route::post('/store','store') ;
+        Route::controller(OrderItemController::class)->group(function(){
 
+            Route::post('/store','store') ;
+
+        }) ;
     }) ;
 
 }) ;
@@ -108,42 +112,44 @@ Route::get('/kitchens', [KitchenController::class, 'index']);
 
 Route::get('/meals/{id}', [MealController::class, 'getMealById']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['checkUserActivity'])->group(function () {
 
-    Route::prefix('complaints')->group(function () {
-        Route::post('/', [ComplaintController::class, 'store']);
-    }) ;
+        Route::prefix('complaints')->group(function () {
+            Route::post('/', [ComplaintController::class, 'store']);
+        }) ;
 
-    Route::post('/meals/{meal}/rate', [RatingController::class, 'storeOrUpdate']);
-    // Route::put('meals/rating/update', [RatingController::class, 'storeOrUpdate']);
-    Route::post('/rating', [PublicRatingController::class, 'store']);
+        Route::post('/meals/{meal}/rate', [RatingController::class, 'storeOrUpdate']);
+        // Route::put('meals/rating/update', [RatingController::class, 'storeOrUpdate']);
+        Route::post('/rating', [PublicRatingController::class, 'store']);
 
-    Route::get('/cart', [OrderOnlineController::class, 'getCart']);
+        Route::get('/cart', [OrderOnlineController::class, 'getCart']);
 
-    Route::delete('/cart/item/{itemId}', [OrderItemController::class, 'removeItem']);
+        Route::delete('/cart/item/{itemId}', [OrderItemController::class, 'removeItem']);
 
-    Route::put('orders/{id}', [OrderOnlineController::class, 'update']);
-    Route::put('orders/custom/{id}', [OrderOnlineController::class, 'custom_update']);
-    Route::delete('/orders/{id}', [OrderOnlineController::class, 'destroy']);
+        Route::put('orders/{id}', [OrderOnlineController::class, 'update']);
+        Route::put('orders/custom/{id}', [OrderOnlineController::class, 'custom_update']);
+        Route::delete('/orders/{id}', [OrderOnlineController::class, 'destroy']);
 
-    Route::get('/my-orders', [OrderOnlineController::class, 'myOrders']);
-
-
-
-
-    Route::prefix('reservations')->group(function () {
-
-        Route::post('/check-availability', [ReservationController::class, 'checkAvailability']);
-
-        // إنشاء حجز جديد
-        Route::post('/', [ReservationController::class, 'store']);
+        Route::get('/my-orders', [OrderOnlineController::class, 'myOrders']);
 
 
-        Route::get('/my-reservations', [ReservationController::class, 'getUserReservations']);
-
-        Route::put('/{id}/cancel', [ReservationController::class, 'cancelReservation']);
 
 
+        Route::prefix('reservations')->group(function () {
+
+            Route::post('/check-availability', [ReservationController::class, 'checkAvailability']);
+
+            // إنشاء حجز جديد
+            Route::post('/', [ReservationController::class, 'store']);
+
+
+            Route::get('/my-reservations', [ReservationController::class, 'getUserReservations']);
+
+            Route::put('/{id}/cancel', [ReservationController::class, 'cancelReservation']);
+
+
+        }) ;
     }) ;
 
 });
