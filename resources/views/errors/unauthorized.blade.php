@@ -71,13 +71,13 @@
             يرجى التواصل مع المسؤول لتفعيل الصلاحيات المناسبة.
         </div>
 
-        <div class="attempts-info">
+        {{-- <div class="attempts-info">
             <strong>معلومات المحاولات:</strong><br>
             المحاولات: {{ $attempts }} من 3<br>
             المحاولات المتبقية: {{ $remaining }}
-        </div>
+        </div> --}}
 
-        <a href="{{ url('/') }}" class="btn">العودة للصفحة الرئيسية</a>
+        <a href="{{ url('watan-food-chain.com') }}" class="btn">العودة للصفحة الرئيسية</a>
     </div>
 </body>
 </html>

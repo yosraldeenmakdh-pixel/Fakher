@@ -70,7 +70,7 @@
 
         <div class="info-box">
             <strong>معلومات الحظر:</strong><br>
-            سيتم إلغاء الحظر تلقائياً بعد {{ $minutes }} دقيقة و{{ $seconds % 60 }} ثانية<br>
+            {{-- سيتم إلغاء الحظر تلقائياً بعد {{ $minutes }} دقيقة و{{ $seconds % 60 }} ثانية<br> --}}
             الوقت المتبقي: <span id="countdown">{{ $seconds }}</span> ثانية
         </div>
 

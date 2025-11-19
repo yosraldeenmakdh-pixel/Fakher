@@ -22,7 +22,7 @@ class CheckUserRole
             // التحقق من عدد المحاولات
             if (RateLimiter::tooManyAttempts($key, 3)) {
                 $seconds = RateLimiter::availableIn($key);
-                $minutes = ceil($seconds / 60);
+                $minutes = ceil($seconds / 10);
 
                 return response()->view('errors.too-many-requests', [
                     'minutes' => $minutes,
