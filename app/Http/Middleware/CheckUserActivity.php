@@ -20,12 +20,11 @@ class CheckUserActivity
         }
 
         $lastActivity = $user->last_activity_at ?? $user->created_at;
-        $inactiveDays = Carbon::now()->diffInMinutes($lastActivity) ;
+        $inactiveDays = Carbon::now()->diffInDays($lastActivity) ;
         $inactiveDays *= -1 ;
 
-        // echo $inactiveDays ;
 
-        if ($inactiveDays >= 1) {
+        if ($inactiveDays >= 7) {
 
             $user->tokens()->delete();
 
@@ -36,8 +35,10 @@ class CheckUserActivity
             ], 401);
         }
 
-        // تحديث وقت النشاط كل 10 دقائق لتقليل الضغط على قاعدة البيانات
-        $shouldUpdate = !$user->last_activity_at || Carbon::now()->diffInHours($user->last_activity_at) >= 1;
+        $inactiveHours = Carbon::now()->diffInHours($user->last_activity_at) ;
+        $inactiveHours *= -1 ;
+
+        $shouldUpdate = !$user->last_activity_at || $inactiveHours >= 1 ;
 
         if ($shouldUpdate) {
             $user->last_activity_at = now() ;
