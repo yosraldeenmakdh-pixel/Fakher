@@ -38,8 +38,8 @@
         </div>
 
         <p style="font-size: 14px; color: #666; margin-top: 25px;">
-            في حال واجهتك أي صعوبة في تفعيل الحساب، لا تتردد في
-            <a href="support@watan-food-chain.com" style="color: #3a7bd5; text-decoration: none;">الاتصال بدعم العملاء</a>
+            في حال واجهتك أي صعوبة في تفعيل الحساب، لا تتردد في التواصل مع دعم العملاء
+            <h6>support@watan-food-chain.com</h6>
         </p>
     </div>
 
