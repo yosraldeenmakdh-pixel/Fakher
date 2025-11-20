@@ -71,9 +71,9 @@
 
 
 
-        <div style="margin-top: 1.5rem; font-size: 0.9rem; color: #7f8c8d;">
+        {{-- <div style="margin-top: 1.5rem; font-size: 0.9rem; color: #7f8c8d;">
             للحماية من الهجمات الإلكترونية
-        </div>
+        </div> --}}
     </div>
 
     <script>
