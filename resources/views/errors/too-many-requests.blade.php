@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #111111 0%, #111111 100%);
+            background: linear-gradient(135deg, #000000 0%, #000000 100%);
             margin: 0;
             padding: 0;
             display: flex;
@@ -17,7 +17,7 @@
             color: #ffffff;
         }
         .error-container {
-            background: rgb(55, 55, 55);
+            background: rgb(24, 24, 24);
             padding: 3rem;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -47,6 +47,7 @@
         }
         .info-box {
             background: #fff9e6;
+            color: #111111 ;
             padding: 1rem;
             border-radius: 8px;
             margin: 1.5rem 0;
