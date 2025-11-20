@@ -56,7 +56,7 @@
             <!-- Support -->
             <p style="font-size: 14px; color: #666; margin-top: 25px;">
                 في حال واجهتك أي صعوبة في تفعيل الحساب، لا تتردد في التواصل مع دعم العملاء
-                <h6>support@watan-food-chain.com</h6>
+                <h4>support@watan-food-chain.com</h4>
             </p>
         </div>
 
