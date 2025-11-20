@@ -6,6 +6,7 @@ use App\Http\Resources\PostListResource;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
@@ -56,10 +57,27 @@ class PostController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Request $request)
     {
         try {
-            $post = Post::where('is_published', true)->find($id);
+
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|integer|exists:posts,id', // تغيير string إلى integer إذا كان ID رقمي
+            ], [
+                'id.required' => 'معرف المنشور مطلوب',
+                'id.integer' => 'معرف المنشور يجب أن يكون رقماً',
+                'id.exists' => 'المنشور غير موجود'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'بيانات غير صالحة',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $post = Post::where('is_published', true)->where('id',$request->id)->first();
 
             if (!$post) {
                 return response()->json([

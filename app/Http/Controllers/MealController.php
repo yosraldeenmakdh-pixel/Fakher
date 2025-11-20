@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Meal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class MealController extends Controller
 {
@@ -34,7 +35,7 @@ class MealController extends Controller
      public function getMealsByRating(Request $request)
     {
 
-        $perPage = $request->get('per_page', 6);
+        $perPage = $request->get('per_page', 8);
         $page = $request->get('page', 1);
         $categoryId = $request->get('category_id');
 
@@ -122,15 +123,31 @@ class MealController extends Controller
 
 
 
-public function getMealById($id)
+public function getMealById(Request $request)
 {
     try {
-        // البحث عن الوجبة مع العلاقات
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer|exists:meals,id', // تغيير string إلى integer إذا كان ID رقمي
+        ], [
+            'id.required' => 'معرف الوجبة مطلوب',
+            'id.integer' => 'معرف الوجبة يجب أن يكون رقماً',
+            'id.exists' => 'الوجبة غير موجودة'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'بيانات غير صالحة',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        $meal_id = $request->id ;
         $meal = Meal::with(['category' => function($query) {
             $query->select('id', 'name');
         }])
         ->where('is_available', true)
-        ->find($id);
+        ->where('id', $meal_id)
+        ->first();
 
         // التحقق من وجود الوجبة
         if (!$meal) {

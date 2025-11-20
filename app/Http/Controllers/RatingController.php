@@ -7,6 +7,7 @@ use App\Models\Meal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 // تم الرفع
 
@@ -14,14 +15,24 @@ class RatingController extends Controller
 {
 
 
-    public function storeOrUpdate(Request $request, $mealId)
+    public function storeOrUpdate(Request $request)
     {
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string'
+            'comment' => 'nullable|string' ,
+            'meal_id' => 'required|integer|exists:meals,id',
+        ], [
+            'meal_id.required' => 'معرف الوجبة مطلوب', // تصحيح: meal_id بدل id
+            'meal_id.integer' => 'معرف الوجبة يجب أن يكون رقماً',
+            'meal_id.exists' => 'الوجبة غير موجودة',
+            'rating.required' => 'التقييم مطلوب',
+            'rating.integer' => 'التقييم يجب أن يكون رقماً',
+            'rating.min' => 'التقييم يجب أن يكون على الأقل 1',
+            'rating.max' => 'التقييم يجب أن يكون على الأكثر 5'
         ]);
 
-        $meal = Meal::find($mealId);
+        $meal = Meal::where('id',$request->meal_id)->first();
+
         if (!$meal) {
             return response()->json([
                 'message' => 'الوجبة غير موجودة'
@@ -30,7 +41,7 @@ class RatingController extends Controller
 
         // البحث عن التقييم الحالي للمستخدم لهذه الوجبة
         $existingRating = Rating::where('user_id', Auth::id())
-            ->where('meal_id', $mealId)
+            ->where('meal_id', $request->meal_id)
             ->first();
 
         DB::beginTransaction();
@@ -55,7 +66,7 @@ class RatingController extends Controller
                 // إنشاء تقييم جديد
                 $rating = Rating::create([
                     'user_id' => Auth::id(),
-                    'meal_id' => $mealId,
+                    'meal_id' => $request->meal_id,
                     'rating' => $request->rating,
                     'comment' => $request->comment
                 ]);
@@ -77,7 +88,6 @@ class RatingController extends Controller
                 'meal_stats' => [
                     'average_rating' => $meal->average_rating,
                     'ratings_count' => $meal->ratings_count,
-                    // 'stars_text' => $meal->stars_text
                 ]
             ], $isUpdate ? 200 : 201);
 
@@ -91,21 +101,32 @@ class RatingController extends Controller
     }
 
 
-    public function getMealRatings($mealId, Request $request)
+    public function getMealRatings(Request $request)
     {
-        $meal = Meal::find($mealId);
-        if (!$meal) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer|exists:meals,id',
+        ], [
+            'id.required' => 'معرف الوجبة مطلوب',
+            'id.integer' => 'معرف الوجبة يجب أن يكون رقماً',
+            'id.exists' => 'الوجبة غير موجودة'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
-                'message' => 'الوجبة غير موجودة'
-            ], 404);
+                'success' => false,
+                'message' => 'بيانات غير صالحة',
+                'errors' => $validator->errors()
+            ], 422);
         }
+
+        $meal = Meal::where('id',$request->id)->first() ;
 
         $page = $request->get('page', 1); // الحصول على رقم الصفحة من Request
 
         $ratings = Rating::with(['user' => function($query) {
                 $query->select('id', 'name', 'email', 'image');
             }])
-            ->where('meal_id', $mealId)
+            ->where('meal_id', $meal->id)
             ->where('is_visible', true)
             ->orderBy('rating', 'DESC')
             ->orderBy('created_at', 'DESC')
@@ -121,7 +142,7 @@ class RatingController extends Controller
             });
 
         return response()->json([
-            'meal_id' => $mealId,
+            'meal_id' => $meal->id,
             'meal_name' => $meal->name,
             'total_ratings' => $ratings->total(),
             'average_rating' => $meal->average_rating,
@@ -134,11 +155,5 @@ class RatingController extends Controller
             'ratings' => $ratings->items()
         ]);
     }
-
-
-
-
-
-
 
 }

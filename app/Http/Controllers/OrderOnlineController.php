@@ -103,10 +103,11 @@ class OrderOnlineController extends Controller
 
 
 
-    public function update(Request $request, $id)
+    public function update(Request $request) // here
     {
 
         $validator = Validator::make($request->all(), [
+            'id' => 'required|integer|exists:order_onlines,id',
             'branch_id' => 'required|exists:branches,id',
             'kitchen_id' => 'required|exists:kitchens,id',
             'customer_phone' => 'required|string|digits:10',
@@ -118,7 +119,10 @@ class OrderOnlineController extends Controller
                 'after_or_equal:' . now()->addMinutes(30)->toDateTimeString()
             ]
         ], [
-            'order_date.after_or_equal' => 'يجب أن يكون وقت الاستلام بعد 30 دقيقة على الأقل من الوقت الحالي.'
+            'order_date.after_or_equal' => 'يجب أن يكون وقت الاستلام بعد 30 دقيقة على الأقل من الوقت الحالي.',
+            'id.required' => 'معرف الطلب مطلوب',
+            'id.integer' => 'معرف الطلب يجب أن يكون رقماً',
+            'id.exists' => 'الطلب غير موجودة'
         ]);
 
         if ($validator->fails()) {
@@ -133,7 +137,7 @@ class OrderOnlineController extends Controller
 
         try {
             // البحث عن الطلب
-            $order = OrderOnline::find($id);
+            $order = OrderOnline::find($request->id);
 
 
             if (!$order) {
@@ -244,9 +248,10 @@ class OrderOnlineController extends Controller
 
 
 
-    public function custom_update(Request $request, $id)
+    public function custom_update(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'id' => 'required|integer|exists:order_onlines,id',
             'branch_id' => 'sometimes|required|exists:branches,id',
             'kitchen_id' => 'required|exists:kitchens,id' ,
             'customer_phone' => 'sometimes|required|string|digits:10',
@@ -259,7 +264,10 @@ class OrderOnlineController extends Controller
                 'after_or_equal:' . now()->addMinutes(30)->toDateTimeString()
             ]
         ], [
-            'order_date.after_or_equal' => 'يجب أن يكون وقت الاستلام بعد 30 دقيقة على الأقل من الوقت الحالي.'
+            'order_date.after_or_equal' => 'يجب أن يكون وقت الاستلام بعد 30 دقيقة على الأقل من الوقت الحالي.',
+            'id.required' => 'معرف الطلب مطلوب',
+            'id.integer' => 'معرف الطلب يجب أن يكون رقماً',
+            'id.exists' => 'الطلب غير موجود'
         ]);
 
         if ($validator->fails()) {
@@ -276,7 +284,7 @@ class OrderOnlineController extends Controller
             $user = Auth::user();
 
             // البحث عن الطلب مع العلاقات
-            $order = OrderOnline::with(['items'])->find($id);
+            $order = OrderOnline::with(['items'])->where('id',$request->id)->first();
 
             if (!$order) {
                 throw new \Exception('الطلب غير موجود', 404);
@@ -321,15 +329,23 @@ class OrderOnlineController extends Controller
 
 
 
-    public function destroy($id)
+    public function destroy(Request $request)
     {
+
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer|exists:order_onlines,id',
+        ], [
+            'id.required' => 'معرف الطلب مطلوب',
+            'id.integer' => 'معرف الطلب يجب أن يكون رقماً',
+            'id.exists' => 'الطلب غير موجود'
+        ]);
+
         DB::beginTransaction();
 
         try {
             $user = Auth::user();
 
-            // البحث عن الطلب
-            $order = OrderOnline::find($id);
+            $order = OrderOnline::where('id',$request->id)->first();
 
             if (!$order) {
                 return response()->json([
@@ -338,7 +354,6 @@ class OrderOnlineController extends Controller
                 ], 404);
             }
 
-            // التحقق من ملكية الطلب
             if ($order->user_id != $user->id) {
                 return response()->json([
                     'success' => false,

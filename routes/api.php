@@ -89,7 +89,7 @@ Route::get('/meals/by-rating', [MealController::class, 'getMealsByRating']);
 
 Route::get('/rating', [PublicRatingController::class, 'index']);
 
-Route::get('/meals/{meal}/ratings', [RatingController::class, 'getMealRatings']);
+Route::get('/meals/ratings', [RatingController::class, 'getMealRatings']); // 1
 
 Route::get('/branches', [BranchController::class, 'index']);
 
@@ -100,7 +100,7 @@ Route::prefix('posts')->group(function () {
 
     Route::get('/articles', [PostController::class, 'articles']);
 
-    Route::get('/{id}', [PostController::class, 'show']);
+    Route::get('', [PostController::class, 'show']); // 2
 
 }) ;
 
@@ -110,7 +110,7 @@ Route::prefix('contact-settings')->group(function () {
 
 Route::get('/kitchens', [KitchenController::class, 'index']);
 
-Route::get('/meals/{id}', [MealController::class, 'getMealById']);
+Route::get('/meals', [MealController::class, 'getMealById']); // 3
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware(['checkUserActivity'])->group(function () {
@@ -119,37 +119,37 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/', [ComplaintController::class, 'store']);
         }) ;
 
-        Route::post('/meals/{meal}/rate', [RatingController::class, 'storeOrUpdate']);
+        Route::post('/meals/rate', [RatingController::class, 'storeOrUpdate']); // 4
         // Route::put('meals/rating/update', [RatingController::class, 'storeOrUpdate']);
         Route::post('/rating', [PublicRatingController::class, 'store']);
 
         Route::get('/cart', [OrderOnlineController::class, 'getCart']);
 
-        Route::delete('/cart/item/{itemId}', [OrderItemController::class, 'removeItem']);
+        Route::delete('/cart/item', [OrderItemController::class, 'removeItem']); // 5
 
-        Route::put('orders/{id}', [OrderOnlineController::class, 'update']);
-        Route::put('orders/custom/{id}', [OrderOnlineController::class, 'custom_update']);
-        Route::delete('/orders/{id}', [OrderOnlineController::class, 'destroy']);
+        Route::put('orders', [OrderOnlineController::class, 'update']); // 6
+        Route::put('orders/custom', [OrderOnlineController::class, 'custom_update']); // 7
+        Route::delete('/orders', [OrderOnlineController::class, 'destroy']); // 8
 
         Route::get('/my-orders', [OrderOnlineController::class, 'myOrders']);
 
 
 
 
-        Route::prefix('reservations')->group(function () {
+        // Route::prefix('reservations')->group(function () {
 
-            Route::post('/check-availability', [ReservationController::class, 'checkAvailability']);
+        //     Route::post('/check-availability', [ReservationController::class, 'checkAvailability']);
 
-            // إنشاء حجز جديد
-            Route::post('/', [ReservationController::class, 'store']);
-
-
-            Route::get('/my-reservations', [ReservationController::class, 'getUserReservations']);
-
-            Route::put('/{id}/cancel', [ReservationController::class, 'cancelReservation']);
+        //     // إنشاء حجز جديد
+        //     Route::post('/', [ReservationController::class, 'store']);
 
 
-        }) ;
+        //     Route::get('/my-reservations', [ReservationController::class, 'getUserReservations']);
+
+        //     Route::put('/{id}/cancel', [ReservationController::class, 'cancelReservation']);
+
+
+        // }) ;
     }) ;
 
 });

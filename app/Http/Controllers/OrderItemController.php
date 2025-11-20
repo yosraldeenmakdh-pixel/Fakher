@@ -140,12 +140,21 @@ class OrderItemController extends Controller
     /**
  * حذف عنصر من سلة المستخدم
  */
-public function removeItem($itemId)
+public function removeItem(Request $request)
 {
     try {
+        $request->validate([
+            'item_id' => 'required|integer|exists:order_online_items,id',
+        ], [
+            'item_id.required' => 'معرف الوجبة مطلوب',
+            'item_id.integer' => 'معرف الوجبة يجب أن يكون رقماً',
+            'item_id.exists' => 'الوجبة غير موجودة'
+        ]);
         DB::beginTransaction();
 
         $user = Auth::user();
+
+        $item_id = $request->item_id ;
 
         // البحث عن الطلب pending للمستخدم
         $order = $user->orders_online()
@@ -161,7 +170,7 @@ public function removeItem($itemId)
 
         // البحث عن العنصر المراد حذفه والتأكد أنه ينتمي للطلب
         $orderItem = $order->items()
-            ->where('id', $itemId)
+            ->where('id', $item_id)
             ->first();
 
         if (!$orderItem) {
@@ -208,7 +217,7 @@ public function removeItem($itemId)
                 'cart_empty' => false,
                 'remaining_items' => $remainingItems,
                 'deleted_item' => [
-                    'id' => $itemId,
+                    'id' => $item_id,
                     'total_price' => $itemTotalPrice
                 ]
             ]
