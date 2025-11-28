@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\DailyScheduleMeal;
 use App\Models\DailyKitchenSchedule;
 use App\Models\ScheduledInstitutionOrder;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Schemas\Components\Grid;
 
@@ -100,8 +101,11 @@ class ScheduledInstitutionOrderForm
                         DatePicker::make('order_date')
                             ->label('تاريخ الطلب')
                             ->required()
+                            ->native(false)
+                            // ->readOnly($isKitchen)
+                            ->disabled($isKitchen)
+                            ->displayFormat('d/m/Y')
                             ->minDate(now())
-                            // ->reactive()
                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                 self::updateAvailableMeals($set, $get);
                                 self::checkExistingOrder($set, $get);
@@ -114,12 +118,24 @@ class ScheduledInstitutionOrderForm
                                         self::checkExistingOrder($set, $get);
                                     })
                             )
-                            ->helperText(function (callable $get) {
-                                $existingOrder = self::getExistingOrder($get);
-                                if ($existingOrder) {
-                                    return '⚠️ يوجد طلب سابق في هذا التاريخ. لا يمكنك انشاء طلب جديد . يمكنك تعديل الطلب الحالي بدلاً من إنشاء طلب جديد.';
-                                }
-                            }),
+                            ->rules([
+                                // إضافة قاعدة تحقق مخصصة
+                                function (callable $get) {
+                                    return function (string $attribute, $value, Closure $fail) use ($get) {
+                                        $existingOrder = self::getExistingOrder($get);
+                                        if ($existingOrder) {
+                                            $fail('⚠️ يوجد طلب سابق في هذا التاريخ. لا يمكنك إنشاء طلب جديد. يمكنك تعديل الطلب الحالي بدلاً من إنشاء طلب جديد.');
+                                        }
+                                    };
+                                },
+                            ])
+                            // ->helperText(function (callable $get) {
+                            //     $existingOrder = self::getExistingOrder($get);
+                            //     if ($existingOrder) {
+                            //         return '⚠️ يوجد طلب سابق في هذا التاريخ. لا يمكنك إنشاء طلب جديد. يمكنك تعديل الطلب الحالي بدلاً من إنشاء طلب جديد.';
+                            //     }
+                            //     return 'اختر تاريخ الطلب (التواريخ المستقبلية فقط)';
+                            // }),
 
                     ])->columns(2),
 
@@ -129,6 +145,7 @@ class ScheduledInstitutionOrderForm
                         TextInput::make('breakfast_persons')
                             ->label('عدد الأشخاص - الإفطار')
                             ->numeric()
+                            ->disabled($isKitchen)
                             ->minValue(0)
                             // ->default(0)
                             ->required(),
@@ -136,6 +153,7 @@ class ScheduledInstitutionOrderForm
                         TextInput::make('lunch_persons')
                             ->label('عدد الأشخاص - الغداء')
                             ->numeric()
+                            ->disabled($isKitchen)
                             ->minValue(0)
                             // ->default(0)
                             ->required(),
@@ -143,6 +161,7 @@ class ScheduledInstitutionOrderForm
                         TextInput::make('dinner_persons')
                             ->label('عدد الأشخاص - العشاء')
                             ->numeric()
+                            ->disabled($isKitchen)
                             ->minValue(0)
                             // ->default(0)
                             ->required(),
@@ -332,10 +351,13 @@ class ScheduledInstitutionOrderForm
                         TextInput::make('total_amount')
                             ->label('المبلغ الإجمالي النهائي')
                             ->numeric()
+                            ->disabled()
+                            ->readOnly()
                             ->required()
                             ->prefix('$')
                             ->minValue(0)
                             ->default(0)
+                            ->readOnly()
                             ->reactive()
                             ->afterStateHydrated(function ($component, $state, callable $get) {
                                 // تحديث المبلغ الإجمالي عند تحميل البيانات
@@ -356,6 +378,7 @@ class ScheduledInstitutionOrderForm
                                 ] : [
                                     Select::make('status')
                                         ->label('حالة الطلب')
+                                        ->disabled($isKitchen)
                                         ->required()
                                         ->options([
                                             'pending' => 'قيد الانتظار',
@@ -369,11 +392,11 @@ class ScheduledInstitutionOrderForm
 
                         DateTimePicker::make('confirmed_at')
                             ->label('تاريخ التأكيد')
-                            ->hidden(Auth::user()->hasRole('institution')),
+                            ->hidden(Auth::user()->hasRole('institution')|| $isKitchen),
 
                         DateTimePicker::make('delivered_at')
                             ->label('تاريخ التوصيل')
-                            ->hidden(Auth::user()->hasRole('institution')),
+                            ->hidden(Auth::user()->hasRole('institution')|| $isKitchen),
                     ])->columns(2),
 
                 Section::make('تعليمات خاصة')
@@ -381,6 +404,7 @@ class ScheduledInstitutionOrderForm
                         Textarea::make('special_instructions')
                             ->label('التعليمات الخاصة')
                             ->rows(3)
+                            ->disabled($isKitchen)
                             ->maxLength(500)
                             ->columnSpanFull(),
                     ]),

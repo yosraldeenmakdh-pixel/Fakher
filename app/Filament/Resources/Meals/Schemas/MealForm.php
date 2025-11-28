@@ -26,10 +26,20 @@ class MealForm
                 Select::make('category_id')
                     ->label('Category')
                     ->relationship('category', 'name')
-                    ->required()
+                    // ->required()
                     ->searchable()
                     ->preload()
                     ->native(false),
+
+                Select::make('meal_type')
+                    ->options([
+                        'breakfast' => 'فطور',
+                        'lunch' => 'غداء',
+                        'dinner' => 'عشاء',
+                    ])
+                    ->default('lunch')
+                    ->required()
+                    ->label('نوع الوجبة'),
 
                 Textarea::make('description')
                     ->label('Description')

@@ -105,7 +105,7 @@ class OrderForm
                                     ->numeric()
                                     ->required()
                                     ->minValue(1)
-                                    ->maxValue(1001)
+                                    // ->maxValue(1001)
                                     ->suffixAction(
                                         Action::make('updateQuantity')
                                             ->icon('heroicon-o-check')

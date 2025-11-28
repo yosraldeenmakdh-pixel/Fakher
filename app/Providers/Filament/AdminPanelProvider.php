@@ -2,9 +2,17 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\ComplaintsTrendChart;
+use App\Filament\Widgets\KitchenRevenueChart;
+use App\Filament\Widgets\KitchenSalesChart;
+use App\Filament\Widgets\MealsOrderChart;
+use App\Filament\Widgets\MealsTrendChart;
 use App\Filament\Widgets\MostOrderedMeals;
 use App\Filament\Widgets\OrderStats;
+use App\Filament\Widgets\TopInstitutionsChart;
+use App\Filament\Widgets\TotalSalesTrendChart;
 use App\Http\Middleware\CheckUserRole;
+use App\Models\Complaint;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -48,9 +56,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
-                OrderStats::class,
-                MostOrderedMeals::class,
+                KitchenSalesChart::class,
+                ComplaintsTrendChart::class ,
+                TotalSalesTrendChart::class ,
+                TopInstitutionsChart::class ,
+                KitchenRevenueChart::class ,
             ])
             ->middleware([
                 EncryptCookies::class,

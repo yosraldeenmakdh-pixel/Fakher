@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ScheduledInstitutionOrder extends Model
 {
@@ -54,7 +56,66 @@ class ScheduledInstitutionOrder extends Model
         static::saving(function ($model) {
             $model->updateTotalAmount();
         });
+
+        static::updated(function ($model) {
+            $model->updateScheduledInstitutionOrderStatus();
+        });
     }
+
+
+
+    public function shouldUpdateOrderStatus(): bool
+    {
+        return $this->wasChanged('status') &&
+               $this->getOriginal('status') === 'confirmed' &&
+               $this->status === 'delivered' &&
+               Auth::user() &&
+               Auth::user()->hasRole('kitchen');
+    }
+
+
+    public function updateScheduledInstitutionOrderStatus()
+    {
+
+            if (!$this->shouldUpdateOrderStatus()) {
+                    return false;
+            }
+            return DB::transaction(function () {
+                try {
+
+                    $order = self::where('id', $this->id)
+                        ->lockForUpdate()
+                        ->first();
+
+                    $kitchen = $order->kitchen ;
+
+                    $lockedKitchen = Kitchen::where('id', $kitchen->id)
+                        ->lockForUpdate()
+                        ->first();
+
+                    $budgetBefore = $lockedKitchen->Financial_debts;
+                    $orderAmount = $this->total_amount;
+
+                    $newBudget = $budgetBefore - $orderAmount;
+
+                    $lockedKitchen->Financial_debts = $newBudget;
+                    $lockedKitchen->save();
+
+                } catch (\Exception $e) {
+                    DB::rollBack() ;
+                    throw $e;
+                }
+
+            }) ;
+    }
+
+
+
+
+
+
+
+
 
     /**
      * العلاقات الأساسية

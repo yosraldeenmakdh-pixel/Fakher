@@ -37,6 +37,20 @@ class MealsTable
                     ->badge()
                     ->color('primary'),
 
+                TextColumn::make('meal_type')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'breakfast' => 'فطور',
+                        'lunch' => 'غداء',
+                        'dinner' => 'عشاء',
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'breakfast' => 'success',
+                        'lunch' => 'warning',
+                        'dinner' => 'danger',
+                    })
+                    ->label('نوع الوجبة'),
+
                 TextColumn::make('price')
                     ->label('price')
                     // ->money('ل.س')

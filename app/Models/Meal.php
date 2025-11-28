@@ -10,7 +10,7 @@ class Meal extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'description', 'price', 'image', 'is_available', 'category_id','average_rating', 'ratings_count'
+        'name', 'description', 'price', 'image', 'is_available','meal_type', 'category_id','average_rating', 'ratings_count'
     ];
 
     protected $casts = [
@@ -19,23 +19,27 @@ class Meal extends Model
         'ratings_count' => 'integer'
     ];
 
-    // protected $appends = [
-    //     'average_rating',
-    //     'ratings_count',
-    //     // 'stars_text',
-    //     // 'rating_distribution',
-    //     // 'rating_percentages'
-    // ];
 
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
+
+
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
     }
+    public function onlineOrderItems()
+    {
+        return $this->hasMany(OrderOnlineItem::class);
+    }
+    public function institutionOrderItems()
+    {
+        return $this->hasMany(InstitutionOrderItem::class);
+    }
+
 
     // العلاقة مع التقييمات
     public function ratings()
@@ -91,5 +95,27 @@ class Meal extends Model
             'is_scheduled_price' => $hasScheduledPrice
         ];
     }
+
+
+public function scheduledOrderMeals()
+{
+    return $this->hasManyThrough(
+        ScheduledInstitutionOrderMeal::class,    // النموذج النهائي (الطلبات)
+        DailyScheduleMeal::class,                // النموذج الوسيط (الجدولة)
+        'meal_id',                               // المفتاح الأجنبي في الجدولة
+        'daily_schedule_meal_id',                // المفتاح الأجنبي في الطلبات
+        'id',                                    // المفتاح المحلي في الوجبات
+        'id'                                     // المفتاح المحلي في الجدولة
+    );
+}
+
+public function getTotalSalesAttribute()
+{
+    $orderItems = $this->orderItems()->sum('quantity');
+    $onlineItems = $this->onlineOrderItems()->sum('quantity');
+    $institutionItems = $this->institutionOrderItems()->sum('quantity');
+
+    return $orderItems + $onlineItems + $institutionItems ;
+}
 
 }

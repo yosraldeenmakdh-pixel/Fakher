@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\DailyKitchenSchedules\Schemas;
 
 use App\Models\Kitchen;
+use App\Models\Meal;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
@@ -52,8 +53,9 @@ class DailyKitchenScheduleForm
                             ->unique(ignoreRecord: true)
                             ->minDate(now()->addDay()->toDateString())
                             ->default(now()->addDay()->toDateString())
-                            ->displayFormat('d/m/Y') // تنسيق العرض
-                            ->closeOnDateSelection() // إغلاق التقويم بعد الاختيار
+                            ->displayFormat('d/m/Y')
+                            ->native(false)
+                            ->closeOnDateSelection()
                             ->columnSpanFull()
                             ->hint('يسمح فقط بالتواريخ المستقبلية')
                             ->hintColor('primary')
@@ -64,8 +66,6 @@ class DailyKitchenScheduleForm
                             ->validationMessages([
                                 'after' => 'لا يمكن جدولة تاريخ في الماضي!',
                             ]),
-
-
                     ]),
 
                 Section::make('الوجبات المجدولة')
@@ -74,14 +74,6 @@ class DailyKitchenScheduleForm
                             ->label('')
                             ->relationship('scheduledMeals')
                             ->schema([
-                                Select::make('meal_id')
-                                    ->label('الوجبة')
-                                    ->relationship('meal', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->required()
-                                    ->columnSpan(2),
-
                                 Select::make('meal_type')
                                     ->label('نوع الوجبة')
                                     ->options([
@@ -90,7 +82,38 @@ class DailyKitchenScheduleForm
                                         'dinner' => 'عشاء',
                                     ])
                                     ->required()
-                                    ->columnSpan(1),
+                                    ->columnSpan(1)
+                                    ->reactive() // هذا مهم لتفعيل التفاعل بين الحقول
+                                    ->afterStateUpdated(fn ($state, callable $set) => $set('meal_id', null)), // إعادة تعيين الوجبة عند تغيير النوع
+
+                                Select::make('meal_id')
+                                    ->label('الوجبة')
+                                    ->options(function (callable $get) {
+                                        $mealType = $get('meal_type');
+
+                                        // إذا لم يتم اختيار نوع الوجبة، لا تعرض أي وجبات
+                                        if (!$mealType) {
+                                            return [];
+                                        }
+
+                                        // عرض الوجبات التي تطابق النوع المحدد
+                                        return Meal::where('meal_type', $mealType)
+                                            ->where('is_available', true)
+                                            ->pluck('name', 'id')
+                                            ->toArray();
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->columnSpan(2)
+                                    ->disabled(fn (callable $get) => !$get('meal_type')) // تعطيل الحقل حتى يتم اختيار النوع
+                                    ->helperText(function (callable $get) {
+                                        $mealType = $get('meal_type');
+                                        if (!$mealType) {
+                                            return 'يرجى اختيار نوع الوجبة أولاً';
+                                        }
+                                        // return "يتم عرض وجبات ال{$mealType} فقط";
+                                    }),
                             ])
                             ->columns(3)
                             // ->itemLabel(fn (array $state): ?string => $state['meal_id'] ?? null)

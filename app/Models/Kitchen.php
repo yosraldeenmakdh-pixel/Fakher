@@ -24,16 +24,17 @@ class Kitchen extends Model
     {
         return $this->belongsTo(Branch::class);
     }
+    public function institutions()
+    {
+        return $this->hasMany(OfficialInstitution::class);
+    }
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function orders()
-    {
-        return $this->hasMany(InstitutionOrder::class);
-    }
+
 
     public function pendingOrders()
     {
@@ -49,4 +50,27 @@ class Kitchen extends Model
     {
         return $this->hasMany(Table::class);
     }
+
+    public function localOrders()
+    {
+        return $this->hasMany(Order::class, 'kitchen_id');
+    }
+
+    // العلاقة مع طلبات الموقع الإلكتروني
+    public function onlineOrders()
+    {
+        return $this->hasMany(OrderOnline::class, 'kitchen_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(InstitutionOrder::class);
+    }
+
+    // العلاقة مع طلبات المؤسسات المجدولة
+    public function scheduledInstitutionOrders()
+    {
+        return $this->hasMany(ScheduledInstitutionOrder::class, 'kitchen_id');
+    }
+
 }

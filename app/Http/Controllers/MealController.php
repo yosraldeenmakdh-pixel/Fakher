@@ -45,6 +45,7 @@ class MealController extends Controller
             $query = Meal::with(['category' => function($query) {
                 $query->select('id', 'name');
             }])
+            ->where('meal_type', 'lunch')
             ->where('is_available', true);
 
             // تطبيق الفلترة حسب التصنيف إذا موجود

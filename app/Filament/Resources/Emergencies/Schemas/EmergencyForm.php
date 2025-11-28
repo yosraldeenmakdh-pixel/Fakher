@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Filament\Resources\InstitutionOrders\Schemas;
+namespace App\Filament\Resources\Emergencies\Schemas;
 
 use App\Models\Meal;
+use DateTime;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
@@ -22,23 +24,20 @@ use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Number;
 
-class InstitutionOrderForm
+class EmergencyForm
 {
     public static function configure(Schema $schema): Schema
     {
-
         $currentInstitution = Auth::user()->officialInstitution;
         $isKitchen = Auth::user()->hasRole('kitchen');
 
-
         return $schema
             ->components([
-                Section::make('معلومات الطلب الأساسية')
+                Section::make('معلومات الطلب الطارئ الأساسية')
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 ...(Auth::user()->hasRole('institution') ? [
-
                                     Hidden::make('institution_id')
                                         ->default($currentInstitution->id),
 
@@ -48,7 +47,6 @@ class InstitutionOrderForm
                                         ->extraAttributes(['class' => 'font-bold']),
 
                                 ] : [
-
                                     Select::make('institution_id')
                                         ->label('المؤسسة')
                                         ->relationship('institution', 'name')
@@ -57,7 +55,7 @@ class InstitutionOrderForm
                                         ->preload()
                                         ->native(false)
                                         ->disabled($isKitchen),
-                                ]) ,
+                                ]),
 
                                 ...(Auth::user()->hasRole('institution') ? [
                                     Hidden::make('branch_id')
@@ -67,7 +65,7 @@ class InstitutionOrderForm
                                         ->label('الفرع')
                                         ->content($currentInstitution->branch->name ?? 'غير معين')
                                         ->extraAttributes(['class' => 'font-bold']),
-                                ]:[
+                                ] : [
                                     Select::make('branch_id')
                                         ->label('الفرع')
                                         ->relationship('branch', 'name')
@@ -76,8 +74,7 @@ class InstitutionOrderForm
                                         ->preload()
                                         ->native(false)
                                         ->disabled($isKitchen),
-                                ]) ,
-
+                                ]),
 
                                 ...(Auth::user()->hasRole('institution') ? [
                                     Hidden::make('kitchen_id')
@@ -87,8 +84,8 @@ class InstitutionOrderForm
                                         ->label('المطبخ')
                                         ->content($currentInstitution->kitchen->name ?? 'غير معين')
                                         ->extraAttributes(['class' => 'font-bold']),
-                                ]:[
-                                    Select::make('branch_id')
+                                ] : [
+                                    Select::make('kitchen_id')
                                         ->label('المطبخ')
                                         ->relationship('kitchen', 'name')
                                         ->required()
@@ -96,32 +93,51 @@ class InstitutionOrderForm
                                         ->preload()
                                         ->native(false)
                                         ->disabled($isKitchen),
-                                ]) ,
+                                ]),
                             ]),
-
-
 
                         Grid::make(2)
                             ->schema([
-                                TextInput::make('order_number')
-                                    ->label('رقم الطلب')
+                                DateTimePicker::make('order_date')
+                                    ->label('تاريخ ووقت الطلب')
                                     ->required()
-                                    ->unique(ignoreRecord: true)
-                                    ->maxLength(255)
-                                    ->default('ORD-' . date('Ymd-His'))
-                                    ->disabled(true)
-                                    ->dehydrated(), // هذه مهمة لتأكد من إرسال القيمة
+                                    ->native(false)
+                                    ->default(now()->addHours(2)->addMinute(30)) // قيمة افتراضية بعد ساعتين
+                                    ->minDate(now()->addHours(2)) // منع اختيار التواريخ قبل ساعتين من الآن
+                                    ->disabled($isKitchen)
+                                    ->rules([
+                                        'required',
+                                        'date',
+                                        'after_or_equal:' . now()->addHours(2)->format('Y-m-d H:i:s'),
+                                    ])
+                                    ->helperText('يجب أن يكون تاريخ ووقت الطلب بعد ساعتين على الأقل من الآن (' . now()->addHours(2)->format('Y-m-d H:i') . ')')
+                                    ->validationMessages([
+                                        'after_or_equal' => 'يجب أن يكون تاريخ ووقت الطلب بعد ساعتين على الأقل من الوقت الحالي.',
+                                    ])
+                                    ->seconds(false) // إخفاء الثواني إذا لم تكن ضرورية
+                                    ->displayFormat('d/m/Y H:i'), // تنسيق العرض
 
+                                TextInput::make('persons')
+                                    ->label('عدد الأشخاص')
+                                    ->required()
+                                    ->numeric()
+                                    ->disabled($isKitchen)
+                                    // ->reactive()
+                                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                        self::updateOrderTotals($set, $get);
+                                    }),
+                            ]),
 
-
+                        Grid::make(2)
+                            ->schema([
                                 ...(Auth::user()->hasRole('institution') ? [
                                     Hidden::make('status')
                                         ->default('pending'),
 
-                                    Placeholder::make('status_display')
-                                        ->label('حالة الطلب')
-                                        ->content('قيد الانتظار')
-                                        ->extraAttributes(['class' => 'font-bold text-green-600']),
+                                    // Placeholder::make('status_display')
+                                    //     ->label('حالة الطلب')
+                                    //     ->content('قيد الانتظار')
+                                    //     ->extraAttributes(['class' => 'font-bold text-green-600']),
                                 ] : [
                                     Select::make('status')
                                         ->label('حالة الطلب')
@@ -135,15 +151,16 @@ class InstitutionOrderForm
                                                 'delivered' => 'تم التسليم',
                                                 'cancelled' => 'ملغي',
                                             ];
-                                            if(Auth::user()->hasRole('kitchen')){
-                                                if ($currentStatus === 'Pending') {
+
+                                            if (Auth::user()->hasRole('kitchen')) {
+                                                if ($currentStatus === 'pending') {
                                                     // من pending يمكن الانتقال إلى confirmed أو cancelled فقط
                                                     unset($options['delivered']);
-                                                    unset($options['Pending']);
+                                                    unset($options['pending']);
                                                     unset($options['cancelled']);
                                                 } elseif ($currentStatus === 'confirmed') {
                                                     // من confirmed يمكن الانتقال إلى delivered أو cancelled فقط
-                                                    unset($options['Pending']);
+                                                    unset($options['pending']);
                                                 } elseif (in_array($currentStatus, ['delivered', 'cancelled'])) {
                                                     // لا يمكن تغيير الحالة إذا كانت delivered أو cancelled
                                                     return [];
@@ -152,39 +169,34 @@ class InstitutionOrderForm
 
                                             return $options;
                                         })
-
                                         ->default('pending')
-                                        ->native(false),
+                                        ->native(false)
+                                        ->reactive()
+                                        ->afterStateUpdated(function ($state, Set $set) {
+                                            if ($state === 'confirmed') {
+                                                $set('confirmed_at', now());
+                                            } elseif ($state === 'delivered') {
+                                                $set('delivered_at', now());
+                                            }
+                                        }),
                                 ]),
-                            ]),
 
-                        Grid::make(2)
-                            ->schema([
-                                DatePicker::make('delivery_date')
-                                    ->label('تاريخ الاستلام')
-                                    ->required()
-                                    ->native(false)
-                                    ->helperText('يجب أن يكون تاريخ الاستلام بعد 24 ساعة على الأقل من الآن والا سيرفض الطلب.')
-                                    ->minDate(now())
-                                    ->disabled($isKitchen),
-
-
-                                TimePicker::make('delivery_time')
-                                    ->label('وقت الاستلام')
-                                    ->required()
-                                    ->seconds(false)
-                                    ->displayFormat('h:i A') // تنسيق 12 ساعة
-
-                                    ->helperText('اختر الوقت المناسب لاستلام الطلب')
-                                    ->placeholder('--:-- --')
-                                    ->disabled($isKitchen),
+                                Placeholder::make('total_amount_display')
+                                    ->label('المبلغ الإجمالي')
+                                    ->hidden(Auth::user()->hasRole('institution'))
+                                    ->content(function (Get $get) {
+                                        $total = $get('total_amount') ?? 0;
+                                        return number_format($total, 2) . ' ر.س';
+                                    })
+                                    ->extraAttributes(['class' => 'text-lg font-bold text-green-600']),
                             ]),
                     ]),
 
-                Section::make('تفاصيل الوجبات')
+                Section::make('تفاصيل الوجبات الطارئة')
+                    ->hidden(Auth::user()->hasRole('institution'))
                     ->schema([
-                        Repeater::make('orderItems')
-                            ->relationship('orderItems')
+                        Repeater::make('items')
+                            ->relationship('items')
                             ->label('الوجبات المطلوبة')
                             ->schema([
                                 Select::make('meal_id')
@@ -288,7 +300,7 @@ class InstitutionOrderForm
                         Placeholder::make('items_total')
                             ->label('المجموع الكلي للوجبات')
                             ->content(function (callable $get) {
-                                $items = $get('orderItems') ?? [];
+                                $items = $get('items') ?? [];
                                 $total = 0;
                                 foreach ($items as $item) {
                                     if (isset($item['total_price']) && is_numeric($item['total_price'])) {
@@ -304,21 +316,43 @@ class InstitutionOrderForm
                     ]),
 
                 Section::make('الملخص النهائي')
-                    ->visible(!$isKitchen)
+                    ->hidden(Auth::user()->hasRole('institution'))
                     ->schema([
-                        Placeholder::make('final_total')
-                            ->label('المجموع النهائي')
-                            ->content(function (Get $get) {
-                                $items = $get('orderItems') ?? [];
-                                $total = 0;
-                                foreach ($items as $item) {
-                                    if (isset($item['total_price']) && is_numeric($item['total_price'])) {
-                                        $total += (float)$item['total_price'];
-                                    }
-                                }
-                                return number_format($total, 2)    ;
-                            })
-                            ->extraAttributes(['class' => 'text-xl font-bold text-green-600']),
+                        Grid::make(2)
+                            ->schema([
+                                Placeholder::make('persons_summary')
+                                    ->label('عدد الأشخاص')
+                                    ->hidden(Auth::user()->hasRole('institution'))
+                                    ->content(fn (Get $get) => $get('persons') ?? 0)
+                                    ->extraAttributes(['class' => 'font-bold']),
+
+                                Placeholder::make('final_total')
+                                    ->label('المجموع النهائي')
+                                    ->hidden(Auth::user()->hasRole('institution'))
+                                    ->content(function (Get $get) {
+                                        $items = $get('items') ?? [];
+                                        $total = 0;
+                                        foreach ($items as $item) {
+                                            if (isset($item['total_price']) && is_numeric($item['total_price'])) {
+                                                $total += (float)$item['total_price'];
+                                            }
+                                        }
+                                        return number_format($total, 2) . '$';
+                                    })
+                                    ->extraAttributes(['class' => 'text-xl font-bold text-green-600']),
+                            ]),
+
+
+
+                        // الحقول الزمنية المخفية
+                        Hidden::make('confirmed_at')
+                            ->default(null)
+                            ->dehydrated(),
+
+                        Hidden::make('delivered_at')
+                            ->default(null)
+                            ->dehydrated(),
+                    ]),
 
 
                         Hidden::make('total_amount')
@@ -327,15 +361,13 @@ class InstitutionOrderForm
                             ->reactive()
                             ->afterStateHydrated(function (callable $set, callable $get) {
                                 // عند تحميل البيانات
-                                $items = $get('orderItems') ?? [];
+                                $items = $get('items') ?? [];
                                 $total = 0;
                                 foreach ($items as $item) {
                                     $total += (float)($item['total_price'] ?? 0);
                                 }
                                 $set('total', $total);
                             }),
-                    ])
-                    ->columns(1),
 
                 Section::make('تعليمات خاصة')
                     ->schema([
@@ -344,15 +376,15 @@ class InstitutionOrderForm
                             ->nullable()
                             ->columnSpanFull()
                             ->rows(3)
-                            ->disabled($isKitchen),
+                            ->disabled($isKitchen)
+                            ->placeholder('أي تعليمات إضافية للطلب الطارئ...'),
                     ]),
             ]);
+    }
 
-        }
-
-        private static function updateOrderTotals(Set $set, Get $get): void
+    private static function updateOrderTotals(Set $set, Get $get): void
         {
-            $items = $get('orderItems') ?? [];
+            $items = $get('items') ?? [];
             $total = 0;
 
             foreach ($items as $item) {
@@ -363,7 +395,4 @@ class InstitutionOrderForm
 
             $set('total_amount', $total);
         }
-    }
-
-
-
+}

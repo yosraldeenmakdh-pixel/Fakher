@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ScheduledInstitutionOrders\Tables;
 
+use App\Models\DailyScheduleMeal;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -9,6 +10,13 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -33,7 +41,7 @@ class ScheduledInstitutionOrdersTable
                     return $query->where('institution_id', $user->officialInstitution->id);
                 }
                 if ($user->hasRole('kitchen')) {
-                    return $query->where('status', ['pending','confirmed'])->where('kitchen_id',$user->kitchen->id);
+                    return $query->whereIn('status', ['pending','confirmed'])->where('kitchen_id',$user->kitchen->id);
                 }
                 return $query;
             })
@@ -82,29 +90,29 @@ class ScheduledInstitutionOrdersTable
                         return implode('  ،  ', $meals);
                     })
                     ->limit(50)
-                    ->tooltip(function ($record) {
-                        $breakfastMeals = $record->orderMeals->filter(function ($orderMeal) {
-                            return $orderMeal->scheduleMeal->meal_type === 'breakfast';
-                        });
+                    // ->tooltip(function ($record) {
+                    //     $breakfastMeals = $record->orderMeals->filter(function ($orderMeal) {
+                    //         return $orderMeal->scheduleMeal->meal_type === 'breakfast';
+                    //     });
 
-                        if ($breakfastMeals->isEmpty()) {
-                            return 'لا توجد وجبات فطور';
-                        }
+                    //     if ($breakfastMeals->isEmpty()) {
+                    //         return 'لا توجد وجبات فطور';
+                    //     }
 
-                        $output = [];
-                        $totalQuantity = 0;
-                        foreach ($breakfastMeals as $meal) {
-                            $output[] = "🍽️ <strong>{$meal->scheduleMeal->meal->name}</strong>";
-                            $output[] = "   - الكمية: {$meal->quantity} وجبة";
-                            $output[] = "   - السعر: {$meal->unit_price}$ للوجبة";
-                            $output[] = "<div style='height: 5px;'></div>"; // مسافة بين الوجبات
-                            $totalQuantity += $meal->quantity;
-                        }
-                        $output[] = "<hr style='margin: 8px 0;'>";
-                        $output[] = "📊 <strong>الإجمالي: {$totalQuantity} وجبة</strong>";
+                    //     $output = [];
+                    //     $totalQuantity = 0;
+                    //     foreach ($breakfastMeals as $meal) {
+                    //         $output[] = "🍽️ <strong>{$meal->scheduleMeal->meal->name}</strong>";
+                    //         $output[] = "   - الكمية: {$meal->quantity} وجبة";
+                    //         $output[] = "   - السعر: {$meal->unit_price}$ للوجبة";
+                    //         $output[] = "<div style='height: 5px;'></div>"; // مسافة بين الوجبات
+                    //         $totalQuantity += $meal->quantity;
+                    //     }
+                    //     $output[] = "<hr style='margin: 8px 0;'>";
+                    //     $output[] = "📊 <strong>الإجمالي: {$totalQuantity} وجبة</strong>";
 
-                        return new HtmlString(implode("<br>", $output));
-                    })
+                    //     return new HtmlString(implode("<br>", $output));
+                    // })
                     ->wrap(),
 
                 TextColumn::make('lunch_meals')
@@ -126,29 +134,29 @@ class ScheduledInstitutionOrdersTable
                         return implode('  ،  ', $meals);
                     })
                     ->limit(50)
-                    ->tooltip(function ($record) {
-                        $lunchMeals = $record->orderMeals->filter(function ($orderMeal) {
-                            return $orderMeal->scheduleMeal->meal_type === 'lunch';
-                        });
+                    // ->tooltip(function ($record) {
+                    //     $lunchMeals = $record->orderMeals->filter(function ($orderMeal) {
+                    //         return $orderMeal->scheduleMeal->meal_type === 'lunch';
+                    //     });
 
-                        if ($lunchMeals->isEmpty()) {
-                            return 'لا توجد وجبات غداء';
-                        }
+                    //     if ($lunchMeals->isEmpty()) {
+                    //         return 'لا توجد وجبات غداء';
+                    //     }
 
-                        $output = [];
-                        $totalQuantity = 0;
-                        foreach ($lunchMeals as $meal) {
-                            $output[] = "🍽️ <strong>{$meal->scheduleMeal->meal->name}</strong>";
-                            $output[] = "   - الكمية: {$meal->quantity} وجبة";
-                            $output[] = "   - السعر: {$meal->unit_price}$ للوجبة";
-                            $output[] = "<div style='height: 5px;'></div>";
-                            $totalQuantity += $meal->quantity;
-                        }
-                        $output[] = "<hr style='margin: 8px 0;'>";
-                        $output[] = "📊 <strong>الإجمالي: {$totalQuantity} وجبة</strong>";
+                    //     $output = [];
+                    //     $totalQuantity = 0;
+                    //     foreach ($lunchMeals as $meal) {
+                    //         $output[] = "🍽️ <strong>{$meal->scheduleMeal->meal->name}</strong>";
+                    //         $output[] = "   - الكمية: {$meal->quantity} وجبة";
+                    //         $output[] = "   - السعر: {$meal->unit_price}$ للوجبة";
+                    //         $output[] = "<div style='height: 5px;'></div>";
+                    //         $totalQuantity += $meal->quantity;
+                    //     }
+                    //     $output[] = "<hr style='margin: 8px 0;'>";
+                    //     $output[] = "📊 <strong>الإجمالي: {$totalQuantity} وجبة</strong>";
 
-                        return new HtmlString(implode("<br>", $output));
-                    })
+                    //     return new HtmlString(implode("<br>", $output));
+                    // })
                     ->wrap(),
 
                 TextColumn::make('dinner_meals')
@@ -170,29 +178,29 @@ class ScheduledInstitutionOrdersTable
                         return implode('  ،  ', $meals);
                     })
                     ->limit(50)
-                    ->tooltip(function ($record) {
-                        $dinnerMeals = $record->orderMeals->filter(function ($orderMeal) {
-                            return $orderMeal->scheduleMeal->meal_type === 'dinner';
-                        });
+                    // ->tooltip(function ($record) {
+                    //     $dinnerMeals = $record->orderMeals->filter(function ($orderMeal) {
+                    //         return $orderMeal->scheduleMeal->meal_type === 'dinner';
+                    //     });
 
-                        if ($dinnerMeals->isEmpty()) {
-                            return 'لا توجد وجبات عشاء';
-                        }
+                    //     if ($dinnerMeals->isEmpty()) {
+                    //         return 'لا توجد وجبات عشاء';
+                    //     }
 
-                        $output = [];
-                        $totalQuantity = 0;
-                        foreach ($dinnerMeals as $meal) {
-                            $output[] = "🍽️ <strong>{$meal->scheduleMeal->meal->name}</strong>";
-                            $output[] = "   - الكمية: {$meal->quantity} وجبة";
-                            $output[] = "   - السعر: {$meal->unit_price}$ للوجبة";
-                            $output[] = "<div style='height: 5px;'></div>";
-                            $totalQuantity += $meal->quantity;
-                        }
-                        $output[] = "<hr style='margin: 8px 0;'>";
-                        $output[] = "📊 <strong>الإجمالي: {$totalQuantity} وجبة</strong>";
+                    //     $output = [];
+                    //     $totalQuantity = 0;
+                    //     foreach ($dinnerMeals as $meal) {
+                    //         $output[] = "🍽️ <strong>{$meal->scheduleMeal->meal->name}</strong>";
+                    //         $output[] = "   - الكمية: {$meal->quantity} وجبة";
+                    //         $output[] = "   - السعر: {$meal->unit_price}$ للوجبة";
+                    //         $output[] = "<div style='height: 5px;'></div>";
+                    //         $totalQuantity += $meal->quantity;
+                    //     }
+                    //     $output[] = "<hr style='margin: 8px 0;'>";
+                    //     $output[] = "📊 <strong>الإجمالي: {$totalQuantity} وجبة</strong>";
 
-                        return new HtmlString(implode("<br>", $output));
-                    })
+                    //     return new HtmlString(implode("<br>", $output));
+                    // })
                     ->wrap(),
 
                 // عدد الأشخاص للفطور
@@ -295,13 +303,35 @@ class ScheduledInstitutionOrdersTable
 
                 SelectFilter::make('status')
                     ->label('حالة الطلب')
-                    ->options([
-                        'pending' => 'قيد الانتظار',
-                        'confirmed' => 'مؤكد',
-                        'delivered' => 'تم التسليم',
-                        'cancelled' => 'ملغي',
-                    ])
+                    ->options(function () use ($user) {
+                        $baseOptions = [
+                            'pending' => 'قيد الانتظار',
+                            'confirmed' => 'مؤكد',
+                        ];
+
+                        // إذا كان المستخدم kitchen، نعرض فقط pending و confirmed
+                        if ($user->hasRole('kitchen')) {
+                            return $baseOptions;
+                        }
+
+                        // إذا لم يكن kitchen، نعرض جميع الخيارات
+                        return array_merge($baseOptions, [
+                            'delivered' => 'تم التسليم',
+                            // 'cancelled' => 'ملغي',
+                        ]);
+                    })
                     ->multiple(),
+
+                // SelectFilter::make('status')
+                //     ->label('حالة الطلب')
+
+                //     ->options([
+                //         'pending' => 'قيد الانتظار',
+                //         'confirmed' => 'مؤكد',
+                //         'delivered' => 'تم التسليم',
+                //         // 'cancelled' => 'ملغي',
+                //     ])
+                //     ->multiple(),
 
                 // DateRangeFilter::make('order_date')
                 //     ->label('تاريخ الطلب'),
@@ -315,10 +345,12 @@ class ScheduledInstitutionOrdersTable
 
                 Filter::make('future_orders')
                     ->label('الطلبات المستقبلية')
+                    ->hidden($isKitchen)
                     ->query(fn (Builder $query): Builder => $query->whereDate('order_date', '>=', now())),
 
                 Filter::make('past_orders')
                     ->label('الطلبات المنتهية')
+                    ->hidden($isKitchen)
                     ->query(fn (Builder $query): Builder => $query->whereDate('order_date', '<', now())),
 
                 // فلتر حسب المؤسسة (للمشرفين والمطابخ فقط)
@@ -335,7 +367,7 @@ class ScheduledInstitutionOrdersTable
                     ->relationship('kitchen', 'name')
                     ->searchable()
                     ->preload()
-                    ->visible(fn () => !$isKitchen),
+                    ->hidden($isKitchen || $isInstitution),
 
                 // فلتر حسب نوع الوجبة
                 // SelectFilter::make('has_breakfast')
@@ -368,30 +400,256 @@ class ScheduledInstitutionOrdersTable
                     //     ->modalCancelActionLabel('إغلاق'),
 
                     EditAction::make()
-                        ->label('تعديل') ,
+                        ->label('تعديل'),
+                        // ->hidden($isKitchen) ,
                         // ->visible(fn ($record) =>
-                        //     $record->status !== 'delivered' &&
-                        //     $record->status !== 'cancelled'
+                        //     $record->status == 'pending'
                         // ),
 
+
                     Action::make('confirm_order')
-                        ->label('تأكيد الطلب')
-                        ->icon('heroicon-o-check-circle')
-                        ->color('success')
-                        ->action(function ($record) {
-                            $record->update(['status' => 'confirmed', 'confirmed_at' => now()]);
-                        })
-                        ->requiresConfirmation()
-                        ->modalHeading('تأكيد الطلب')
-                        ->modalDescription('هل أنت متأكد من تأكيد هذا الطلب؟')
-                        ->modalSubmitActionLabel('نعم، قم بالتأكيد') ,
-                        // ->visible(fn ($record) =>
-                        //     $record->status === 'pending' &&
-                        //     Auth::user()->hasRole('kitchen')
-                        // ),
+                    ->label('تأكيد الطلب وإضافة الوجبات')
+                    ->icon('heroicon-o-check-circle')
+                    ->hidden($user->hasRole('institution'))
+                    ->visible((fn ($record) => $record->status === 'pending'))
+                    ->color('success')
+                    ->modalHeading('تأكيد الطلب وإضافة الوجبات المطلوبة')
+                    ->modalDescription(function ($record) {
+                        return "تأكيد طلب {$record->institution->name} بتاريخ {$record->order_date->format('d/m/Y')}";
+                    })
+                    ->form([
+                        // قسم الوجبات المجدولة المتاحة
+
+                         Section::make('عدد الأشخاص المطلوب إطعامهم')
+                            ->schema([
+                                Placeholder::make('breakfast_persons_info')
+                                    ->label('عدد الأشخاص لوجبة الإفطار')
+                                    ->content(function ($record) {
+                                        return $record->breakfast_persons . ' شخص';
+                                    })
+                                    ->extraAttributes(['class' => 'font-medium']),
+
+                                Placeholder::make('lunch_persons_info')
+                                    ->label('عدد الأشخاص لوجبة الغداء')
+                                    ->content(function ($record) {
+                                        return $record->lunch_persons . ' شخص';
+                                    })
+                                    ->extraAttributes(['class' => 'font-medium']),
+
+                                Placeholder::make('dinner_persons_info')
+                                    ->label('عدد الأشخاص لوجبة العشاء')
+                                    ->content(function ($record) {
+                                        return $record->dinner_persons . ' شخص';
+                                    })
+                                    ->extraAttributes(['class' => 'font-medium']),
+                            ])
+                            ->columns(3),
+
+                        Section::make('الوجبات المجدولة المتاحة')
+                            ->schema([
+                                Placeholder::make('available_meals_info')
+                                    ->label('الوجبات المتاحة للتاريخ المحدد')
+                                    ->content(function ($record) {
+                                        $kitchenId = $record->kitchen_id;
+                                        $orderDate = $record->order_date;
+
+                                        $meals = DailyScheduleMeal::whereHas('schedule', function($query) use ($kitchenId, $orderDate) {
+                                            $query->where('kitchen_id', $kitchenId)
+                                                ->whereDate('schedule_date', $orderDate);
+                                        })->with('meal')->get();
+
+                                        if ($meals->isEmpty()) {
+                                            return '⚠️ لا يوجد جدول وجبات لهذا المطبخ في التاريخ المحدد';
+                                        }
+
+                                        $breakfastMeals = $meals->where('meal_type', 'breakfast');
+                                        $lunchMeals = $meals->where('meal_type', 'lunch');
+                                        $dinnerMeals = $meals->where('meal_type', 'dinner');
+
+                                        $output = '';
+
+                                        if ($breakfastMeals->isNotEmpty()) {
+                                            $output .= "🍳 الفطور: " . $breakfastMeals->map(function($meal) {
+                                                return $meal->meal->name . " ({$meal->scheduled_price}$)";
+                                            })->join('، ') . "\n";
+                                        }
+
+                                        if ($lunchMeals->isNotEmpty()) {
+                                            $output .= "🍽️ الغداء: " . $lunchMeals->map(function($meal) {
+                                                return $meal->meal->name . " ({$meal->scheduled_price}$)";
+                                            })->join('، ') . "\n";
+                                        }
+
+                                        if ($dinnerMeals->isNotEmpty()) {
+                                            $output .= "🌙 العشاء: " . $dinnerMeals->map(function($meal) {
+                                                return $meal->meal->name . " ({$meal->scheduled_price}$)";
+                                            })->join('، ');
+                                        }
+
+                                        return $output;
+                                    })
+                                    ->extraAttributes(['class' => 'whitespace-pre-line text-sm bg-gray-50 p-3 rounded']),
+                            ]),
+
+
+
+                        // قسم الوجبات المطلوبة (نفس الموجود في الفورم)
+                        Section::make('الوجبات المطلوبة')
+                            ->description('حدد الوجبات المطلوبة وكمياتها')
+                            ->schema([
+                                Repeater::make('orderMeals')
+                                    ->label('')
+                                    ->schema([
+                                        Grid::make(2)
+                                            ->schema([
+                                                Select::make('daily_schedule_meal_id')
+                                                    ->label('الوجبة')
+                                                    ->options(function ($record) {
+                                                        $kitchenId = $record->kitchen_id;
+                                                        $orderDate = $record->order_date;
+
+                                                        if (!$kitchenId || !$orderDate) {
+                                                            return [];
+                                                        }
+
+                                                        return DailyScheduleMeal::whereHas('schedule', function($query) use ($kitchenId, $orderDate) {
+                                                            $query->where('kitchen_id', $kitchenId)
+                                                                ->whereDate('schedule_date', $orderDate);
+                                                        })
+                                                        ->with('meal')
+                                                        ->get()
+                                                        ->mapWithKeys(function ($item) {
+                                                            $type = match($item->meal_type) {
+                                                                'breakfast' => '🍳 فطور',
+                                                                'lunch' => '🍽️ غداء',
+                                                                'dinner' => '🌙 عشاء',
+                                                                default => $item->meal_type
+                                                            };
+                                                            return [
+                                                                $item->id => "{$item->meal->name} ({$type}) - {$item->scheduled_price}$"
+                                                            ];
+                                                        });
+                                                    })
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->required()
+                                                    // ->reactive()
+                                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                        if ($state) {
+                                                            $scheduleMeal = DailyScheduleMeal::find($state);
+                                                            if ($scheduleMeal) {
+                                                                $set('unit_price', $scheduleMeal->scheduled_price);
+                                                                $quantity = $get('quantity') ?? 1;
+                                                                $set('total_price', floatval($quantity) * floatval($scheduleMeal->scheduled_price));
+                                                            }
+                                                        }
+                                                    }),
+
+                                                TextInput::make('quantity')
+                                                    ->label('الكمية')
+                                                    ->required()
+                                                    ->numeric()
+                                                    ->minValue(1)
+                                                    // ->default(1)
+                                                    ->suffixAction(
+                                                        Action::make('updateQuantity')
+                                                            ->icon('heroicon-o-check')
+                                                            ->action(function ($set, $get, $state) {
+                                                                    $unitPrice = $get('unit_price') ?? 0;
+                                                                    $set('total_price', floatval($state) * floatval($unitPrice));
+                                                                })
+                                                    ) ,
+
+                                                TextInput::make('unit_price')
+                                                    ->label('سعر الوحدة')
+                                                    ->required()
+                                                    ->numeric()
+                                                    ->prefix('$')
+                                                    ->disabled()
+                                                    ->dehydrated(),
+
+                                                TextInput::make('total_price')
+                                                    ->label('المبلغ الإجمالي')
+                                                    ->required()
+                                                    ->numeric()
+                                                    ->prefix('$')
+                                                    ->disabled()
+                                                    ->dehydrated(),
+                                            ]),
+                                    ])
+                                    ->columns(1)
+                                    ->defaultItems(0)
+                                    ->createItemButtonLabel('إضافة وجبة')
+                                    ->minItems(0)
+                                    ->collapsible()
+                                    ->itemLabel(function (array $state): string {
+                                        $mealId = $state['daily_schedule_meal_id'] ?? null;
+                                        $quantity = $state['quantity'] ?? 0;
+
+                                        if ($mealId) {
+                                            $meal = DailyScheduleMeal::find($mealId);
+                                            if ($meal && $meal->meal) {
+                                                return $meal->meal->name . ' - ' . $quantity . ' وجبة';
+                                            }
+                                        }
+
+                                        return 'وجبة جديدة';
+                                    })
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        $total = 0;
+                                        foreach ($state as $meal) {
+                                            $quantity = $meal['quantity'] ?? 0;
+                                            $unitPrice = $meal['unit_price'] ?? 0;
+                                            $total += floatval($quantity) * floatval($unitPrice);
+                                        }
+                                        $set('total_amount', $total);
+                                    }),
+                            ]),
+
+                        // المبلغ الإجمالي
+                        Section::make('المعلومات المالية')
+                            ->schema([
+                                TextInput::make('total_amount')
+                                    ->label('المبلغ الإجمالي النهائي')
+                                    ->numeric()
+                                    ->required()
+                                    ->prefix('$')
+                                    ->minValue(0)
+                                    ->default(0)
+                                    ->disabled()
+                                    ->dehydrated(),
+                            ]),
+                    ])
+                    ->action(function ($record, array $data) {
+                        // 1. حذف الوجبات القديمة إذا كانت موجودة
+                        $record->orderMeals()->delete();
+
+                        // 2. إضافة الوجبات الجديدة
+                        foreach ($data['orderMeals'] as $mealData) {
+                            $record->orderMeals()->create($mealData);
+                        }
+
+                        // 3. تحديث المبلغ الإجمالي وحالة الطلب
+                        $record->update([
+                            'total_amount' => $data['total_amount'],
+                            'status' => 'confirmed',
+                            'confirmed_at' => now(),
+                        ]);
+                    })
+                    ->modalSubmitActionLabel('تأكيد الطلب')
+                    ->modalCancelActionLabel('إلغاء')
+                    ->after(function () {
+                        Notification::make()
+                            ->title('تم تأكيد الطلب بنجاح')
+                            ->success()
+                            ->send();
+                    }),
+
 
                     Action::make('mark_delivered')
                         ->label('تسليم الطلب')
+                        ->hidden($user->hasRole('institution'))
+                        ->visible((fn ($record) => $record->status === 'confirmed'))
                         ->icon('heroicon-o-truck')
                         ->color('info')
                         ->action(function ($record) {
@@ -406,21 +664,21 @@ class ScheduledInstitutionOrdersTable
                         //     Auth::user()->hasRole('kitchen')
                         // ),
 
-                    Action::make('cancel_order')
-                        ->label('إلغاء الطلب')
-                        ->icon('heroicon-o-x-circle')
-                        ->color('danger')
-                        ->action(function ($record) {
-                            $record->update(['status' => 'cancelled']);
-                        })
-                        ->requiresConfirmation()
-                        ->modalHeading('إلغاء الطلب')
-                        ->modalDescription('هل أنت متأكد من إلغاء هذا الطلب؟')
-                        ->modalSubmitActionLabel('نعم، قم بالإلغاء') ,
-                        // ->visible(fn ($record) =>
-                        //     in_array($record->status, ['pending', 'confirmed']) &&
-                        //     (Auth::user()->hasRole('institution') || Auth::user()->hasRole('kitchen'))
-                        // ),
+                    // Action::make('cancel_order')
+                    //     ->label('إلغاء الطلب')
+                    //     ->icon('heroicon-o-x-circle')
+                    //     ->color('danger')
+                    //     ->action(function ($record) {
+                    //         $record->update(['status' => 'cancelled']);
+                    //     })
+                    //     ->requiresConfirmation()
+                    //     ->modalHeading('إلغاء الطلب')
+                    //     ->modalDescription('هل أنت متأكد من إلغاء هذا الطلب؟')
+                    //     ->modalSubmitActionLabel('نعم، قم بالإلغاء') ,
+                    //     // ->visible(fn ($record) =>
+                    //     //     in_array($record->status, ['pending', 'confirmed']) &&
+                    //     //     (Auth::user()->hasRole('institution') || Auth::user()->hasRole('kitchen'))
+                    //     // ),
 
                     DeleteAction::make()
                         ->label('حذف') ,

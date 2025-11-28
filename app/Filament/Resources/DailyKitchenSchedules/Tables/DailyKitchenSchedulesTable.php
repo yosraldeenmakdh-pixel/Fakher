@@ -42,7 +42,7 @@ class DailyKitchenSchedulesTable
 
                 TextColumn::make('schedule_date')
                     ->label('التاريخ')
-                    ->date('d/m/Y')
+                    ->date('Y/m/d')
                     ->sortable(),
 
             TextColumn::make('breakfast_meals')

@@ -37,6 +37,11 @@ class OfficialInstitution extends Model
         return $this->hasMany(InstitutionOrder::class, 'institution_id');
     }
 
+    public function scheduledInstitutionOrders()
+    {
+        return $this->hasMany(ScheduledInstitutionOrder::class, 'institution_id');
+    }
+
     /**
      * العلاقة مع المدفوعات
      */

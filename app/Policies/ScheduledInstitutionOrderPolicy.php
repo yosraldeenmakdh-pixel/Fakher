@@ -46,11 +46,33 @@ class ScheduledInstitutionOrderPolicy
 
     public function update(AuthUser $authUser, ScheduledInstitutionOrder $scheduledInstitutionOrder): bool
     {
+
+        // if ($authUser->hasRole('kitchen')) {
+        //     return $authUser->can('Update:InstitutionOrder');
+        // }
+        if ($authUser->hasRole('institution')) {
+            if($scheduledInstitutionOrder->status === 'pending'){
+                return $authUser->can('Update:ScheduledInstitutionOrder');
+            }
+            else
+                return $authUser->can('');
+
+        }
         return $authUser->can('Update:ScheduledInstitutionOrder');
     }
 
     public function delete(AuthUser $authUser, ScheduledInstitutionOrder $scheduledInstitutionOrder): bool
     {
+
+        if ($authUser->hasRole('institution')) {
+            if($scheduledInstitutionOrder->status === 'pending'){
+                return $authUser->can('Delete:ScheduledInstitutionOrder');
+            }
+            else
+                return $authUser->can('');
+
+        }
+
         return $authUser->can('Delete:ScheduledInstitutionOrder');
     }
 
