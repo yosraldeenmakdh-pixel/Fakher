@@ -36,8 +36,8 @@ class OffersTable
                     ->label('قيمة الخصم')
                     // ->money('SAR')
                     ->sortable()
-                    ->color('success')
-                    ->icon('heroicon-o-currency-dollar'),
+                    ->color('success') ,
+                    // ->icon('heroicon-o-currency-dollar'),
 
                 IconColumn::make('is_active')
                     ->label('الحالة')

@@ -111,6 +111,19 @@ class Emergency extends Model
                     $lockedInstitution->Financial_debts = $newBudget;
                     $lockedInstitution->save();
 
+                    InstitutionFinancialTransaction::create([
+                        'institution_id' => $institution->id,
+                        'transaction_type' => 'emergency_order',
+                        'order_id' => $this->id,
+                        'order_type' => get_class($this),
+                        'amount' => $orderAmount,
+                        'balance_before' => $budgetBefore,
+                        'balance_after' => $newBudget,
+                        'status' => 'completed',
+                        'transaction_date' => now(),
+                    ]);
+
+
 
                     $kitchen = $freshEmergncy->kitchen ;
                     $lockedKitchen = Kitchen::where('id', $kitchen->id)
@@ -124,6 +137,18 @@ class Emergency extends Model
 
                     $lockedKitchen->Financial_debts = $newBudgetForKitchen;
                     $lockedKitchen->save();
+
+                    KitchenFinancialTransaction::create([
+                        'kitchen_id' => $kitchen->id,
+                        'transaction_type' => 'emergency_order',
+                        'order_id' => $this->id,
+                        'order_type' => get_class($this),
+                        'amount' => $orderAmountForKitchen ,
+                        'balance_before' => $budgetBeforeForKitchen,
+                        'balance_after' => $newBudgetForKitchen,
+                        'status' => 'completed',
+                        'transaction_date' => now(),
+                    ]);
 
 
 

@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\Meal;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class TotalSalesTrendChart extends ChartWidget
 {
@@ -167,11 +168,14 @@ class TotalSalesTrendChart extends ChartWidget
     {
         // ألوان احترافية تشبه مخططات البورصة
         $professionalColors = [
-            '#1f77b4', // أزرق
-            '#ff7f0e', // برتقالي
-            '#2ca02c', // أخضر
-            '#d62728', // أحمر
-            '#9467bd', // بنفسجي
+            '#ff0000ff', // أحمر
+            '#0e36ffff', // أزرق
+            '#00ff00ff', // أخضر
+            '#fbff00ff', // أصفر
+            '#8400ffff', // بنفسجي
+            '#ff6b00ff', // برتقالي
+            '#00ffffff', // سماوي
+            '#ff00ffff',
         ];
 
         $formattedDatasets = [];
@@ -382,5 +386,11 @@ class TotalSalesTrendChart extends ChartWidget
             font-size: 16px;
         }
         CSS;
+    }
+
+    public static function canView(): bool
+    {
+        $user = Auth::user();
+        return $user->hasRole('super_admin');
     }
 }

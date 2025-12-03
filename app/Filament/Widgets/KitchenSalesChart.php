@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\Kitchen;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class KitchenSalesChart extends ChartWidget
 {
@@ -452,5 +453,11 @@ class KitchenSalesChart extends ChartWidget
         }
 
         return $stats;
+    }
+
+    public static function canView(): bool
+    {
+        $user = Auth::user();
+        return $user->hasRole('super_admin');
     }
 }

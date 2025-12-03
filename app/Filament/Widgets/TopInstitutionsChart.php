@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\OfficialInstitution;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class TopInstitutionsChart extends ChartWidget
 {
@@ -517,5 +518,11 @@ class TopInstitutionsChart extends ChartWidget
             color: white;
         }
         CSS;
+    }
+
+    public static function canView(): bool
+    {
+        $user = Auth::user();
+        return $user->hasRole('super_admin');
     }
 }

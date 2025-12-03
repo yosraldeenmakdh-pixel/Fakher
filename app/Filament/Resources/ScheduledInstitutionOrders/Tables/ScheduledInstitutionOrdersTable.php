@@ -72,24 +72,41 @@ class ScheduledInstitutionOrdersTable
 
                 // عمود الفطور - أسماء الوجبات وعددها
                 TextColumn::make('breakfast_meals')
-                    ->label('🍳 الفطور')
-                    ->getStateUsing(function ($record) {
-                        $breakfastMeals = $record->orderMeals->filter(function ($orderMeal) {
-                            return $orderMeal->scheduleMeal->meal_type === 'breakfast';
-                        });
+    ->label('🍳 الفطور')
+    ->getStateUsing(function ($record) {
+        $breakfastMeals = $record->orderMeals->filter(function ($orderMeal) {
+            return $orderMeal->scheduleMeal->meal_type === 'breakfast';
+        });
 
-                        if ($breakfastMeals->isEmpty()) {
-                            return 'لا توجد وجبات';
-                        }
+        if ($breakfastMeals->isEmpty()) {
+            return 'لا توجد وجبات';
+        }
 
-                        $meals = [];
-                        foreach ($breakfastMeals as $meal) {
-                            $meals[] = "{$meal->scheduleMeal->meal->name} ({$meal->quantity})";
-                        }
+        $meals = [];
+        foreach ($breakfastMeals as $meal) {
+            $meals[] = "{$meal->scheduleMeal->meal->name} ({$meal->quantity})";
+        }
 
-                        return implode('  ،  ', $meals);
-                    })
-                    ->limit(50)
+        return implode('  ،  ', $meals);
+    })
+    ->limit(10)
+    ->tooltip(function ($record) {
+        // نفس كود getStateUsing لكن بدون limit
+        $breakfastMeals = $record->orderMeals->filter(function ($orderMeal) {
+            return $orderMeal->scheduleMeal->meal_type === 'breakfast';
+        });
+
+        if ($breakfastMeals->isEmpty()) {
+            return 'لا توجد وجبات';
+        }
+
+        $meals = [];
+        foreach ($breakfastMeals as $meal) {
+            $meals[] = "{$meal->scheduleMeal->meal->name} ({$meal->quantity})";
+        }
+
+        return implode('  ،  ', $meals);
+    })
                     // ->tooltip(function ($record) {
                     //     $breakfastMeals = $record->orderMeals->filter(function ($orderMeal) {
                     //         return $orderMeal->scheduleMeal->meal_type === 'breakfast';
@@ -133,7 +150,7 @@ class ScheduledInstitutionOrdersTable
 
                         return implode('  ،  ', $meals);
                     })
-                    ->limit(50)
+                    ->limit(10)
                     // ->tooltip(function ($record) {
                     //     $lunchMeals = $record->orderMeals->filter(function ($orderMeal) {
                     //         return $orderMeal->scheduleMeal->meal_type === 'lunch';
@@ -177,7 +194,7 @@ class ScheduledInstitutionOrdersTable
 
                         return implode('  ،  ', $meals);
                     })
-                    ->limit(50)
+                    ->limit(10)
                     // ->tooltip(function ($record) {
                     //     $dinnerMeals = $record->orderMeals->filter(function ($orderMeal) {
                     //         return $orderMeal->scheduleMeal->meal_type === 'dinner';

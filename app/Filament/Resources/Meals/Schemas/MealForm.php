@@ -50,7 +50,7 @@ class MealForm
                         ->label('Price')
                         ->required()
                         ->numeric()
-                        ->prefix('ل.س')
+                        ->prefix('$')
                         ->step(0.01),
 
                 Toggle::make('is_available')

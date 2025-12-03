@@ -38,12 +38,28 @@ class InstitutionOrderItem extends Model
     /**
      * حساب السعر الإجمالي تلقائياً
      */
-    public static function boot()
+    protected static function boot()
     {
         parent::boot();
 
         static::saving(function ($model) {
-            $model->total_price = $model->quantity * $model->unit_price;
+            if ($model->quantity && $model->unit_price) {
+                $model->total_price = $model->quantity * $model->unit_price;
+            }
+        });
+
+        static::saved(function ($model) {
+            if ($model->order) {
+                $model->order->update([
+                    'total_amount' => $model->order->orderItems()->sum('total_price')
+                ]);
+            }
+        });
+
+        static::updating(function ($model) {
+            if ($model->isDirty(['quantity', 'unit_price'])) {
+                $model->total_price = $model->quantity * $model->unit_price;
+            }
         });
     }
 }

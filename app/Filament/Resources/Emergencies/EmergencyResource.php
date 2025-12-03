@@ -20,6 +20,11 @@ class EmergencyResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Institutions');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return EmergencyForm::configure($schema);

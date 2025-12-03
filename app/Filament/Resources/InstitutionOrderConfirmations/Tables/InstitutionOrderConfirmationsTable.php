@@ -49,7 +49,8 @@ class InstitutionOrderConfirmationsTable
                     ->label('📅 تاريخ التسليم') // إضافة أيقونة يدوياً
                     ->date('d/m/Y')
                     ->sortable()
-                    ->color('gray'),
+                    ->color('gray')
+                    ->description(fn ($record) => $record->created_at->diffForHumans()),
 
                 TextColumn::make('delivery_time')
                     ->label('🕒 وقت التسليم') // إضافة أيقونة يدوياً
@@ -103,8 +104,9 @@ class InstitutionOrderConfirmationsTable
                             } else {
                                 return 'بيانات غير صالحة';
                             }
-                        })->implode(' - ') . (count($items) > 2 ? ' ...+' : '');
+                        })->implode(' - ') ;
                     })
+
                     ->wrap(),
 
                 TextColumn::make('delivered_at')

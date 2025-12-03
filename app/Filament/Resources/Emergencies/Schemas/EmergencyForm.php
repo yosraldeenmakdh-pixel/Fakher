@@ -99,7 +99,7 @@ class EmergencyForm
                         Grid::make(2)
                             ->schema([
                                 DateTimePicker::make('order_date')
-                                    ->label('تاريخ ووقت الطلب')
+                                    ->label('تاريخ ووقت الاستلام')
                                     ->required()
                                     ->native(false)
                                     ->default(now()->addHours(2)->addMinute(30)) // قيمة افتراضية بعد ساعتين
@@ -110,9 +110,9 @@ class EmergencyForm
                                         'date',
                                         'after_or_equal:' . now()->addHours(2)->format('Y-m-d H:i:s'),
                                     ])
-                                    ->helperText('يجب أن يكون تاريخ ووقت الطلب بعد ساعتين على الأقل من الآن (' . now()->addHours(2)->format('Y-m-d H:i') . ')')
+                                    ->helperText('يجب أن يكون تاريخ ووقت الاستلام بعد ساعتين على الأقل من الآن (' . now()->addHours(2)->format('Y-m-d H:i') . ')')
                                     ->validationMessages([
-                                        'after_or_equal' => 'يجب أن يكون تاريخ ووقت الطلب بعد ساعتين على الأقل من الوقت الحالي.',
+                                        'after_or_equal' => 'يجب أن يكون تاريخ ووقت الاستلام بعد ساعتين على الأقل من الوقت الحالي.',
                                     ])
                                     ->seconds(false) // إخفاء الثواني إذا لم تكن ضرورية
                                     ->displayFormat('d/m/Y H:i'), // تنسيق العرض

@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\Complaint;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ComplaintsTrendChart extends ChartWidget
@@ -322,4 +323,11 @@ class ComplaintsTrendChart extends ChartWidget
             'month' => $monthComplaints,
         ];
     }
+
+    public static function canView(): bool
+    {
+        $user = Auth::user();
+        return $user->hasRole('super_admin');
+    }
+
 }

@@ -35,12 +35,24 @@ class InstitutionOrder extends Model
     {
         parent::boot();
 
+        static::saving(function ($model) {
+            $model->total_amount = $model->orderItems()->sum('total_price');
+        });
+
         static::updated(function ($model) {
 
-             $model->recordOrderConfirmation();
+
+            $model->total_amount = $model->orderItems()->sum('total_price');
+
+            $model->recordOrderConfirmation();
 
         });
     }
+
+    // public function calculateTotalAmount(): void
+    // {
+    //     $this->total_amount = $this->orderItems()->sum('total_price');
+    // }
 
 
     public function shouldRecordConfirmation(): bool

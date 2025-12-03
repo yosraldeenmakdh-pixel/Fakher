@@ -240,12 +240,49 @@ class OrderOnlineForm
                             ->disabled($isKitchen)
                             ->maxLength(20),
 
-                        Textarea::make('address')
-                            ->label('العنوان')
+                        TextInput::make('latitude')
+                            ->label('خط العرض')
                             ->required()
                             ->disabled($isKitchen)
-                            ->rows(3)
-                            ->maxLength(500),
+                            ->numeric()
+                            ->step(0.000001)
+                            ->prefix('🌎') ,
+                            // ->helperText('مثال: 24.7135517'),
+
+                        TextInput::make('longitude')
+                            ->label('خط الطول')
+                            ->required()
+                            ->disabled($isKitchen)
+                            ->numeric()
+                            ->step(0.000001)
+                            ->prefix('🌎') ,
+                            // ->helperText('مثال: 46.6752957'),
+
+
+                        Placeholder::make('map_preview')
+                            ->label('موقع العميل على الخريطة')
+                            ->content(function ($record) {
+                                // في حالة التعديل أو العرض
+                                if ($record && $record->latitude && $record->longitude) {
+                                    $lat = $record->latitude;
+                                    $lng = $record->longitude;
+
+                                    return view('filament.components.map-preview', compact('lat', 'lng'));
+                                }
+
+                                // في حالة الإنشاء الجديد
+                                $lat = request()->old('latitude');
+                                $lng = request()->old('longitude');
+                                if ($lat && $lng) {
+                                    return view('filament.components.map-preview', compact('lat', 'lng'));
+                                }
+
+                                return '<div class="text-center py-4 text-gray-500">سيظهر موقع العميل هنا بعد إدخال الإحداثيات</div>';
+                            })
+                            ->hidden(fn ($record) => !$record || (!$record->latitude && !$record->longitude))
+                            ->html(),
+
+
                     ])->columns(2),
 
 

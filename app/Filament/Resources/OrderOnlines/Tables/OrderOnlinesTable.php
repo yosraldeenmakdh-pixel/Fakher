@@ -4,6 +4,7 @@ namespace App\Filament\Resources\OrderOnlines\Tables;
 
 use App\Models\OrderOnline;
 use DeepCopy\Filter\Filter;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -51,6 +52,25 @@ class OrderOnlinesTable
                 TextColumn::make('customer_phone')
                     ->label('هاتف العميل')
                     ->searchable(),
+
+                // TextColumn::make('location')
+                    // ->label('الموقع')
+                    // ->formatStateUsing(function ($record) {
+                    //     if ($record->latitude && $record->longitude) {
+                    //         return '
+                    //             <div class="flex items-center gap-2">
+                    //                 <span class="text-red-500">📍</span>
+                    //                 <span class="text-sm font-mono">
+                    //                     ' . number_format($record->latitude, 4) . ', ' . number_format($record->longitude, 4) . '
+                    //                 </span>
+                    //             </div>
+                    //         ';
+                    //     }
+                    //     return '<span class="text-gray-400">❌ لا يوجد</span>';
+                    // })
+                    // ->html()
+                    // ->searchable(false)
+                    // ->sortable(false),
 
                 TextColumn::make('branch.name')
                     ->label('الفرع')
@@ -151,6 +171,16 @@ class OrderOnlinesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('view_map')
+                    ->label('عرض الخريطة')
+                    ->icon('heroicon-o-map')
+                    ->color('success')
+                    ->hidden(fn ($record) => !$record->latitude || !$record->longitude)
+                    ->action(function ($record) {
+                        // يمكن فتح نافذة جديدة أو استخدام modal
+                        $url = "https://www.google.com/maps?q={$record->latitude},{$record->longitude}";
+                        return redirect()->away($url);
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

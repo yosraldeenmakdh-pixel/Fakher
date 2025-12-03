@@ -26,6 +26,8 @@ class OrderOnline extends Model
         'customer_phone',
         'address' ,
         'confirmed_by' ,
+        'latitude',
+        'longitude',
     ];
 
     public function user()

@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\ValidationException;
+
+// use League\Config\Exception\ValidationException;
 
 class DailyKitchenSchedule extends Model
 {
@@ -101,6 +104,36 @@ class DailyKitchenSchedule extends Model
 
         return $totalCost;
     }
+
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            $exists = self::where('kitchen_id', $model->kitchen_id)
+                ->whereDate('schedule_date', $model->schedule_date)
+                ->when($model->exists, fn($q) => $q->where('id', '!=', $model->id))
+                ->exists();
+
+            if ($exists) {
+                // هذا سيؤدي إلى خطأ Validation بدلاً من QueryException
+                throw ValidationException::withMessages([
+                    'schedule_date' => 'هذا التاريخ مجدول بالفعل'
+                ]);
+            }
+        });
+    }
+
+    public static function getScheduledDates($kitchenId)
+    {
+        return self::where('kitchen_id', $kitchenId)
+            ->whereDate('schedule_date', '>=', now())
+            ->pluck('schedule_date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->toArray();
+    }
+
 
 
 

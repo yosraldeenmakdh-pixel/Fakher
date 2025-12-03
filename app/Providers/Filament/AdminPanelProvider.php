@@ -80,6 +80,7 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('إدارة المحتوى'),
@@ -94,5 +95,7 @@ class AdminPanelProvider extends PanelProvider
                     ->label('الإعدادات'),
             ])
             ->sidebarCollapsibleOnDesktop();
+            // ->direction('rtl')
+            // ->locale('ar');
     }
 }

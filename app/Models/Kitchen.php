@@ -35,6 +35,12 @@ class Kitchen extends Model
     }
 
 
+    public function financialTransactions()
+    {
+        return $this->hasMany(KitchenFinancialTransaction::class);
+    }
+
+
 
     public function pendingOrders()
     {

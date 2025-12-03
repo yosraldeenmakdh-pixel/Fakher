@@ -214,9 +214,9 @@ class InstitutionOrderForm
                                     ->label('الكمية')
                                     ->numeric()
                                     ->required()
+                                    // ->live(debounce: 500)
                                     ->minValue(1)
                                     ->maxValue(1000001)
-                                    // ->reactive()
                                     ->suffixAction(
                                         Action::make('updateQuantity')
                                             ->icon('heroicon-o-check')
@@ -225,28 +225,45 @@ class InstitutionOrderForm
                                                 $quantity = (int)$state;
                                                 $totalPrice = $quantity * $unitPrice;
                                                 $set('total_price', number_format($totalPrice, 2, '.', ''));
-                                                // استدعاء دالة تحديث المجاميع إذا كانت موجودة
+                                                $items = $get('orderItems') ?? [];
+                                                $total = 0;
+                                                foreach ($items as $item) {
+                                                    $total += (float)($item['total_price'] ?? 0);
+                                                }
+                                                $set('total_amount', $total);
                                             })
                                     )
                                     ->columnSpan(1)
                                     ->disabled($isKitchen),
 
 
-                                    TextInput::make('unit_price')
-                                        ->label('سعر الوحدة')
-                                        ->numeric()
-                                        ->required()
-                                        ->minValue(0)
-                                        ->step(0.01)
-                                        ->readonly()
-                                        ->hidden($isKitchen)
-                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                            $quantity = (int)($get('quantity') ?? 1);
-                                            $unitPrice = (float)$state;
-                                            $totalPrice = $quantity * $unitPrice;
-                                            $set('total_price', number_format($totalPrice, 2, '.', ''));
-                                            self::updateOrderTotals($set, $get);
-                                        }),
+
+                                TextInput::make('unit_price')
+                                    ->label('سعر الوحدة')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(0)
+                                    ->readonly()
+                                    ->hidden($isKitchen)
+                                    ->dehydrated() // هذه أهم إضافة
+                                    // ->afterStateHydrated(function ($state, callable $set, callable $get) {
+                                    //     // تأكد من تحميل القيمة الصحيحة عند تهيئة الحقل
+                                    //     if (!$state && $get('meal_id')) {
+                                    //         $meal = Meal::find($get('meal_id'));
+                                    //         if ($meal) {
+                                    //             $set('unit_price', $meal->price);
+                                    //             self::calculateItemTotal($set, $get);
+                                    //         }
+                                    //     }
+                                    // })
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        $quantity = (int)($get('quantity') ?? 1);
+                                        $unitPrice = (float)$state;
+                                        $totalPrice = $quantity * $unitPrice;
+                                        $set('total_price', number_format($totalPrice, 2, '.', ''));
+                                        self::updateOrderTotals($set, $get);
+                                    }),
+
 
 
                                 TextInput::make('total_price')
@@ -257,7 +274,7 @@ class InstitutionOrderForm
                                     ->step(0.01)
                                     ->readonly()
                                     ->hidden($isKitchen)
-                                    ->dehydrated()
+                                    ->dehydrated() // هذه أهم إضافة
                                     ->columnSpan(1),
 
 
@@ -281,7 +298,6 @@ class InstitutionOrderForm
                             )
                             ->grid(1)
 
-                            // ->live(onBlur: true)
                             ->afterStateUpdated(function (Set $set, Get $get) {
                                 self::updateOrderTotals($set, $get);
                             }) ,
@@ -323,7 +339,7 @@ class InstitutionOrderForm
 
                         Hidden::make('total_amount')
                             ->default(0)
-                            ->dehydrated()
+                            ->dehydrated(true)
                             ->reactive()
                             ->afterStateHydrated(function (callable $set, callable $get) {
                                 // عند تحميل البيانات
@@ -332,7 +348,7 @@ class InstitutionOrderForm
                                 foreach ($items as $item) {
                                     $total += (float)($item['total_price'] ?? 0);
                                 }
-                                $set('total', $total);
+                                $set('total_amount', $total);
                             }),
                     ])
                     ->columns(1),

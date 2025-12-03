@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\DailyKitchenSchedules\Schemas;
 
+use App\Models\DailyKitchenSchedule;
 use App\Models\Kitchen;
 use App\Models\Meal;
 use Filament\Forms\Components\DatePicker;
@@ -14,6 +15,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class DailyKitchenScheduleForm
 {
@@ -41,7 +43,7 @@ class DailyKitchenScheduleForm
                             Select::make('kitchen_id')
                                 ->label('المطبخ')
                                 ->options(Kitchen::all()->pluck('name', 'id'))
-                                ->searchable()
+                                // ->searchable()
                                 ->required()
                                 ->columnSpanFull(),
                         ]) ,
@@ -50,22 +52,51 @@ class DailyKitchenScheduleForm
                         DatePicker::make('schedule_date')
                             ->label('تاريخ الجدولة')
                             ->required()
-                            ->unique(ignoreRecord: true)
                             ->minDate(now()->addDay()->toDateString())
                             ->default(now()->addDay()->toDateString())
                             ->displayFormat('d/m/Y')
                             ->native(false)
                             ->closeOnDateSelection()
                             ->columnSpanFull()
-                            ->hint('يسمح فقط بالتواريخ المستقبلية')
+                            ->hint('يسمح فقط بالتواريخ المستقبلية وغير المجدولة')
                             ->hintColor('primary')
                             ->suffixIcon('heroicon-o-calendar')
                             ->extraAttributes([
                                 'class' => 'text-lg font-bold'
                             ])
+                            ->rules([
+                                'required',
+                                'date',
+                                'after:today',
+                                function ($attribute, $value, $fail) {
+                                    $kitchenId = request('kitchen_id',
+                                        Auth::user()->kitchen->id ?? null
+                                    );
+
+                                    if (!$kitchenId) {
+                                        $fail('يرجى تحديد المطبخ أولاً');
+                                        return;
+                                    }
+
+                                    $recordId = request()->route('record')?->id;
+
+                                    $exists = \App\Models\DailyKitchenSchedule::where('kitchen_id', $kitchenId)
+                                        ->whereDate('schedule_date', $value)
+                                        ->when($recordId, fn($q) => $q->where('id', '!=', $recordId))
+                                        ->exists();
+
+                                    if ($exists) {
+                                        $fail('هذا التاريخ مجدول بالفعل لهذا المطبخ');
+                                    }
+                                }
+                            ])
                             ->validationMessages([
                                 'after' => 'لا يمكن جدولة تاريخ في الماضي!',
-                            ]),
+                            ])
+                            // منع حفظ البيانات إذا كان هناك خطأ
+                            ->dehydrated(fn ($state) => !empty($state))
+                            ->saveRelationshipsUsing(null),
+
                     ]),
 
                 Section::make('الوجبات المجدولة')
@@ -102,7 +133,7 @@ class DailyKitchenScheduleForm
                                             ->pluck('name', 'id')
                                             ->toArray();
                                     })
-                                    ->searchable()
+                                    // ->searchable()
                                     ->preload()
                                     ->required()
                                     ->columnSpan(2)

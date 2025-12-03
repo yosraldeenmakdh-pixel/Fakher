@@ -71,23 +71,46 @@ class InstitutionPayment extends Model
                 $lockedInstitution->Financial_debts = $newBudget;
                 $lockedInstitution->save();
 
+                InstitutionFinancialTransaction::create([
+                    'institution_id' => $institution->id,
+                    'payment_id' => $this->id,
+                    'transaction_type' => 'payment',
+                    'amount' => $paymentAmount,
+                    'balance_before' => $budgetBefore,
+                    'balance_after' => $newBudget,
+                    'status' => 'completed',
+                    'transaction_date' => $this->verified_at ?? now(),
+                ]);
+
+                $kitchen = $institution->kitchen ;
+                $lockedKitchen = Kitchen::where('id', $kitchen->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                $budgetBeforeForKitchen = $lockedKitchen->Financial_debts;
+                $orderAmountForKitchen = $this->amount;
+
+                $newBudgetForKitchen = $budgetBeforeForKitchen + $orderAmountForKitchen;
+
+                $lockedKitchen->Financial_debts = $newBudgetForKitchen;
+                $lockedKitchen->save();
+
+                KitchenFinancialTransaction::create([
+                    'kitchen_id' => $kitchen->id,
+                    'payment_id' => $this->id,
+                    'transaction_type' => 'payment',
+                    'amount' => $orderAmountForKitchen ,
+                    'balance_before' => $budgetBeforeForKitchen,
+                    'balance_after' => $newBudgetForKitchen,
+                    'status' => 'completed',
+                    'transaction_date' => now(),
+                ]);
+
 
             } catch (\Exception $e) {
+                Db::rollBack() ;
                 throw $e;
             }
-
-                // // تسجيل الحركة المالية
-                // FinancialTransaction::create([
-                //     'institution_id' => $lockedInstitution->id,
-                //     'type' => 'debit',
-                //     'amount' => $orderAmount,
-                //     'balance_before' => $budgetBefore,
-                //     'balance_after' => $newBudget,
-                //     'description' => "خصم لتسليم الطلب #{$this->order_number}",
-                //     'reference_type' => 'order',
-                //     'reference_id' => $this->id,
-                //     'created_by' => auth()->id() ?? 1 // system user
-                // ]);
 
         }) ;
     }

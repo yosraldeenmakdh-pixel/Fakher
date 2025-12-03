@@ -89,7 +89,7 @@ class OrderOnlineController extends Controller
     {
         $allowedFields = [
             'branch_id','kitchen_id', 'special_instructions',
-            'customer_phone', 'address', 'order_date'
+            'customer_phone', 'address', 'order_date' ,'latitude','longitude'
         ];
 
         foreach ($allowedFields as $field) {
@@ -103,7 +103,7 @@ class OrderOnlineController extends Controller
 
 
 
-    public function update(Request $request) // here
+    public function update(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
@@ -111,7 +111,10 @@ class OrderOnlineController extends Controller
             'branch_id' => 'required|exists:branches,id',
             'kitchen_id' => 'required|exists:kitchens,id',
             'customer_phone' => 'required|string|digits:10',
-            'address' => 'required|string',
+
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+
             'special_instructions' => 'sometimes|string',
             'order_date' => [
                 'required',
@@ -253,9 +256,10 @@ class OrderOnlineController extends Controller
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer|exists:order_onlines,id',
             'branch_id' => 'sometimes|required|exists:branches,id',
-            'kitchen_id' => 'required|exists:kitchens,id' ,
+            'kitchen_id' => 'sometimes|required|exists:kitchens,id' ,
             'customer_phone' => 'sometimes|required|string|digits:10',
-            'address' => 'sometimes|required|string',
+            'latitude' => 'sometimes|numeric|between:-90,90',
+            'longitude' => 'sometimes|numeric|between:-180,180',
             'special_instructions' => 'nullable|string',
             'order_date' => [
                 'sometimes',

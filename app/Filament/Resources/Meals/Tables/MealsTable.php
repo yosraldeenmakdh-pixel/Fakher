@@ -53,7 +53,7 @@ class MealsTable
 
                 TextColumn::make('price')
                     ->label('price')
-                    // ->money('ل.س')
+                    ->money('usd')
                     ->sortable()
                     ->color('success')
                     ->weight('bold'),
@@ -94,7 +94,15 @@ class MealsTable
                     ->trueLabel('Available meals')
                     ->falseLabel('Unavailable meals'),
 
-
+                SelectFilter::make('meal_type')
+                    ->label('نوع الوجبة')
+                    ->options([
+                        'breakfast' => 'فطور',
+                        'lunch' => 'غداء',
+                        'dinner' => 'عشاء',
+                    ])
+                    ->multiple() // اختياري: إذا كنت تريد السماح بتحديد أكثر من نوع
+                    ->searchable() ,
 
                 Filter::make('price_range')
                     ->label('Price Range')
@@ -111,15 +119,14 @@ class MealsTable
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['min_price'],
-                                fn (Builder $query, $price): Builder => $query->where('price', '>=', $price)
+                                filled($data['min_price'] ?? null),
+                                fn (Builder $query): Builder => $query->where('price', '>=', (float) $data['min_price'])
                             )
                             ->when(
-                                $data['max_price'],
-                                fn (Builder $query, $price): Builder => $query->where('price', '<=', $price)
+                                filled($data['max_price'] ?? null),
+                                fn (Builder $query): Builder => $query->where('price', '<=', (float) $data['max_price'])
                             );
-                    }),
-
+                    })
 
             ])
             ->recordActions([

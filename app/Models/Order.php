@@ -81,6 +81,18 @@ class Order extends Model
                     $lockedKitchen->Financial_debts = $newBudget;
                     $lockedKitchen->save();
 
+                    KitchenFinancialTransaction::create([
+                        'kitchen_id' => $kitchen->id,
+                        'transaction_type' => 'order',
+                        'order_id' => $this->id,
+                        'order_type' => get_class($this),
+                        'amount' => $orderAmount ,
+                        'balance_before' => $budgetBefore,
+                        'balance_after' => $newBudget,
+                        'status' => 'completed',
+                        'transaction_date' => now(),
+                    ]);
+
                 } catch (\Exception $e) {
                     DB::rollBack() ;
                     throw $e;

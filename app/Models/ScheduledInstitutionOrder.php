@@ -93,13 +93,54 @@ class ScheduledInstitutionOrder extends Model
                         ->lockForUpdate()
                         ->first();
 
-                    $budgetBefore = $lockedKitchen->Financial_debts;
+                    $budgetBeforeForKitchen = $lockedKitchen->Financial_debts;
+                    $orderAmountForKitchen = $this->total_amount;
+
+                    $newBudgetForKitchen = $budgetBeforeForKitchen - $orderAmountForKitchen;
+
+                    $lockedKitchen->Financial_debts = $newBudgetForKitchen;
+                    $lockedKitchen->save();
+
+
+                    KitchenFinancialTransaction::create([
+                        'kitchen_id' => $kitchen->id,
+                        'transaction_type' => 'scheduled_order',
+                        'order_id' => $this->id,
+                        'order_type' => get_class($this),
+                        'amount' => $orderAmountForKitchen ,
+                        'balance_before' => $budgetBeforeForKitchen,
+                        'balance_after' => $newBudgetForKitchen,
+                        'status' => 'completed',
+                        'transaction_date' => now(),
+                    ]);
+
+
+
+                    $institution = $order->institution ;
+
+                    $lockedInstitution = OfficialInstitution::where('id', $institution->id)
+                        ->lockForUpdate()
+                        ->first();
+
+                    $budgetBefore = $lockedInstitution->Financial_debts;
                     $orderAmount = $this->total_amount;
 
                     $newBudget = $budgetBefore - $orderAmount;
 
-                    $lockedKitchen->Financial_debts = $newBudget;
-                    $lockedKitchen->save();
+                    $lockedInstitution->Financial_debts = $newBudget;
+                    $lockedInstitution->save();
+
+                    InstitutionFinancialTransaction::create([
+                        'institution_id' => $institution->id,
+                        'transaction_type' => 'scheduled_order',
+                        'order_id' => $this->id,
+                        'order_type' => get_class($this),
+                        'amount' => $orderAmount,
+                        'balance_before' => $budgetBefore,
+                        'balance_after' => $newBudget,
+                        'status' => 'completed',
+                        'transaction_date' => now(),
+                    ]);
 
                 } catch (\Exception $e) {
                     DB::rollBack() ;
