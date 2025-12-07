@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOrderOnlineRequest;
+use App\Models\Branch;
 use App\Models\OrderOnline;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -88,7 +89,7 @@ class OrderOnlineController extends Controller
     private function updateBasicFields(OrderOnline $order, array $data): void
     {
         $allowedFields = [
-            'branch_id','kitchen_id', 'special_instructions',
+            'branch_id', 'special_instructions',
             'customer_phone', 'address', 'order_date' ,'latitude','longitude'
         ];
 
@@ -109,7 +110,6 @@ class OrderOnlineController extends Controller
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer|exists:order_onlines,id',
             'branch_id' => 'required|exists:branches,id',
-            'kitchen_id' => 'required|exists:kitchens,id',
             'customer_phone' => 'required|string|digits:10',
 
             'latitude' => 'required|numeric|between:-90,90',
@@ -161,6 +161,11 @@ class OrderOnlineController extends Controller
 
             // تحديث الحقول الأساسية
             $this->updateBasicFields($order, $request->all());
+
+            $branch = Branch::find($request->branch_id);
+
+            // تعيين المطبخ المرتبط بالفرع
+            $order->kitchen_id = $branch->kitchen_id;
 
             $order->customer_name = Auth::user()->name ;
             $order->status = 'pending' ;
@@ -256,7 +261,6 @@ class OrderOnlineController extends Controller
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer|exists:order_onlines,id',
             'branch_id' => 'sometimes|required|exists:branches,id',
-            'kitchen_id' => 'sometimes|required|exists:kitchens,id' ,
             'customer_phone' => 'sometimes|required|string|digits:10',
             'latitude' => 'sometimes|numeric|between:-90,90',
             'longitude' => 'sometimes|numeric|between:-180,180',
@@ -304,6 +308,13 @@ class OrderOnlineController extends Controller
             }
 
             $this->updateBasicFields($order, $request->all());
+
+            if($request->has('branch_id')){
+
+                $branch = Branch::find($request->branch_id);
+                $order->kitchen_id = $branch->kitchen_id;
+
+            }
 
             $order->save();
 

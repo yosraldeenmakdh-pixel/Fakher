@@ -10,7 +10,12 @@ class Branch extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'image', 'description'
+        'name', 'image', 'description' ,'kitchen_id'
     ];
+
+    public function kitchen()
+    {
+        return $this->belongsTo(Kitchen::class);
+    }
 
 }

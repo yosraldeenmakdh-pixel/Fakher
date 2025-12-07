@@ -28,6 +28,11 @@ class BranchesTable
                     ->sortable()
                     ->weight('medium') ,
 
+                TextColumn::make('kitchen.name')
+                    ->label('مطبخ الطلبات الخاصة')
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make('description')
                     ->label('Description')
                     ->searchable()

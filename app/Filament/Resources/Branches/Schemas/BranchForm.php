@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Branches\Schemas;
 
+use App\Models\Kitchen;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +17,23 @@ class BranchForm
             ->components([
                 TextInput::make('name')
                     ->required(),
+
+                Select::make('kitchen_id')
+                            ->label('مطبخ الطلبات الخاصة')
+                            ->relationship('kitchen', 'name')
+                            ->searchable()
+                            ->preload()
+                            // ->required()
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->label('اسم المطبخ')
+                                    ->required(),
+                            ])
+                            ->createOptionUsing(function (array $data) {
+                                return Kitchen::create($data)->id;
+                            })
+                            ->helperText('اختر المطبخ المرتبط بهذا الفرع من أجل الطلبات الخاصة'),
+
                 FileUpload::make('image')
                             ->label('Image')
                             ->disk('public')
