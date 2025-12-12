@@ -31,8 +31,8 @@ return new class extends Migration
 
             $table->string('customer_name')->nullable();
             $table->string('customer_phone')->nullable();
-            $table->text('address')->nullable();
-
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
 
             $table->timestamps();
         });

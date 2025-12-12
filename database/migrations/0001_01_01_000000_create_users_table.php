@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->string('image')->nullable();
             $table->rememberToken();
+            $table->timestamp('last_activity_at')->nullable() ;
             $table->timestamps();
         });
 

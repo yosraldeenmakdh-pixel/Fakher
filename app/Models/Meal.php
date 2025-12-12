@@ -27,18 +27,11 @@ class Meal extends Model
 
 
 
-    public function orderItems()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
     public function onlineOrderItems()
     {
         return $this->hasMany(OrderOnlineItem::class);
     }
-    public function institutionOrderItems()
-    {
-        return $this->hasMany(InstitutionOrderItem::class);
-    }
+
 
 
     // العلاقة مع التقييمات
@@ -57,10 +50,7 @@ class Meal extends Model
         ]);
     }
 
-    public function scheduledPrice()
-    {
-        return $this->hasOne(InstitutionalMealPrice::class)->where('is_active', true);
-    }
+
 
     /**
      * الحصول على السعر المجدول
@@ -97,17 +87,7 @@ class Meal extends Model
     }
 
 
-public function scheduledOrderMeals()
-{
-    return $this->hasManyThrough(
-        ScheduledInstitutionOrderMeal::class,    // النموذج النهائي (الطلبات)
-        DailyScheduleMeal::class,                // النموذج الوسيط (الجدولة)
-        'meal_id',                               // المفتاح الأجنبي في الجدولة
-        'daily_schedule_meal_id',                // المفتاح الأجنبي في الطلبات
-        'id',                                    // المفتاح المحلي في الوجبات
-        'id'                                     // المفتاح المحلي في الجدولة
-    );
-}
+
 
 public function getTotalSalesAttribute()
 {

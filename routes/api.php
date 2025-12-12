@@ -43,25 +43,25 @@ Route::prefix('user')->group(function(){
 
 
         Route::middleware(['auth:sanctum'])->group(function(){
-            Route::middleware(['checkUserActivity'])->group(function(){
+            // Route::middleware(['checkUserActivity'])->group(function(){
 
                 Route::post('/profile','updateProfile');
                 Route::get('/show','show');
                 Route::post('/logout', 'logout') ;
 
-            }) ;
+            // }) ;
          }) ;
     }) ;
 
 }) ;
 Route::prefix('order')->middleware(['auth:sanctum'])->group(function(){
-    Route::middleware(['checkUserActivity'])->group(function(){
+    // Route::middleware(['checkUserActivity'])->group(function(){
 
         Route::controller(OrderItemController::class)->group(function(){
 
             Route::post('/store','store') ;
 
-        }) ;
+        // }) ;
     }) ;
 
 }) ;
@@ -113,7 +113,7 @@ Route::get('/kitchens', [KitchenController::class, 'index']);
 Route::get('/meals', [MealController::class, 'getMealById']); // 3
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::middleware(['checkUserActivity'])->group(function () {
+    // Route::middleware(['checkUserActivity'])->group(function () {
 
         Route::prefix('complaints')->group(function () {
             Route::post('/', [ComplaintController::class, 'store']);
@@ -150,7 +150,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
         // }) ;
-    }) ;
+    // }) ;
 
 });
 

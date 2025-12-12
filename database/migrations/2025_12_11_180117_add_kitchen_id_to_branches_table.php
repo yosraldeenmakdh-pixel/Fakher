@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('institution_financial_transactions', function (Blueprint $table) {
-            Schema::table('institution_financial_transactions', function (Blueprint $table) {
-                $table->string('description')->nullable()->change();
-            });
+        Schema::table('branches', function (Blueprint $table) {
+            $table->unsignedBigInteger('kitchen_id')->nullable()->after('description');
+            $table->foreign('kitchen_id')
+                  ->references('id')
+                  ->on('kitchens')
+                  ->onDelete('set null');
         });
     }
 
@@ -23,7 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('institution_financial_transactions', function (Blueprint $table) {
+        Schema::table('branches', function (Blueprint $table) {
             //
         });
     }

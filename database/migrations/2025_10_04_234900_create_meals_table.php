@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('price', 9, 2);
             $table->string('image')->nullable();
             $table->boolean('is_available')->default(true);
+            $table->enum('meal_type', ['breakfast', 'lunch', 'dinner'])->default('lunch');
             $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null');
 
             $table->decimal('average_rating', 3, 2)->default(0.00);
