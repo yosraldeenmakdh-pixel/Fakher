@@ -18,6 +18,12 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
+    protected static ?string $navigationLabel = 'المستخدمين';
+
+    // protected static ?string $modelLabel = 'مستخدم';
+
+    protected static ?string $pluralModelLabel = 'المستخدمين';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -25,6 +31,10 @@ class UserResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);
+    }
+    public static function getNavigationGroup(): ?string
+    {
+        return __('ادارة المستخدمين');
     }
 
     public static function table(Table $table): Table
@@ -37,10 +47,6 @@ class UserResource extends Resource
         return [
             //
         ];
-    }
-    public static function getNavigationGroup(): ?string
-    {
-        return __('Users');
     }
 
     public static function getPages(): array

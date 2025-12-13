@@ -2,12 +2,16 @@
 
 namespace App\Filament\Resources\Branches\Tables;
 
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Schemas\Components\Group;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use PhpParser\Node\Stmt\Label;
 
 class BranchesTable
 {
@@ -16,14 +20,14 @@ class BranchesTable
         return $table
             ->columns([
                 ImageColumn::make('image')
-                    ->label('Image')
+                    ->label('الصورة')
                     ->disk('public')
                     ->width(60)
                     ->height(60)
                     ->square()
                     ->defaultImageUrl(url('/placeholder.jpg')),
                 TextColumn::make('name')
-                    ->label('Name')
+                    ->label('الاسم')
                     ->searchable()
                     ->sortable()
                     ->weight('medium') ,
@@ -34,29 +38,41 @@ class BranchesTable
                     ->sortable(),
 
                 TextColumn::make('description')
-                    ->label('Description')
+                    ->label('الوصف')
                     ->searchable()
                     ->toggleable()
                     ->limit(30)
                     ->wrap(),
                 TextColumn::make('created_at')
+                    ->label('تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
+                    ->date('Y/m/d H:i')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                ActionGroup::make([
+                    EditAction::make()
+                        ->label('تعديل') ,
+                    DeleteAction::make()
+                        ->label('حذف')
+                        ->requiresConfirmation()
+                        ->modalHeading('حذف الفرع')
+                        ->modalDescription('هل أنت متأكد من رغبتك في حذف هذا الفرع؟ لا يمكن التراجع عن هذا الإجراء.')
+                        ->modalSubmitActionLabel('نعم، احذف'),
+                ])
+                ->label('الإجراءات')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->color('primary')
+                ->button()
+                ->size('sm'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    // DeleteBulkAction::make(),
                 ]),
             ]);
     }

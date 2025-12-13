@@ -8,10 +8,14 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
@@ -73,6 +77,7 @@ class KitchensTable
                 TextColumn::make('Financial_debts')
                     ->label('الرصيد')
                     ->sortable()
+                    // ->prefix('$')
                     ->color(fn ($record) => $record->Financial_debts < 0 ? 'danger' : 'success')
                     // ->weight('bold')s
                     ->size('lg')
@@ -84,7 +89,7 @@ class KitchensTable
                         return "
                             <div class='flex items-center gap-2 rtl:flex-row-reverse'>
                                 <x-heroicon-o-arrow-trending-up class='w-5 h-5 text-{$color}-500' />
-                                <span class='font-bold text-{$color}-600 text-lg'>{$formatted}</span>
+                                <span class='font-bold text-{$color}-600 text-lg'>$ {$formatted}</span>
                             </div>
                         ";
                     })
@@ -100,13 +105,13 @@ class KitchensTable
 
                 TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
-                    ->dateTime('Y-m-d H:i')
+                    ->dateTime('Y/m/d H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('updated_at')
                     ->label('آخر تحديث')
-                    ->dateTime('Y-m-d H:i')
+                    ->dateTime('Y/m/d H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->visible(!$user->hasRole('kitchen')) ,
@@ -118,53 +123,134 @@ class KitchensTable
                     ->searchable()
                     ->preload()
                     ->visible(!$user->hasRole('kitchen')) ,
+
+                TernaryFilter::make('is_active')
+                    ->label('الحالة')
+                    ->placeholder('الكل')
+                    ->trueLabel('نشط فقط')
+                    ->falseLabel('غير نشط فقط')
+                    ->queries(
+                        true: fn (Builder $query) => $query->where('is_active', true),
+                        false: fn (Builder $query) => $query->where('is_active', false),
+                        blank: fn (Builder $query) => $query,
+                    ),
+
+                SelectFilter::make('balance_status')
+                    ->label('حالة الرصيد')
+                    ->options([
+                        'debtor' => 'مدين',
+                        'creditor' => 'دائن',
+                        'zero' => 'صفر',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (!empty($data['value'])) {
+                            if ($data['value'] === 'debtor') {
+                                return $query->where('Financial_debts', '<', 0);
+                            } elseif ($data['value'] === 'creditor') {
+                                return $query->where('Financial_debts', '>', 0);
+                            } elseif ($data['value'] === 'zero') {
+                                return $query->where('Financial_debts', 0);
+                            }
+                        }
+                        return $query;
+                    }),
+
+
+                Filter::make('balance_range')
+                    ->label('نطاق الرصيد')
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('min_balance')
+                            ->label('الحد الأدنى من الرصيد')
+                            ->numeric()
+                            ->prefix('$'),
+                        \Filament\Forms\Components\TextInput::make('max_balance')
+                            ->label('الحد الأقصى من الرصيد')
+                            ->numeric()
+                            ->prefix('$'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['min_balance'] ?? null,
+                                fn (Builder $query, $min): Builder => $query->where('Financial_debts', '>=', $min)
+                            )
+                            ->when(
+                                $data['max_balance'] ?? null,
+                                fn (Builder $query, $max): Builder => $query->where('Financial_debts', '<=', $max)
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['min_balance'] ?? null) {
+                            $indicators[] = Indicator::make('الحد الأدنى من الرصيد: ' . $data['min_balance'])
+                                ->removeField('min_balance');
+                        }
+                        if ($data['max_balance'] ?? null) {
+                            $indicators[] = Indicator::make('الحد الأقصى من الرصيد: ' . $data['max_balance'])
+                                ->removeField('max_balance');
+                        }
+                        return $indicators;
+                    }),
+
+
+
+
+
+
+
             ])
             ->recordActions([
                 ActionGroup::make([
-                EditAction::make(),
-                Action::make('financialStatement')
-                    ->label('تصدير كشف الحساب')
-                    ->icon('heroicon-o-document-arrow-down')
-                    ->color('success')
-                    ->modalHeading(fn ($record) => "تصدير كشف الحساب المالي - {$record->name}")
-                    ->modalSubmitActionLabel('تصدير التقرير')
-                    ->modalCancelActionLabel('إلغاء')
-                    ->form([
-                        Section::make('إعدادات التقرير')
-                            ->description('حدد الفترة والمعايير المطلوبة للتقرير')
-                            ->schema([
-                                \Filament\Forms\Components\DatePicker::make('start_date')
-                                    ->label('تاريخ البداية')
-                                    ->native(false)
-                                    ->displayFormat('d/m/Y')
-                                    ->closeOnDateSelection(),
+                    EditAction::make()
+                        ->label('تعديل'),
+                    Action::make('financialStatement')
+                        ->label('تصدير كشف الحساب')
+                        ->icon('heroicon-o-document-arrow-down')
+                        ->color('success')
+                        ->modalHeading(fn ($record) => "تصدير كشف الحساب المالي - {$record->name}")
+                        ->modalSubmitActionLabel('تصدير التقرير')
+                        ->modalCancelActionLabel('إلغاء')
+                        ->form([
+                            Section::make('إعدادات التقرير')
+                                ->description('حدد الفترة والمعايير المطلوبة للتقرير')
+                                ->schema([
+                                    \Filament\Forms\Components\DatePicker::make('start_date')
+                                        ->label('تاريخ البداية')
+                                        ->native(false)
+                                        ->displayFormat('d/m/Y')
+                                        ->closeOnDateSelection(),
 
-                                \Filament\Forms\Components\DatePicker::make('end_date')
-                                    ->label('تاريخ النهاية')
-                                    ->native(false)
-                                    ->displayFormat('d/m/Y')
-                                    ->closeOnDateSelection()
-                                    ->default(now()->addDay(1)),
+                                    \Filament\Forms\Components\DatePicker::make('end_date')
+                                        ->label('تاريخ النهاية')
+                                        ->native(false)
+                                        ->displayFormat('d/m/Y')
+                                        ->closeOnDateSelection()
+                                        ->default(now()->addDay(1)),
 
-                                \Filament\Forms\Components\Select::make('transaction_type')
-                                    ->label('نوع الحركات')
-                                    ->options([
-                                        'all' => 'جميع الحركات',
-                                        'scheduled_order' => 'طلبات مجدولة',
-                                        'special_order' => 'طلبات خاصة',
-                                        'emergency_order' => 'طلبات استنفار',
-                                        'online_order' => 'طلبات إلكترونية',
-                                        'order' => 'طلبات داخلية',
-                                        'payment' => 'دفعات',
-                                    ])
-                                    ->default('all'),
-                            ])
-                            ->columns(2),
-                    ])
-                    ->action(function (array $data, $record) {
-                        return self::exportFinancialReport($data, $record);
-                    }),
+                                    \Filament\Forms\Components\Select::make('transaction_type')
+                                        ->label('نوع الحركات')
+                                        ->options([
+                                            'all' => 'جميع الحركات',
+                                            'scheduled_order' => 'طلبات مجدولة',
+                                            'special_order' => 'طلبات خاصة',
+                                            'emergency_order' => 'طلبات استنفار',
+                                            'online_order' => 'طلبات إلكترونية',
+                                            'order' => 'طلبات داخلية',
+                                            'payment' => 'دفعات',
+                                        ])
+                                        ->default('all'),
+                                ])
+                                ->columns(2),
+                        ])
+                        ->action(function (array $data, $record) {
+                            return self::exportFinancialReport($data, $record);
+                        }),
                 ])
+                ->label('الإجراءات')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->color('primary')
+                ->button()
+                ->size('sm'),
             ]);
     }
 

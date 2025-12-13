@@ -135,7 +135,7 @@ class OrderOnlineForm
                                         self::updateOrderTotals($set, $get);
                                     })
                                     ->native(false)
-                                    ->columnSpan(2) ,
+                                    ->columnSpan(1) ,
                                     // ->disabled($isKitchen),
 
                                 TextInput::make('quantity')
@@ -186,7 +186,7 @@ class OrderOnlineForm
                                     ->dehydrated()
                                     ->columnSpan(1),
                             ])
-                            ->columns(4)
+                            ->columns(2)
                             ->columnSpanFull()
                             ->defaultItems(1)
 
@@ -295,25 +295,7 @@ class OrderOnlineForm
                             ->disabled($isKitchen)
                             ->maxLength(1000)
                             ->columnSpanFull(),
-
-                        DateTimePicker::make('confirmed_at')
-                            ->label('وقت التأكيد')
-                            ->hidden($isKitchen)
-                            ->nullable(),
-
-                        DateTimePicker::make('delivered_at')
-                            ->label('وقت التوصيل')
-                            ->hidden($isKitchen)
-                            ->nullable(),
-
-                        Select::make('confirmed_by')
-                            ->label('تم التأكيد بواسطة')
-                            ->hidden($isKitchen)
-                            ->relationship('confirmedBy', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->nullable(),
-                    ])->columns(2),
+                    ])->columns(1),
 
                 Section::make('الملخص النهائي')
                     ->visible(!$isKitchen)

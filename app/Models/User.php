@@ -54,19 +54,19 @@ class User extends Authenticatable
         ];
     }
 
-    public function orders()
-    {
-        return $this->hasMany(Order::class ,'user_id');
-    }
+    // public function orders()
+    // {
+    //     return $this->hasMany(Order::class ,'user_id');
+    // }
     public function orders_online()
     {
         return $this->hasMany(OrderOnline::class ,'user_id');
     }
 
-    public function officialInstitution()
-    {
-        return $this->hasOne(OfficialInstitution::class);
-    }
+    // public function officialInstitution()
+    // {
+    //     return $this->hasOne(OfficialInstitution::class);
+    // }
     public function kitchen()
     {
         return $this->hasOne(Kitchen::class);

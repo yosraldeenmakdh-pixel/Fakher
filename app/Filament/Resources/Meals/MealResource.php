@@ -17,6 +17,10 @@ use Filament\Tables\Table;
 class MealResource extends Resource
 {
     protected static ?string $model = Meal::class;
+    protected static ?string $navigationLabel = 'الوجبات';
+    protected static ?string $pluralModelLabel = 'الوجبات';
+        // protected static ?string $modelLabel = 'وجبة';
+
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -28,7 +32,7 @@ class MealResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('Content Management');
+        return __('ادارة المحتوى');
     }
 
     public static function table(Table $table): Table

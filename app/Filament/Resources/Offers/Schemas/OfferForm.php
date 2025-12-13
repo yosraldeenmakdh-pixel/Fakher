@@ -17,13 +17,13 @@ class OfferForm
         return $schema
             ->components([
                 Section::make('معلومات العرض الأساسية')
-                    ->description('أدخل المعلومات الأساسية للعرض')
+                    // ->description('أدخل المعلومات الأساسية للعرض')
                     ->schema([
                         TextInput::make('name')
                             ->label('اسم العرض')
                             ->required()
                             ->maxLength(255)
-                            ->placeholder('مثال: عرض الصيف المميز')
+                            // ->placeholder('مثال: عرض الصيف المميز')
                             ->columnSpanFull(),
 
                         Textarea::make('description')
@@ -56,7 +56,7 @@ class OfferForm
                             ->imageEditor()
                             ->downloadable()
                             ->openable()
-                            ->helperText('Maximum file size: 20MB. Allowed formats: JPG, PNG, GIF')
+                            ->helperText('الحد الأقصى لحجم الصورة : 20 ميجابايت')
                             ->columnSpanFull()
                             ->afterStateUpdated(function ($state, $set, $get, $record) {
                                 if ($record && $record->image && $state && $state != $record->image) {

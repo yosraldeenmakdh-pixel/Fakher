@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Posts\Tables;
 
 use App\Models\Post;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -56,15 +57,15 @@ class PostsTable
 
                 TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
-                    ->dateTime('Y-m-d H:i')
+                    ->dateTime('Y/m/d H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
-                TextColumn::make('updated_at')
-                    ->label('آخر تحديث')
-                    ->dateTime('Y-m-d H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                // TextColumn::make('updated_at')
+                //     ->label('آخر تحديث')
+                //     ->dateTime('Y-m-d H:i')
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
 
             ])
             ->filters([
@@ -80,25 +81,32 @@ class PostsTable
                     ->query(fn (Builder $query) => $query->where('is_published', true)),
 
                 Filter::make('is_draft')
-                    ->label('المسودة فقط')
+                    ->label('الغير منشور فقط')
                     ->query(fn (Builder $query) => $query->where('is_published', false)),
             ])
             ->recordActions([
-                Action::make('togglePublish')
-                    ->label(fn (Post $record) => $record->is_published ? 'إلغاء النشر' : 'نشر')
-                    ->color(fn (Post $record) => $record->is_published ? 'warning' : 'success')
-                    ->action(function (Post $record) {
-                        $record->update(['is_published' => !$record->is_published]);
-                    })
-                    ->requiresConfirmation() ,
+                ActionGroup::make([
+                    Action::make('togglePublish')
+                        ->label(fn (Post $record) => $record->is_published ? 'إلغاء النشر' : 'نشر')
+                        ->color(fn (Post $record) => $record->is_published ? 'warning' : 'success')
+                        ->action(function (Post $record) {
+                            $record->update(['is_published' => !$record->is_published]);
+                        }),
+                        // ->requiresConfirmation() ,/
 
-                EditAction::make()
-                    ->label('تعديل')
-                    ->color('primary'),
+                    EditAction::make()
+                        ->label('تعديل')
+                        ->color('primary'),
 
-                DeleteAction::make()
-                    ->label('حذف')
-                    ->color('danger'),
+                    DeleteAction::make()
+                        ->label('حذف')
+                        ->color('danger'),
+                ])
+                ->label('الإجراءات')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->color('primary')
+                ->button()
+                ->size('sm'),
 
 
             ])

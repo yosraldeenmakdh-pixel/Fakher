@@ -18,6 +18,11 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
+    protected static ?string $navigationLabel = 'الأصناف';
+    protected static ?string $pluralModelLabel = 'الأصناف';
+        // protected static ?string $modelLabel = 'صنف';
+
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -33,7 +38,7 @@ class CategoryResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('Content Management');
+        return __('ادارة المحتوى');
     }
     public static function getRelations(): array
     {

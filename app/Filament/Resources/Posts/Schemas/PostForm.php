@@ -66,7 +66,7 @@ class PostForm
                             ->maxSize(20480)
                             ->downloadable()
                             ->openable()
-                            ->helperText('Maximum file size: 20MB. Allowed formats: JPG, PNG, GIF')
+                            ->helperText('الحد الأقصى لحجم الصورة : 20 ميغابايت')
                             ->columnSpanFull()
                             ->afterStateUpdated(function ($state, $set, $get, $record) {
                                 if ($record && $record->image && $state && $state != $record->image) {

@@ -17,14 +17,14 @@ class MealForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Meal Name')
+                    ->label('اسم الوجبة')
                     ->required()
                     ->afterStateUpdated(function ($state, $set) {
                         $set('slug', \Illuminate\Support\Str::slug($state));
                     }),
 
                 Select::make('category_id')
-                    ->label('Category')
+                    ->label('الصنف')
                     ->relationship('category', 'name')
                     // ->required()
                     ->searchable()
@@ -42,25 +42,25 @@ class MealForm
                     ->label('نوع الوجبة'),
 
                 Textarea::make('description')
-                    ->label('Description')
+                    ->label('وصف الوجبة')
                     ->required()
                     ->columnSpanFull(),
 
                 TextInput::make('price')
-                        ->label('Price')
+                        ->label('السعر')
                         ->required()
                         ->numeric()
                         ->prefix('$')
                         ->step(0.01),
 
                 Toggle::make('is_available')
-                        ->label('Available for Order')
+                        ->label('متاح للطلب')
                         ->default(true)
                         ->onColor('success')
                         ->offColor('danger'),
 
                 FileUpload::make('image')
-                    ->label('Image')
+                    ->label('الصورة')
                     ->disk('public')
                     ->directory('meals')
                     ->image()
@@ -68,7 +68,7 @@ class MealForm
                     ->maxSize(20480)
                     ->downloadable()
                     ->openable()
-                    ->helperText('Maximum file size: 20MB. Allowed formats: JPG, PNG, GIF, WEBP')
+                    ->helperText('يمكنك رفع صورة للوجبة. الحد الأقصى للحجم 20 ميجابايت')
                     ->columnSpanFull()
                     ->afterStateUpdated(function ($state, $set, $get, $record) {
                         if ($record && $record->image && $state && $state != $record->image) {

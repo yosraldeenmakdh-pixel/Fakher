@@ -20,13 +20,27 @@ class PublicRatingResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static ?string $navigationLabel = 'التقييمات العامة';
+    protected static ?string $pluralModelLabel = 'التقييمات العامة';
+        // protected static ?string $modelLabel = 'قطاع';
+
+
+
+    // protected static ?string $navigationLabel = 'التقييمات العامة';
+
+    // protected static ?string $modelLabel = 'تقييم';
+
+    // protected static ?string $pluralModelLabel = 'التقييمات العامة';
+
+    // protected static ?string $navigationGroup = 'المحتوى';
+
     public static function form(Schema $schema): Schema
     {
         return PublicRatingForm::configure($schema);
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('Ratings');
+        return __('ادارة التقييمات');
     }
 
     public static function table(Table $table): Table

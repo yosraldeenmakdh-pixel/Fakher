@@ -18,6 +18,14 @@ class RatingResource extends Resource
 {
     protected static ?string $model = Rating::class;
 
+    protected static ?string $navigationLabel = 'تقييمات الوجبات';
+
+    // protected static ?string $modelLabel = 'تقييم وجبة';
+
+    protected static ?string $pluralModelLabel = 'تقييمات الوجبات';
+
+    // protected static ?string $navigationGroup = 'التقييمات';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
@@ -26,7 +34,7 @@ class RatingResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('Ratings');
+        return __('ادارة التقييمات');
     }
 
     public static function table(Table $table): Table

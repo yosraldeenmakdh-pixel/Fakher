@@ -5,10 +5,14 @@ namespace App\Filament\Resources\OrderOnlines\Tables;
 use App\Models\OrderOnline;
 use DeepCopy\Filter\Filter;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
+use Filament\Support\Enums\Alignment;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter as FiltersFilter;
@@ -41,6 +45,7 @@ class OrderOnlinesTable
                 TextColumn::make('order_number')
                     ->label('رقم الطلب')
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->copyable()
                     ->sortable(),
 
@@ -53,27 +58,8 @@ class OrderOnlinesTable
                     ->label('هاتف العميل')
                     ->searchable(),
 
-                // TextColumn::make('location')
-                    // ->label('الموقع')
-                    // ->formatStateUsing(function ($record) {
-                    //     if ($record->latitude && $record->longitude) {
-                    //         return '
-                    //             <div class="flex items-center gap-2">
-                    //                 <span class="text-red-500">📍</span>
-                    //                 <span class="text-sm font-mono">
-                    //                     ' . number_format($record->latitude, 4) . ', ' . number_format($record->longitude, 4) . '
-                    //                 </span>
-                    //             </div>
-                    //         ';
-                    //     }
-                    //     return '<span class="text-gray-400">❌ لا يوجد</span>';
-                    // })
-                    // ->html()
-                    // ->searchable(false)
-                    // ->sortable(false),
-
                 TextColumn::make('branch.name')
-                    ->label('الفرع')
+                    ->label('القطاع')
                     ->sortable(),
 
                 TextColumn::make('kitchen.name')
@@ -83,25 +69,29 @@ class OrderOnlinesTable
                     ->sortable() ,
 
                 TextColumn::make('total_quantity')
-                    ->label('عدد الوجبات الكلي')
+                    ->label('عدد الوجبات')
                     ->sortable()
+                    ->alignment(Alignment::Center)
                     ->getStateUsing(function ($record) {
                         return $record->items->sum('quantity');
                     })
                     ->formatStateUsing(fn ($state) => $state ?? 0),
 
+
                 TextColumn::make('total')
                     ->label('المبلغ الإجمالي')
-                    // ->money()
+                    ->prefix('$')
                     ->visible(!$user->hasRole('kitchen'))
                     ->sortable(),
 
                 TextColumn::make('confirmed_at')
                     ->label('وقت التأكيد')
                     ->visible(!$user->hasRole('kitchen'))
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 TextColumn::make('delivered_at')
                     ->label('وقت التوصيل')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->visible(!$user->hasRole('kitchen'))
                     ->sortable(),
 
@@ -123,13 +113,13 @@ class OrderOnlinesTable
                     }),
 
                 TextColumn::make('order_date')
-                    ->label('توقيت التسليم المطلوب')
-                    ->dateTime()
+                    ->label('وقت التسليم المطلوب')
+                    ->dateTime('Y/m/d H:i')
                     ->sortable(),
 
                 TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
-                    ->dateTime()
+                    ->dateTime('Y/m/d H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -138,7 +128,7 @@ class OrderOnlinesTable
                     ->label('حالة الطلب')
                     ->visible(!$user->hasRole('kitchen'))
                     ->options([
-                        'collecting' => 'جمع الطلب',
+                        'collecting' => 'الجمع',
                         'pending' => 'قيد الانتظار',
                         'delivered' => 'تم التوصيل',
                         'cancelled' => 'ملغي',
@@ -170,21 +160,93 @@ class OrderOnlinesTable
                     }),
             ])
             ->recordActions([
-                EditAction::make(),
-                Action::make('view_map')
-                    ->label('عرض الخريطة')
-                    ->icon('heroicon-o-map')
-                    ->color('success')
-                    ->hidden(fn ($record) => !$record->latitude || !$record->longitude)
-                    ->action(function ($record) {
-                        // يمكن فتح نافذة جديدة أو استخدام modal
-                        $url = "https://www.google.com/maps?q={$record->latitude},{$record->longitude}";
-                        return redirect()->away($url);
-                    }),
+                ActionGroup::make([
+                    EditAction::make()
+                        ->label('تعديل')
+                        ->visible(!$user->hasRole('kitchen')),
+                    DeleteAction::make()
+                        ->label('حذف')
+                        ->visible(!$user->hasRole('kitchen')),
+
+
+                    Action::make('viewMeals')
+                        ->label('عرض الوجبات')
+                        ->icon('heroicon-o-eye')
+                        ->color('primary')
+                        ->modalHeading('تفاصيل الوجبات')
+                        ->modalSubmitAction(false)
+                        ->modalWidth('sm')
+                        ->modalCancelActionLabel('إغلاق')
+                        ->action(function ($record) {
+                            // لا حاجة للكود هنا، فقط لعرض Modal
+                        })
+                        ->modalContent(function ($record) {
+                            $items = $record->items()->with('meal')->get();
+
+                            if ($items->isEmpty()) {
+                                return '<div class="text-right p-4 text-gray-500">لا توجد وجبات في هذا الطلب</div>';
+                            }
+
+                            $html = '<div class="p-4 text-right" dir="rtl">
+                                        <h3 class="text-lg font-bold text-primary-600 mb-4">تفاصيل الوجبات</h3>
+                                        <div class="space-y-3">';
+
+                            foreach ($items as $item) {
+                                $mealName = $item->meal->name ?? 'وجبة غير معروفة';
+                                $html .= '<div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-primary-500">
+                                            <span class="font-medium text-gray-800 dark:text-white">' . $mealName . '</span>
+                                            <span class="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300 px-3 py-1 rounded-full font-bold">' . $item->quantity . '</span>
+                                        </div>';
+                            }
+
+                            $html .= '    </div>
+                                    </div>';
+
+                            return new \Illuminate\Support\HtmlString($html);
+                        }),
+
+
+                    Action::make('view_map')
+                        ->label('عرض الخريطة')
+                        ->icon('heroicon-o-map')
+                        ->color('success')
+                        ->hidden(fn ($record) => !$record->latitude || !$record->longitude)
+                        ->url(fn ($record): string => "https://www.google.com/maps?q={$record->latitude},{$record->longitude}")
+                        ->openUrlInNewTab(),
+
+                    Action::make('mark_confirmed')
+                        ->label('تأكيد الطلب')
+                        // ->hidden(Auth::user()->hasRole('institution'))
+                        ->visible(fn ($record) => $record->status === 'pending')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->action(function ($record) {
+                            $record->update([
+                                'status' => 'confirmed',
+                                'confirmed_at' => now()
+                            ]);
+                        })
+                        ->requiresConfirmation()
+                        ->modalHeading('تأكيد الطلب')
+                        ->modalDescription('هل أنت متأكد من تأكيد هذا الطلب؟')
+                        ->modalSubmitActionLabel('نعم، أكد الطلب')
+                        ->modalCancelActionLabel('إلغاء')
+                        ->after(function () {
+                            Notification::make()
+                                ->title('تم تأكيد الطلب بنجاح')
+                                ->success()
+                                ->send() ;
+                        }),
+                ])
+                ->label('الإجراءات')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->color('primary')
+                ->button()
+                ->size('sm'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    // DeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -16,35 +16,26 @@ class BranchForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('الاسم')
                     ->required(),
 
                 Select::make('kitchen_id')
-                            ->label('مطبخ الطلبات الخاصة')
-                            ->relationship('kitchen', 'name')
-                            ->searchable()
-                            ->preload()
-                            // ->required()
-                            ->createOptionForm([
-                                TextInput::make('name')
-                                    ->label('اسم المطبخ')
-                                    ->required(),
-                            ])
-                            ->createOptionUsing(function (array $data) {
-                                return Kitchen::create($data)->id;
-                            })
-                            ->helperText('اختر المطبخ المرتبط بهذا الفرع من أجل الطلبات الخاصة'),
+                    ->label('مطبخ الطلبات الخاصة')
+                    ->relationship('kitchen', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->helperText('اختر المطبخ المرتبط بهذا الفرع من أجل الطلبات الخاصة'),
 
                 FileUpload::make('image')
-                            ->label('Image')
+                            ->label('الصورة')
                             ->disk('public')
                             ->directory('branches')
                             ->image()
                             ->imageEditor()
-
                             ->maxSize(20480)
                             ->downloadable()
                             ->openable()
-                            ->helperText('Maximum file size: 20MB. Allowed formats: JPG, PNG, GIF')
+                            ->helperText('الحد الأقصى لحجم الصورة 20 ميجابايت')
                             ->columnSpanFull()
                             ->afterStateUpdated(function ($state, $set, $get, $record) {
                                 if ($record && $record->image && $state && $state != $record->image) {
@@ -52,7 +43,7 @@ class BranchForm
                                 }
                             }) ,
                 TextInput::make('description')
-                    ->required(),
+                    ->label('الوصف')
             ]);
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\ContactSettings\Tables;
 
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -22,11 +24,13 @@ class ContactSettingsTable
                     ->label('القيمة')
                     ->limit(50),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('تم الإنشاء في')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('تم التحديث في')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -34,11 +38,25 @@ class ContactSettingsTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                ActionGroup::make([
+                    EditAction::make()
+                        ->color('success')
+                        ->label('تعديل')
+                        ->icon('heroicon-o-pencil'),
+                    DeleteAction::make()
+                        ->color('danger')
+                        ->label('حذف')
+                        ->icon('heroicon-o-trash'),
+                ])
+                ->label('الإجراءات')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->color('primary')
+                ->button()
+                ->size('sm'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    // DeleteBulkAction::make(),
                 ]),
             ]);
     }

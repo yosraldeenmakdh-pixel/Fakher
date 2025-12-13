@@ -15,7 +15,7 @@ class ComplaintForm
         return $schema
             ->components([
                 Section::make('معلومات المستخدم')
-                    ->description('بيانات المستخدم المرسل للشكوى')
+                    // ->description('بيانات المستخدم المرسل للشكوى')
                     ->icon('heroicon-o-user')
                     ->schema([
                         Select::make('user_id')
@@ -34,12 +34,12 @@ class ComplaintForm
                             ->tel()
                             ->maxLength(10)
                             ->prefixIcon('heroicon-o-phone')
-                            ->placeholder('09XXXXXXXX')
-                            ->columnSpan(1),
-                    ])->columns(3),
+                            // ->placeholder('09XXXXXXXX')
+                            ->columnSpan(2),
+                    ])->columns(2),
 
                 Section::make('تفاصيل الشكوى')
-                    ->description('المحتوى الكامل للشكوى المقدمة')
+                    // ->description('المحتوى الكامل للشكوى المقدمة')
                     ->icon('heroicon-o-document-text')
                     ->schema([
                         TextInput::make('subject')
@@ -58,7 +58,7 @@ class ComplaintForm
                     ]),
 
                 Section::make('ملاحظات الإدارة')
-                    ->description('ملاحظات خاصة بالإدارة للمتابعة')
+                    // ->description('ملاحظات خاصة بالإدارة للمتابعة')
                     ->icon('heroicon-o-clipboard-document-list')
                     ->collapsible()
                     ->schema([
@@ -66,7 +66,7 @@ class ComplaintForm
                             ->label('ملاحظات الإدارة')
                             ->nullable()
                             ->rows(4)
-                            ->placeholder('أضف ملاحظات الإدارة هنا...')
+                            // ->placeholder('أضف ملاحظات الإدارة هنا...')
                             ->helperText('هذه الملاحظات خاصة بالإدارة فقط ولن يراها المستخدم')
                             ->columnSpanFull(),
                     ]),

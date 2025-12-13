@@ -17,6 +17,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
+
+        app()->setLocale('ar');
+        // $this->translateCommonTerms();
+
+
+
         // 1. تعيين النطاق الزمني الأساسي
         date_default_timezone_set('Asia/Damascus');
         config(['app.timezone' => 'Asia/Damascus']);
@@ -30,6 +36,19 @@ class AppServiceProvider extends ServiceProvider
         // 4. إعدادات إضافية للتاريخ والوقت
         $this->configureAdditionalTimeSettings();
     }
+
+    // private function translateCommonTerms()
+    //     {
+    //         // يمكن إضافة ترجمات سريعة هنا
+    //         $translations = [
+    //             'Save' => 'حفظ',
+    //             'branch' => 'فرع',
+    //             'Edit' => 'تعديل',
+    //             'Delete' => 'حذف',
+    //             'Create' => 'إنشاء',
+    //             // أضف بقية الترجمات
+    //         ];
+    //     }
 
     protected function configureDatabaseTime()
     {

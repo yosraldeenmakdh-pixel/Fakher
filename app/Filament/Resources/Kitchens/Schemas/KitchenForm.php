@@ -9,6 +9,7 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
 
 class KitchenForm
 {
@@ -35,19 +36,30 @@ class KitchenForm
 
 
                         Select::make('user_id')
-                                    ->label('الشخص المسؤول')
-                                    ->relationship(
-                                        name: 'user',
-                                        titleAttribute: 'name',
-                                        modifyQueryUsing: fn ($query) => $query->whereHas('roles', function ($q) {
-                                            $q->where('name', 'kitchen');
-                                        })
-                                    )
-                                    ->required()
-                                    ->searchable()
-                                    ->preload()
-                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
-                                    ->native(false),
+                            ->label('الشخص المسؤول')
+                            ->relationship(
+                                name: 'user',
+                                titleAttribute: 'name',
+                                modifyQueryUsing: function ($query, ?Model $record) {
+                                    // المستخدمين الذين لديهم دور kitchen
+                                    $query->whereHas('roles', function ($q) {
+                                        $q->where('name', 'kitchen');
+                                    });
+
+                                    // استبعاد المستخدمين الذين لديهم kitchen مرتبط بهم
+                                    $query->whereDoesntHave('kitchen', function ($q) use ($record) {
+                                        if ($record && $record->user_id) {
+                                            // في حالة التعديل، استثني kitchen الحالي
+                                            $q->where('id', '!=', $record->id);
+                                        }
+                                    });
+                                }
+                            )
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
+                            ->native(false),
 
                         Select::make('branch_id')
                             ->label('الفرع')

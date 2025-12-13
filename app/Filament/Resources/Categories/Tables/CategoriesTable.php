@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Categories\Tables;
 
 use App\Models\Category;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -20,7 +21,7 @@ class CategoriesTable
         return $table
             ->columns([
                 ImageColumn::make('image')
-                    ->label('Image')
+                    ->label('الصورة')
                     ->disk('public')
                     ->width(60)
                     ->height(60)
@@ -28,39 +29,40 @@ class CategoriesTable
                     ->defaultImageUrl(url('/placeholder.jpg')),
 
                 TextColumn::make('name')
-                    ->label('Name')
+                    ->label('الاسم')
                     ->searchable()
                     ->sortable()
                     ->weight('medium') ,
 
                 TextColumn::make('description')
-                    ->label('Description')
+                    ->label('الوصف')
                     ->searchable()
                     ->toggleable()
                     ->limit(30)
                     ->wrap(),
 
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label('تاريخ الإنشاء')
                     ->dateTime('M j, Y H:i')
+                    ->date('Y/m/d H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
-                TextColumn::make('updated_at')
-                    ->label('Last Updated')
-                    ->dateTime('M j, Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                // TextColumn::make('updated_at')
+                //     ->label('Last Updated')
+                //     ->dateTime('M j, Y H:i')
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
 
 
-                IconColumn::make('has_image')
-                    ->label('Has Image')
-                    ->boolean()
-                    ->getStateUsing(fn ($record) => !empty($record->image))
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('gray'),
+                // IconColumn::make('has_image')
+                //     ->label('Has Image')
+                //     ->boolean()
+                //     ->getStateUsing(fn ($record) => !empty($record->image))
+                //     ->trueIcon('heroicon-o-check-circle')
+                //     ->falseIcon('heroicon-o-x-circle')
+                //     ->trueColor('success')
+                //     ->falseColor('gray'),
 
                 // TextColumn::make('items_count')
                 //     ->label('Products')
@@ -74,17 +76,25 @@ class CategoriesTable
                 //
             ])
             ->recordActions([
-                EditAction::make() ,
-                DeleteAction::make()
-                    ->before(function (Category $record) {
-                        if ($record->image) {
-                            Storage::disk('public')->delete($record->image);
-                        }
-                    }),
+                ActionGroup::make([
+                    EditAction::make() ,
+                    DeleteAction::make()
+                        ->before(function (Category $record) {
+                            if ($record->image) {
+                                Storage::disk('public')->delete($record->image);
+                            }
+                        }),
+                ])
+                ->label('الإجراءات')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->color('primary')
+                ->button()
+                ->size('sm'),
+
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    // DeleteBulkAction::make()
                 ]),
             ]);
     }

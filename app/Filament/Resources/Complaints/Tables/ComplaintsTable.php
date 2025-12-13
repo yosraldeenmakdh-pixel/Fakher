@@ -139,57 +139,31 @@ class ComplaintsTable
                     }),
             ])
             ->recordActions([
-                 ViewAction::make()
-                    ->color('primary')
-                    ->icon('heroicon-o-eye')
-                    ->modalHeading('تفاصيل الشكوى'),
+                ActionGroup::make([
+                    ViewAction::make()
+                        ->color('primary')
+                        ->label('عرض التفاصيل')
+                        ->icon('heroicon-o-eye')
+                        ->modalHeading('تفاصيل الشكوى'),
 
-                // تعديل الشكوى
-                EditAction::make()
-                    ->color('warning')
-                    ->icon('heroicon-o-pencil-square'),
+                    // تعديل الشكوى
+                    EditAction::make()
+                        ->color('warning')
+                        ->label('تعديل الشكوى')
+                        ->icon('heroicon-o-pencil-square'),
 
-                // إجراءات سريعة
-                // ActionGroup::make([
-                //     // اتصال سريع
-                //     Action::make('call')
-                //         ->label('اتصال')
-                //         ->icon('heroicon-o-phone')
-                //         ->color('success')
-                //         ->url(fn (Complaint $record): string => "tel:{$record->phone}"),
-
-                //     // واتساب سريع
-                //     Action::make('whatsapp')
-                //         ->label('واتساب')
-                //         ->icon('heroicon-o-chat-bubble-left-ellipsis')
-                //         ->color('green')
-                //         ->url(fn (Complaint $record): string => "https://wa.me/{$record->phone}?text=" . urlencode("مرحبا، بخصوص شكواك: {$record->subject}"))
-                //         ->openUrlInNewTab(),
-
-                //     // نسخ المعلومات
-                //     Action::make('copy_info')
-                //         ->label('نسخ المعلومات')
-                //         ->icon('heroicon-o-clipboard-document')
-                //         ->color('gray')
-                //         ->action(function (Complaint $record) {
-                //             $info = "اسم المستخدم: {$record->user->name}\n";
-                //             $info .= "الهاتف: {$record->phone}\n";
-                //             $info .= "الموضوع: {$record->subject}\n";
-                //             $info .= "الرسالة: {$record->message}";
-
-                //             // نسخ إلى الحافظة
-                //         }),
-                // ])
-                // ->label('إجراءات سريعة')
-                // ->icon('heroicon-o-cog-6-tooth')
-                // ->color('primary')
-                // ->button(),
-
-                // حذف الشكوى
-                DeleteAction::make()
-                    ->color('danger')
-                    ->icon('heroicon-o-trash')
-                    ->requiresConfirmation(),
+                    // حذف الشكوى
+                    DeleteAction::make()
+                        ->color('danger')
+                        ->label('حذف الشكوى')
+                        ->icon('heroicon-o-trash')
+                        ->requiresConfirmation(),
+                ])
+                ->label('الإجراءات')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->color('primary')
+                ->button()
+                ->size('sm'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -18,6 +18,10 @@ class OrderOnlineResource extends Resource
 {
     protected static ?string $model = OrderOnline::class;
 
+    protected static ?string $navigationLabel = 'الطلبات الالكترونية';
+    protected static ?string $pluralModelLabel = 'الطلبات الالكترونية';
+    // protected static ?string $modelLabel = 'طلب الكتروني';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
@@ -32,7 +36,7 @@ class OrderOnlineResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('Orders from website');
+        return __('طلبات الموقع');
     }
 
 

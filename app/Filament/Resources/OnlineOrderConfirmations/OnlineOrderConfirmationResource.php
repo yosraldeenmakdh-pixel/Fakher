@@ -18,10 +18,15 @@ class OnlineOrderConfirmationResource extends Resource
 {
     protected static ?string $model = OnlineOrderConfirmation::class;
 
+    protected static ?string $navigationLabel = 'الطلبات الالكترونية المؤكدة';
+    protected static ?string $pluralModelLabel = 'الطلبات الالكترونية المؤكدة';
+    // protected static ?string $modelLabel = 'طلب الكتروني مؤكد';
+
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     public static function getNavigationGroup(): ?string
     {
-        return __('Orders from website');
+        return __('طلبات الموقع');
     }
     public static function form(Schema $schema): Schema
     {

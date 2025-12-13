@@ -18,6 +18,12 @@ class ReservationResource extends Resource
 {
     protected static ?string $model = Reservation::class;
 
+    protected static ?string $navigationLabel = 'الحجوزات';
+
+    // protected static ?string $modelLabel = 'حجز';
+
+    protected static ?string $pluralModelLabel = 'الحجوزات';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
@@ -26,7 +32,7 @@ class ReservationResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('Reservation');
+        return __('نظام ادارة الحجوزات');
     }
 
     public static function table(Table $table): Table

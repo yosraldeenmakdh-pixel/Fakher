@@ -18,6 +18,10 @@ class OfferResource extends Resource
 {
     protected static ?string $model = Offer::class;
 
+    protected static ?string $navigationLabel = 'العروض';
+    protected static ?string $pluralModelLabel = 'العروض';
+    // protected static ?string $modelLabel = 'عرض';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -28,7 +32,7 @@ class OfferResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('Content Management');
+        return __('ادارة المحتوى');
     }
     public static function table(Table $table): Table
     {

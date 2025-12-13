@@ -18,6 +18,11 @@ class BranchResource extends Resource
 {
     protected static ?string $model = Branch::class;
 
+
+    protected static ?string $navigationLabel = 'القطاعات';
+    protected static ?string $pluralModelLabel = 'القطاعات';
+    // protected static ?string $modelLabel = 'قطاع';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
@@ -38,7 +43,7 @@ class BranchResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('Content Management');
+        return __('ادارة المحتوى');
     }
 
     public static function getPages(): array

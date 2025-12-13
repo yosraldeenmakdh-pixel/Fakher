@@ -18,6 +18,11 @@ class TableResource extends Resource
 {
     protected static ?string $model = Table1::class;
 
+    protected static ?string $navigationLabel = 'الطاولات';
+
+    // protected static ?string $modelLabel = 'طاولة';
+
+    protected static ?string $pluralModelLabel = 'الطاولات';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -28,7 +33,7 @@ class TableResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('Reservation');
+        return __('نظام ادارة الحجوزات');
     }
     public static function table(Table $table): Table
     {

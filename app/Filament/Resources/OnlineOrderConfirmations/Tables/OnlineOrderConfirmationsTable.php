@@ -3,11 +3,13 @@
 namespace App\Filament\Resources\OnlineOrderConfirmations\Tables;
 
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -54,11 +56,11 @@ class OnlineOrderConfirmationsTable
 
                 TextColumn::make('order.customer_phone')
                     ->label('هاتف العميل')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable() ,
+                    // ->toggleable(isToggledHiddenByDefault: ),
 
                 TextColumn::make('delivery_date')
-                    ->label('موعد التسليم المطلوب')
+                    ->label('وقت التسليم المطلوب')
                     ->dateTime('Y-m-d H:i')
                     ->sortable()
                     ->icon('heroicon-o-clock'),
@@ -84,33 +86,6 @@ class OnlineOrderConfirmationsTable
                         'cancelled' => 'ملغي',
                     }),
 
-                TextColumn::make('order_items')
-                    ->label('تفاصيل الوجبات')
-                    ->formatStateUsing(function ($state) {
-                        // إذا كان $state هو string، قم بتحويله إلى array
-                        if (is_string($state)) {
-                            $items = json_decode($state, true) ?? [];
-                        } else {
-                            $items = $state ?? [];
-                        }
-
-                        if (empty($items)) {
-                            return '---';
-                        }
-
-                        return collect($items)->take(2)->map(function ($item) {
-                            // تأكد من أن $item هي array وليس string
-                            if (is_array($item)) {
-                                $mealName = $item['meal_name'] ?? 'وجبة غير معروفة';
-                                $quantity = $item['quantity'] ?? 0;
-                                return "{$mealName} (×{$quantity})";
-                            } else {
-                                return 'بيانات غير صالحة';
-                            }
-                        })->implode(' - ') . (count($items) > 2 ? ' ...+' : '');
-                    })
-                    ->wrap(),
-
 
                 TextColumn::make('kitchen.name')
                     ->label('المطبخ')
@@ -125,15 +100,15 @@ class OnlineOrderConfirmationsTable
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('delivered_at')
-                    ->label('موعد التسليم الفعلي')
-                    ->dateTime()
+                    ->label('تاريخ التسليم')
+                    ->dateTime('Y/m/d H:i')
                     ->hidden($isKitchen)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
                     ->label('تاريخ التأكيد')
-                    ->dateTime('Y-m-d H:i')
+                    ->dateTime('Y/m/d H:i')
                     ->hidden($isKitchen)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -143,10 +118,8 @@ class OnlineOrderConfirmationsTable
                     ->label('حالة الطلب')
                     ->hidden($isKitchen)
                     ->options([
-                        'pending' => 'قيد الانتظار',
                         'confirmed' => 'تم التأكيد',
                         'delivered' => 'تم التسليم',
-                        'cancelled' => 'ملغي',
                     ]),
 
                 Tables\Filters\SelectFilter::make('kitchen_id')
@@ -175,8 +148,85 @@ class OnlineOrderConfirmationsTable
                     }),
             ])
             ->actions([
+                ActionGroup::make([
 
-                EditAction::make(),
+                    EditAction::make()
+                        ->label('تعديل')
+                        ->hidden($isKitchen)
+                        ->icon('heroicon-o-pencil')
+                        ->color('primary'),
+                    DeleteAction::make()
+                        ->label('حذف')
+                        ->hidden($isKitchen)
+                        ->icon('heroicon-o-trash')
+                        ->color('danger'),
+
+                    Action::make('viewMeals')
+                        ->label('عرض الوجبات')
+                        ->icon('heroicon-o-eye')
+                        ->color('primary')
+                        ->modalHeading('تفاصيل الوجبات')
+                        ->modalSubmitAction(false)
+                        ->modalWidth('sm')
+                        ->modalCancelActionLabel('إغلاق')
+                        ->action(function ($record) {
+                            // لا حاجة للكود هنا، فقط لعرض Modal
+                        })
+                        ->modalContent(function ($record) {
+                            $items = $record->order->items()->with('meal')->get();
+
+                            if ($items->isEmpty()) {
+                                return '<div class="text-right p-4 text-gray-500">لا توجد وجبات في هذا الطلب</div>';
+                            }
+
+                            $html = '<div class="p-4 text-right" dir="rtl">
+                                        <h3 class="text-lg font-bold text-primary-600 mb-4">تفاصيل الوجبات</h3>
+                                        <div class="space-y-3">';
+
+                            foreach ($items as $item) {
+                                $mealName = $item->meal->name ?? 'وجبة غير معروفة';
+                                $html .= '<div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-primary-500">
+                                            <span class="font-medium text-gray-800 dark:text-white">' . $mealName . '</span>
+                                            <span class="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300 px-3 py-1 rounded-full font-bold">' . $item->quantity . '</span>
+                                        </div>';
+                            }
+
+                            $html .= '    </div>
+                                    </div>';
+
+                            return new \Illuminate\Support\HtmlString($html);
+                        }),
+
+
+                    Action::make('mark_delivered')
+                        ->label('تسليم الطلب')
+                        // ->hidden(Auth::user()->hasRole('institution'))
+                        ->visible(fn ($record) => $record->status === 'confirmed')
+                        ->icon('heroicon-o-truck')
+                        ->color('info')
+                        ->action(function ($record) {
+                            $record->update([
+                                'status' => 'delivered',
+                                'delivered_at' => now()
+                            ]);
+                        })
+                        ->requiresConfirmation()
+                        ->modalHeading('تسليم الطلب')
+                        ->modalDescription('هل أنت متأكد من تسليم هذا الطلب؟')
+                        ->modalSubmitActionLabel('نعم، تم التسليم')
+                        ->modalCancelActionLabel('إلغاء')
+                        ->after(function () {
+                            Notification::make()
+                                ->title('تم تسليم الطلب بنجاح')
+                                ->success()
+                                ->send();
+                        }),
+                ])
+                ->label('الإجراءات')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->color('primary')
+                ->button()
+                ->size('sm'),
             ])
             ->bulkActions([
 

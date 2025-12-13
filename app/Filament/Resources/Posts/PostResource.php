@@ -18,6 +18,10 @@ class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
 
+    protected static ?string $navigationLabel = 'المقالات والأخبار';
+    protected static ?string $pluralModelLabel = 'المقالات والأخبار';
+    // protected static ?string $modelLabel = 'مقال أو خبر';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
@@ -31,7 +35,7 @@ class PostResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('Content Management');
+        return __('ادارة المحتوى');
     }
 
     public static function getRelations(): array

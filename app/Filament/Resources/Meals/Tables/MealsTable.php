@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Meals\Tables;
 
 use App\Models\Meal;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -25,13 +26,13 @@ class MealsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Name')
+                    ->label('الاسم')
                     ->searchable()
                     ->sortable()
                     ->weight('semibold'),
 
                 TextColumn::make('category.name')
-                    ->label('Category')
+                    ->label('الصنف')
                     ->sortable()
                     ->searchable()
                     ->badge()
@@ -49,17 +50,17 @@ class MealsTable
                         'lunch' => 'warning',
                         'dinner' => 'danger',
                     })
-                    ->label('نوع الوجبة'),
+                    ->label('النوع'),
 
                 TextColumn::make('price')
-                    ->label('price')
+                    ->label('السعر')
                     ->money('usd')
                     ->sortable()
                     ->color('success')
                     ->weight('bold'),
 
                 IconColumn::make('is_available')
-                    ->label('Available')
+                    ->label('متاح')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-circle')
@@ -67,21 +68,22 @@ class MealsTable
                     ->falseColor('danger'),
 
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label('تاريخ الانشاء')
                     ->dateTime('M j, Y g:i A')
+                    ->date('Y/m/d H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime('M j, Y g:i A')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                // TextColumn::make('updated_at')
+                //     ->label('Updated')
+                //     ->dateTime('M j, Y g:i A')
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
             ])
 
             ->filters([
                 SelectFilter::make('category')
-                    ->label('Category')
+                    ->label('الصنف')
                     ->relationship('category', 'name')
                     ->searchable()
                     ->preload()
@@ -89,10 +91,10 @@ class MealsTable
 
 
                 TernaryFilter::make('is_available')
-                    ->label('Availability')
-                    ->placeholder('All meals')
-                    ->trueLabel('Available meals')
-                    ->falseLabel('Unavailable meals'),
+                    ->label('التوفر')
+                    ->placeholder('جميع الوجبات')
+                    ->trueLabel('الوجبات المتاحة')
+                    ->falseLabel('الوجبات غير المتاحة'),
 
                 SelectFilter::make('meal_type')
                     ->label('نوع الوجبة')
@@ -105,14 +107,14 @@ class MealsTable
                     ->searchable() ,
 
                 Filter::make('price_range')
-                    ->label('Price Range')
+                    ->label('حدود السعر')
                     ->form([
                         TextInput::make('min_price')
-                            ->label('Min Price')
+                            ->label('السعر الأدنى')
                             ->numeric()
                             ->prefix('$'),
                         TextInput::make('max_price')
-                            ->label('Max Price')
+                            ->label('السعر الأعلى')
                             ->numeric()
                             ->prefix('$'),
                     ])
@@ -130,14 +132,20 @@ class MealsTable
 
             ])
             ->recordActions([
-                EditAction::make() ,
-                DeleteAction::make()
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make()
                         ->before(function (Meal $record) {
-                            // Delete image before deleting the record
                             if ($record->image) {
                                 Storage::disk('public')->delete($record->image);
                             }
                         }),
+                ])
+                ->label('الإجراءات')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->color('primary')
+                ->button()
+                ->size('sm'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

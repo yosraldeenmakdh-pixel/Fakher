@@ -76,23 +76,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ])
-
-            ->navigationGroups([
-                NavigationGroup::make()
-                    ->label('إدارة المحتوى'),
-
-                NavigationGroup::make()
-                    ->label('إدارة المطعم'),
-
-                NavigationGroup::make()
-                    ->label('الطلبات'),
-
-                NavigationGroup::make()
-                    ->label('الإعدادات'),
-            ])
-            ->sidebarCollapsibleOnDesktop();
-            // ->direction('rtl')
-            // ->locale('ar');
+            ]);
     }
 }

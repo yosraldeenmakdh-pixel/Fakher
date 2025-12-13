@@ -19,19 +19,19 @@ class CategoryForm
         return $schema
             ->components([
                         TextInput::make('name')
-                            ->label('Category Name')
+                            ->label('الاسم')
                             ->required()
-                            ->placeholder('Enter category name'),
+                            ->placeholder('أدخل اسم الصنف'),
 
                         Textarea::make('description')
-                            ->label('Description')
+                            ->label('الوصف')
                             ->nullable()
-                            ->placeholder('Enter category description'),
+                            ->placeholder('أدخل وصف الصنف'),
 
 
 
                         FileUpload::make('image')
-                            ->label('Image')
+                            ->label('الصورة')
                             ->disk('public')
                             ->directory('categories')
                             ->image()
@@ -40,7 +40,7 @@ class CategoryForm
                             ->maxSize(20480)
                             ->downloadable()
                             ->openable()
-                            ->helperText('Maximum file size: 20MB. Allowed formats: JPG, PNG, GIF')
+                            ->helperText('يمكنك رفع صورة للصنف. الحد الأقصى للحجم 20 ميجابايت')
                             ->columnSpanFull()
                             ->afterStateUpdated(function ($state, $set, $get, $record) {
                                 if ($record && $record->image && $state && $state != $record->image) {

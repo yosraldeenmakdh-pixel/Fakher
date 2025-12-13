@@ -18,6 +18,11 @@ class KitchenResource extends Resource
 {
     protected static ?string $model = Kitchen::class;
 
+    protected static ?string $navigationLabel = 'المطابخ';
+    protected static ?string $pluralModelLabel = 'المطابخ';
+    // protected static ?string $modelLabel = 'مطبخ';
+
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -28,7 +33,7 @@ class KitchenResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('kitchen');
+        return __('المطابخ');
     }
 
     public static function table(Table $table): Table

@@ -18,6 +18,11 @@ class ContactSettingResource extends Resource
 {
     protected static ?string $model = ContactSetting::class;
 
+    protected static ?string $navigationLabel = 'معلومات التواصل';
+    protected static ?string $pluralModelLabel = 'معلومات التواصل';
+    // protected static ?string $modelLabel = 'معلومة تواصل';
+
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
@@ -26,7 +31,7 @@ class ContactSettingResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('Support');
+        return __('الدعم');
     }
 
     public static function table(Table $table): Table
