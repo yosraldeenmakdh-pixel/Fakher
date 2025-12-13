@@ -14,7 +14,7 @@ class ListBranches extends ListRecords
     {
         return [
             CreateAction::make()
-            ->label('إضافة فرع جديد'),
+            ->label('إضافة قطاع جديد'),
         ];
     }
 }

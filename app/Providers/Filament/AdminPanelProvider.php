@@ -42,7 +42,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->passwordReset()
             ->brandName('Watan Food')
-            ->brandLogo(asset('images/logo.jpg'))
+            // ->brandLogo(asset('images/logo.jpg'))
             ->brandLogoHeight('2rem')
             ->favicon(asset('images/food_icon.png'))
             ->colors([
