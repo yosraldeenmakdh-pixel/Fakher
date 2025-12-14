@@ -130,7 +130,7 @@ class RatingController extends Controller
             ->where('is_visible', true)
             ->orderBy('rating', 'DESC')
             ->orderBy('created_at', 'DESC')
-            ->paginate(5, ['*'], 'page', $page);
+            ->paginate(1, ['*'], 'page', $page);
 
         $ratings->getCollection()->transform(function ($rating) {
                 if ($rating->user && $rating->user->image) {

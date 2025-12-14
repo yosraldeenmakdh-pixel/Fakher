@@ -60,7 +60,7 @@ class PublicRatingController extends Controller
     {
         try {
             $page = $request->get('page', 1); // الحصول على رقم الصفحة من Request
-            $perPage = 5; // تعليق واحد لكل صفحة
+            $perPage = 1; // تعليق واحد لكل صفحة
 
             $ratings = PublicRating::with('user:id,name,email,image')
                 ->where('is_visible', true)

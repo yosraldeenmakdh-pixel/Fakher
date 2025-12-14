@@ -37,18 +37,18 @@ class BranchesTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('description')
-                    ->label('الوصف')
-                    ->searchable()
-                    ->toggleable()
-                    ->limit(30)
-                    ->wrap(),
+                // TextColumn::make('description')
+                //     ->label('الوصف')
+                //     ->searchable()
+                //     ->toggleable()
+                //     ->limit(30)
+                //     ->wrap(),
                 TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable()
                     ->date('Y/m/d H:i')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
                 //
