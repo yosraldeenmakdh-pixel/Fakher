@@ -67,18 +67,16 @@ class PublicRatingController extends Controller
 
 
 
-            $ratings->getCollection()->transform(function ($rating) {
+            $ratings->transform(function ($rating) {
                 if ($rating->user && $rating->user->image) {
-                    // إضافة URL كامل للصورة
                     $rating->user->image_url = asset('uploads/' . $rating->user->image);
-                    // 'image' => $user->image ? asset('uploads/' . $user->image) : null,
                 }
                 return $rating;
             });
 
             return response()->json([
                 'success' => true,
-                'data' => $ratings->items(),
+                'data' => $ratings,
                 'stats' => PublicRating::getRatingStats()
             ]);
 
