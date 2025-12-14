@@ -19,7 +19,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'guest'=>Guest::class ,
             'checkUserRole' => CheckUserRole::class,
-            'CheckUserExists' => CheckUserExists::class,
         ]);
 
 
