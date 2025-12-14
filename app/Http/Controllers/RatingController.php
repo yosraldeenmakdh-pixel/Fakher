@@ -142,7 +142,7 @@ class RatingController extends Controller
         return response()->json([
             'meal_id' => $meal->id,
             'meal_name' => $meal->name,
-            'total_ratings' => $ratings->total(),
+            'total_ratings' => $ratings->count(),
             'average_rating' => $meal->average_rating,
             'ratings' => $ratings
         ]);
