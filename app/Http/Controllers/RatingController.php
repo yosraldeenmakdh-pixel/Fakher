@@ -130,7 +130,7 @@ class RatingController extends Controller
             ->orderBy('created_at', 'DESC')
             ->orderBy('rating', 'DESC') ;
 
-        $ratings->getCollection()->transform(function ($rating) {
+        $ratings->transform(function ($rating) {
                 if ($rating->user && $rating->user->image) {
                     // إضافة URL كامل للصورة
                     $rating->user->image_url = asset('uploads/' . $rating->user->image);
