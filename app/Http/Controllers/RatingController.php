@@ -128,7 +128,8 @@ class RatingController extends Controller
             ->where('meal_id', $meal->id)
             ->where('is_visible', true)
             ->orderBy('created_at', 'DESC')
-            ->orderBy('rating', 'DESC') ;
+            ->orderBy('rating', 'DESC')
+            ->get();
 
         $ratings->transform(function ($rating) {
                 if ($rating->user && $rating->user->image) {
