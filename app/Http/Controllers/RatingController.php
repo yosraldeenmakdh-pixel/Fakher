@@ -22,7 +22,7 @@ class RatingController extends Controller
             'comment' => 'nullable|string' ,
             'meal_id' => 'required|integer|exists:meals,id',
         ], [
-            'meal_id.required' => 'معرف الوجبة مطلوب', // تصحيح: meal_id بدل id
+            'meal_id.required' => 'معرف الوجبة مطلوب',
             'meal_id.integer' => 'معرف الوجبة يجب أن يكون رقماً',
             'meal_id.exists' => 'الوجبة غير موجودة',
             'rating.required' => 'التقييم مطلوب',
@@ -55,29 +55,26 @@ class RatingController extends Controller
                 $isUpdate = true;
                 $oldRating = $existingRating->rating;
 
-                $existingRating->update([
-                    'rating' => $request->rating,
-                    'comment' => $request->comment
-                ]);
+                $existingRating->rating = $request->rating;
+                $existingRating->comment = $request->comment;
+                $existingRating->save();
 
                 $rating = $existingRating;
 
             } else {
                 // إنشاء تقييم جديد
-                $rating = Rating::create([
-                    'user_id' => Auth::id(),
-                    'meal_id' => $request->meal_id,
-                    'rating' => $request->rating,
-                    'comment' => $request->comment
-                ]);
+                $rating = new Rating();
+                $rating->user_id = Auth::id();
+                $rating->meal_id = $request->meal_id;
+                $rating->rating = $request->rating;
+                $rating->comment = $request->comment;
+                $rating->is_visible = true; // تأكد من وجود هذا الحقل
+                $rating->save();
             }
 
-            // تحديث إحصائيات الوجبة
-            // إذا كان تحديثاً وتغير التقييم، أو إذا كان جديداً
-            if (!$isUpdate || $oldRating != $request->rating) {
-                $meal->updateRatingStats();
-                $meal->refresh();
-            }
+
+            $meal->refresh();
+            $meal->updateRatingStats();
 
             DB::commit();
 
