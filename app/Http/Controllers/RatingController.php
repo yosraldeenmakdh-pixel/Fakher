@@ -121,16 +121,13 @@ class RatingController extends Controller
 
         $meal = Meal::where('id',$request->id)->first() ;
 
-        $page = $request->get('page', 1); // الحصول على رقم الصفحة من Request
 
         $ratings = Rating::with(['user' => function($query) {
                 $query->select('id', 'name', 'email', 'image');
             }])
             ->where('meal_id', $meal->id)
             ->where('is_visible', true)
-            ->orderBy('rating', 'DESC')
-            ->orderBy('created_at', 'DESC')
-            ->paginate(1, ['*'], 'page', $page);
+            ->orderBy('created_at', 'DESC');
 
         $ratings->getCollection()->transform(function ($rating) {
                 if ($rating->user && $rating->user->image) {
@@ -146,12 +143,6 @@ class RatingController extends Controller
             'meal_name' => $meal->name,
             'total_ratings' => $ratings->total(),
             'average_rating' => $meal->average_rating,
-            'current_page' => $ratings->currentPage(),
-            'last_page' => $ratings->lastPage(),
-            'per_page' => $ratings->perPage(),
-            'has_more_pages' => $ratings->hasMorePages(),
-            'next_page_url' => $ratings->nextPageUrl(),
-            'prev_page_url' => $ratings->previousPageUrl(),
             'ratings' => $ratings->items()
         ]);
     }

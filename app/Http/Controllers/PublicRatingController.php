@@ -59,22 +59,13 @@ class PublicRatingController extends Controller
     public function index(Request $request)
     {
         try {
-            $page = $request->get('page', 1); // الحصول على رقم الصفحة من Request
-            $perPage = 1; // تعليق واحد لكل صفحة
-
-            $ratings = PublicRating::with('user:id,name,email,image')
+             $ratings = PublicRating::with('user:id,name,email,image')
                 ->where('is_visible', true)
-                ->orderBy('rating', 'DESC')
+                // ->orderBy('rating', 'DESC')
                 ->orderBy('created_at', 'desc')
-                ->paginate($perPage, ['id', 'user_id', 'rating', 'comment', 'created_at'], 'page', $page);
+                ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
 
-            // إذا كانت الصفحة المطلوبة أكبر من عدد الصفحات المتاحة
-            if ($page > $ratings->lastPage() && $ratings->total() > 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لا توجد تعليقات في هذه الصفحة'
-                ], 404);
-            }
+
 
             $ratings->getCollection()->transform(function ($rating) {
                 if ($rating->user && $rating->user->image) {
@@ -88,15 +79,6 @@ class PublicRatingController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $ratings->items(),
-                'pagination' => [
-                    'current_page' => $ratings->currentPage(),
-                    'last_page' => $ratings->lastPage(),
-                    'per_page' => $ratings->perPage(),
-                    'total' => $ratings->total(),
-                    'has_more_pages' => $ratings->hasMorePages(),
-                    'next_page_url' => $ratings->nextPageUrl(),
-                    'prev_page_url' => $ratings->previousPageUrl(),
-                ],
                 'stats' => PublicRating::getRatingStats()
             ]);
 
