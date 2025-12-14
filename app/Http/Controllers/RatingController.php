@@ -55,26 +55,29 @@ class RatingController extends Controller
                 $isUpdate = true;
                 $oldRating = $existingRating->rating;
 
-                $existingRating->rating = $request->rating;
-                $existingRating->comment = $request->comment;
-                $existingRating->save();
+                $existingRating->update([
+                    'rating' => $request->rating,
+                    'comment' => $request->comment
+                ]);
 
                 $rating = $existingRating;
 
             } else {
                 // إنشاء تقييم جديد
-                $rating = new Rating();
-                $rating->user_id = Auth::id();
-                $rating->meal_id = $request->meal_id;
-                $rating->rating = $request->rating;
-                $rating->comment = $request->comment;
-                $rating->is_visible = true; // تأكد من وجود هذا الحقل
-                $rating->save();
+                $rating = Rating::create([
+                    'user_id' => Auth::id(),
+                    'meal_id' => $request->meal_id,
+                    'rating' => $request->rating,
+                    'comment' => $request->comment
+                ]);
             }
 
-
-            $meal->refresh();
-            $meal->updateRatingStats();
+            // تحديث إحصائيات الوجبة
+            // إذا كان تحديثاً وتغير التقييم، أو إذا كان جديداً
+            if (!$isUpdate || $oldRating != $request->rating) {
+                $meal->updateRatingStats();
+                $meal->refresh();
+            }
 
             DB::commit();
 
