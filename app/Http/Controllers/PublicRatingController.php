@@ -61,7 +61,7 @@ class PublicRatingController extends Controller
         try {
              $ratings = PublicRating::with('user:id,name,email,image')
                 ->where('is_visible', true)
-                // ->orderBy('rating', 'DESC')
+                ->orderBy('rating', 'DESC')
                 ->orderBy('created_at', 'desc')
                 ->get(['id', 'user_id', 'rating', 'comment', 'created_at']);
 

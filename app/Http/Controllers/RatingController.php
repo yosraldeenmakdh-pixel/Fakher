@@ -127,7 +127,8 @@ class RatingController extends Controller
             }])
             ->where('meal_id', $meal->id)
             ->where('is_visible', true)
-            ->orderBy('created_at', 'DESC');
+            ->orderBy('created_at', 'DESC')
+            ->orderBy('rating', 'DESC') ;
 
         $ratings->getCollection()->transform(function ($rating) {
                 if ($rating->user && $rating->user->image) {
@@ -143,7 +144,7 @@ class RatingController extends Controller
             'meal_name' => $meal->name,
             'total_ratings' => $ratings->total(),
             'average_rating' => $meal->average_rating,
-            'ratings' => $ratings->items()
+            'ratings' => $ratings
         ]);
     }
 
