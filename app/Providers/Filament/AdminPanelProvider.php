@@ -61,6 +61,10 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 ComplaintsTrendChart::class ,
 
+                KitchenRevenueChart::class,
+                KitchenSalesChart::class,
+                TotalSalesTrendChart::class
+
             ])
             ->middleware([
                 EncryptCookies::class,
