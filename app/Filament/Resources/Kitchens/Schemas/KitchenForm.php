@@ -29,7 +29,7 @@ class KitchenForm
 
                         Textarea::make('description')
                             ->label('الوصف')
-                            ->required()
+                            // ->required()
                             ->rows(3)
                             ->placeholder('وصف مختصر عن المطبخ'),
 
@@ -90,7 +90,7 @@ class KitchenForm
 
                         Textarea::make('address')
                             ->label('العنوان')
-                            ->required()
+                            // ->required()
                             ->rows(2)
                             ->placeholder('العنوان الكامل للمطبخ'),
                     ])

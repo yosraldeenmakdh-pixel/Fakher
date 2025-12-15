@@ -64,12 +64,12 @@ class KitchensTable
 
                 TextColumn::make('opening_time')
                     ->label('وقت الفتح')
-                    ->time('H:i')
+                    ->time('H:i A')
                     ->sortable(),
 
                 TextColumn::make('closing_time')
                     ->label('وقت الإغلاق')
-                    ->time('H:i')
+                    ->time('H:i A')
                     ->sortable(),
 
 
