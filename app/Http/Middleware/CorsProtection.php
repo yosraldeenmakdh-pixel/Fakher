@@ -11,6 +11,7 @@ class CorsProtection
     private $allowedOrigins = [
         'https://watan-food-chain.com',
         'https://www.watan-food-chain.com',
+        'https://api.watan-food-chain.com',
         'http://localhost:3000', // للتطوير فقط
         'http://localhost:8000', // للتطوير فقط
     ];
