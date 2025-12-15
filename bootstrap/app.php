@@ -3,6 +3,7 @@
 use App\Http\Middleware\CheckUserActivity;
 use App\Http\Middleware\CheckUserExists;
 use App\Http\Middleware\CheckUserRole;
+use App\Http\Middleware\CorsProtection;
 use App\Http\Middleware\Guest;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
+        $middleware->use([
+            CorsProtection::class,
+        ]);
+
         $middleware->alias([
             'guest'=>Guest::class ,
             'checkUserRole' => CheckUserRole::class,

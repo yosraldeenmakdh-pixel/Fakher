@@ -72,8 +72,6 @@ class KitchensTable
                     ->time('H:i A')
                     ->sortable(),
 
-
-
                 TextColumn::make('Financial_debts')
                     ->label('الرصيد')
                     ->sortable()
