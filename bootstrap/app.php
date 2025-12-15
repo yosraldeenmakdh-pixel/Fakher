@@ -18,9 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
-        // $middleware->use([
-        //     CorsProtection::class,
-        // ]);
+        $middleware->use([
+            CorsProtection::class,
+        ]);
 
         $middleware->alias([
             'guest'=>Guest::class ,
