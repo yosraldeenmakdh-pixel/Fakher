@@ -33,7 +33,7 @@ class KitchenResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return __('المطابخ');
+        return __('ادارة المطابخ');
     }
 
     public static function table(Table $table): Table

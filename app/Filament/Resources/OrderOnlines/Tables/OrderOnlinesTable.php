@@ -123,6 +123,7 @@ class OrderOnlinesTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->poll('5s')
             ->filters([
                 SelectFilter::make('status')
                     ->label('حالة الطلب')

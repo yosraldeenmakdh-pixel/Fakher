@@ -229,11 +229,7 @@ class KitchensTable
                                         ->label('نوع الحركات')
                                         ->options([
                                             'all' => 'جميع الحركات',
-                                            'scheduled_order' => 'طلبات مجدولة',
-                                            'special_order' => 'طلبات خاصة',
-                                            'emergency_order' => 'طلبات استنفار',
                                             'online_order' => 'طلبات إلكترونية',
-                                            'order' => 'طلبات داخلية',
                                             'payment' => 'دفعات',
                                         ])
                                         ->default('all'),

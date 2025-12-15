@@ -12,6 +12,7 @@ class CorsProtection
         'https://watan-food-chain.com',
         'https://www.watan-food-chain.com',
         'http://localhost:3000', // للتطوير فقط
+        'http://localhost:8000', // للتطوير فقط
     ];
 
     public function handle(Request $request, Closure $next)
@@ -22,7 +23,7 @@ class CorsProtection
         if ($origin && !in_array($origin, $this->allowedOrigins)) {
             return response()->json([
                 'error' => 'Access denied',
-                'message' => 'This API only accepts requests from watan.com'
+                'message' => 'This API only accepts requests from watan-food-chain.com'
             ], 403);
         }
 

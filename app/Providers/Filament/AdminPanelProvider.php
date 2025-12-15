@@ -41,7 +41,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->passwordReset()
-            ->brandName('Watan Food')
+            ->brandName('وطن فود')
             // ->brandLogo(asset('images/logo.jpg'))
 
             // تم الرفع بنجاح
