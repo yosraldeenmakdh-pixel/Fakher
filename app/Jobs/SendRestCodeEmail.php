@@ -34,9 +34,9 @@ class SendRestCodeEmail implements ShouldQueue
 
         Mail::to($this->user)->send(new RestCodeMail($this->code));
 
-        if (app(QueueProcessorService::class)->getQueueSize() > 0) {
-            sleep(2); // انتظار 2 ثانية
-            app(QueueProcessorService::class)->processIfNeeded();
-        }
+        // if (app(QueueProcessorService::class)->getQueueSize() > 0) {
+        //     sleep(2); // انتظار 2 ثانية
+        //     app(QueueProcessorService::class)->processIfNeeded();
+        // }
     }
 }

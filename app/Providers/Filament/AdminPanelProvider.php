@@ -12,6 +12,7 @@ use App\Filament\Widgets\OrderStats;
 use App\Filament\Widgets\TopInstitutionsChart;
 use App\Filament\Widgets\TotalSalesTrendChart;
 use App\Http\Middleware\CheckUserRole;
+use App\Http\Middleware\ProcessQueueMiddleware;
 use App\Models\Complaint;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -77,6 +78,7 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
                 CheckUserRole::class,
+                // ProcessQueueMiddleware::class,
             ])
             ->plugins([
                 FilamentShieldPlugin::make()

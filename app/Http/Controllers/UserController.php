@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -67,7 +68,6 @@ class UserController extends Controller
 
             $validated = $request->validated() ;
             $validated['password'] = Hash::make($validated['password']) ;
-
             $validated['image'] = 'users/user.webp' ;
 
             DB::beginTransaction() ;
@@ -76,11 +76,14 @@ class UserController extends Controller
 
             $token = $user->createToken('user')->plainTextToken ;
 
-            Queue::push(new SendVerificationEmail($user, $code));
+            // Queue::push(new SendVerificationEmail($user, $code));
+
+            $job = new SendVerificationEmail($user, $code);
+            $job->handle();
 
             DB::commit() ;
 
-            $processingResult = $this->queueProcessor->processImmediately();
+            // $processingResult = $this->queueProcessor->processImmediately();
 
             return response()->json([
                 'message' => 'تم إنشاء الحساب بنجاح يرجى تفعيل الحساب باستخدام الكود المرسل إلى بريدك الإلكتروني.' ,
@@ -221,11 +224,14 @@ class UserController extends Controller
 
             Code::where('email', $email)->delete();
 
-            Queue::push(new SendVerificationEmail($user, $code));
+            // Queue::push(new SendVerificationEmail($user, $code));
+
+            $job = new SendVerificationEmail($user, $code);
+            $job->handle();
 
             DB::commit() ;
 
-            $processingResult = $this->queueProcessor->processImmediately();
+            // $processingResult = $this->queueProcessor->processImmediately();
 
             return response()->json([
                 'message' => 'تم إرسال الكود بنجاح'
@@ -314,11 +320,14 @@ class UserController extends Controller
 
             RestCode::where('email', $validated['email'])->delete();
 
-            Queue::push(new SendRestCodeEmail($user, $code));
+            // Queue::push(new SendRestCodeEmail($user, $code));
+            $job = new SendRestCodeEmail($user, $code);
+
+            $job->handle();
 
             DB::commit() ;
 
-            $processingResult = $this->queueProcessor->processImmediately();
+            // $processingResult = $this->queueProcessor->processImmediately();
 
             return response()->json([
                 'message'=>'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح'
@@ -433,11 +442,13 @@ class UserController extends Controller
 
             RestCode::where('email', $email)->delete();
 
-            Queue::push(new SendRestCodeEmail($user, $code));
+            // Queue::push(new SendRestCodeEmail($user, $code));
+            $job = new SendRestCodeEmail($user, $code);
+            $job->handle();
 
             DB::commit() ;
 
-            $processingResult = $this->queueProcessor->processImmediately();
+            // $processingResult = $this->queueProcessor->processImmediately();
 
 
             return response()->json([
