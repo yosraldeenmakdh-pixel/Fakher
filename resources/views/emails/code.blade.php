@@ -17,12 +17,12 @@
 
     <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e9ecef;">
         <p style="font-size: 16px; margin-bottom: 20px; text-align: right;">
-            عزيزي المستخدم،
+            عزيزي المستخدم
         </p>
 
         <p style="font-size: 16px; margin-bottom: 20px; text-align: right;">
-            نشكرك على انضمامك إلينا! لتفعيل حسابك والبدء في استخدام خدماتنا،<br>
-            يرجى استخدام رمز التفعيل التالي:
+            نشكرك على انضمامك إلينا! لتفعيل حسابك والبدء في استخدام خدماتنا<br>
+            يرجى استخدام رمز التفعيل التالي
         </p>
 
         <div style="background: white; border: 2px dashed #3a7bd5; padding: 20px; text-align: center; margin: 25px 0; border-radius: 8px;">
@@ -35,9 +35,9 @@
         <div style="background: #e7f3ff; border-right: 4px solid #3a7bd5; padding: 15px; margin: 20px 0; border-radius: 4px;">
             <h3 style="color: #2c5aa0; margin: 0 0 10px; font-size: 16px; font-weight: 600; text-align: right;">💡 ملاحظات مهمة:</h3>
             <ul style="margin: 0; padding-right: 20px; font-size: 14px; text-align: right; list-style-position: inside;">
-                <li style="margin-bottom: 8px;">هذا الرمز صالح لمدة 30 دقيقة فقط</li>
-                <li style="margin-bottom: 8px;">لا تشارك هذا الرمز مع أي شخص لأسباب أمنية</li>
-                <li style="margin-bottom: 8px;">إذا لم تطلب هذا الرمز، يرجى تجاهل هذه الرسالة</li>
+                <p style="margin-bottom: 8px;">هذا الرمز صالح لمدة 30 دقيقة فقط</p>
+                <p style="margin-bottom: 8px;">لا تشارك هذا الرمز مع أي شخص لأسباب أمنية</p>
+                <p style="margin-bottom: 8px;">إذا لم تطلب هذا الرمز، يرجى تجاهل هذه الرسالة</p>
             </ul>
         </div>
 

@@ -19,12 +19,12 @@
         <!-- Content -->
         <div style="padding: 35px 30px;">
             <p style="font-size: 16px; margin-bottom: 20px; color: #555; text-align: right;">
-                عزيزنا المستخدم،
+                عزيزنا المستخدم
             </p>
 
             <p style="font-size: 16px; margin-bottom: 25px; color: #555; text-align: right;">
-                لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك.<br>
-                يرجى استخدام رمز التحقق الموضح أدناه لإكمال عملية إعادة التعيين:
+                لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك<br>
+                يرجى استخدام رمز التحقق الموضح أدناه لإكمال عملية إعادة التعيين
             </p>
 
             <!-- Code Display -->
@@ -39,10 +39,10 @@
             <div style="background: #ffebee; border-right: 4px solid #f44336; padding: 20px; margin: 25px 0; border-radius: 8px;">
                 <h4 style="color: #d32f2f; margin: 0 0 12px; font-size: 16px; font-weight: 600; text-align: right;">📝 ملاحظات هامة:</h4>
                 <ul style="margin: 0; padding-right: 20px; font-size: 14px; color: #666; text-align: right; list-style-position: inside;">
-                    <li style="margin-bottom: 8px;">هذا الرمز ساري المفعول لمدة <strong>30 دقيقة</strong> فقط من وقت إرسال هذه الرسالة</li>
-                    <li style="margin-bottom: 8px;"><strong>لا تشارك هذا الرمز مع أي شخص</strong> لأسباب أمنية</li>
-                    <li style="margin-bottom: 8px;">إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذه الرسالة</li>
-                    <li>تأكد من تحديث كلمة المرور إلى كلمة قوية وفريدة</li>
+                    <p style="margin-bottom: 8px;">هذا الرمز ساري المفعول لمدة <strong>30 دقيقة</strong> فقط من وقت إرسال هذه الرسالة</p>
+                    <p style="margin-bottom: 8px;"><strong>لا تشارك هذا الرمز مع أي شخص</strong> لأسباب أمنية</p>
+                    <p style="margin-bottom: 8px;">إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذه الرسالة</p>
+                    <p>تأكد من تحديث كلمة المرور إلى كلمة قوية وفريدة</p>
                 </ul>
             </div>
 
@@ -56,7 +56,7 @@
             <!-- Support -->
             <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed #ddd;">
                 <p style="font-size: 14px; color: #666; text-align: right; margin-bottom: 10px;">
-                    في حال واجهتك أي صعوبة في تفعيل الحساب، لا تتردد في التواصل مع دعم العملاء
+                    في حال واجهتك أي صعوبة في عملية اعادة تعيين الباسورد لا تتردد في التواصل مع دعم العملاء
                 </p>
                 <div style="direction: ltr; text-align: center; unicode-bidi: bidi-override; background: #f0f0f0; padding: 10px; border-radius: 5px; margin-top: 10px;">
                     <a href="mailto:support@watan-food-chain.com" style="color: #d32f2f; text-decoration: none; font-weight: 600; font-family: monospace;">
