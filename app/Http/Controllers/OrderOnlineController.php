@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreOrderOnlineRequest;
 use App\Models\Branch;
 use App\Models\OrderOnline;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -119,10 +120,10 @@ class OrderOnlineController extends Controller
             'order_date' => [
                 'required',
                 'date',
-                'after_or_equal:' . now()->addMinutes(30)->toDateTimeString()
+                'after_or_equal:now'
             ]
         ], [
-            'order_date.after_or_equal' => 'يجب أن يكون وقت الاستلام بعد 30 دقيقة على الأقل من الوقت الحالي.',
+            'order_date.after_or_equal' => 'يجب أن يكون وقت الاستلام بعد الوقت الحالي',
             'id.required' => 'معرف الطلب مطلوب',
             'id.integer' => 'معرف الطلب يجب أن يكون رقماً',
             'id.exists' => 'الطلب غير موجودة'
@@ -159,10 +160,73 @@ class OrderOnlineController extends Controller
                 throw new \Exception('لا يمكن تعديل الطلب في حالته الحالية', 422);
             }
 
+
+            $branch = Branch::find($request->branch_id);
+            $kitchenId = $branch->kitchen_id;
+            $selectedDeliveryTime = Carbon::parse($request->order_date);
+
+            // ====== حساب الحد الأدنى لوقت التسليم ======
+
+            // 1. وقت تحضير الوجبات في الطلب الحالي
+            $preparationTime = 0;
+            foreach ($order->items()->with('meal')->get() as $item) {
+                if ($item->meal && $item->meal->preparation_minutes) {
+                    $preparationTime += $item->meal->preparation_minutes * $item->quantity;
+                }
+            }
+
+            // 2. حساب ازدحام المطبخ (الطلبات النشطة)
+            $activeOrders = OrderOnline::where('kitchen_id', $kitchenId)
+                ->whereIn('status', ['confirmed'])
+                ->where(function($query) {
+                    $query->where('confirmed_at', '>=', now()->subHours(2))
+                        ->orWhere('order_date', '>=', now());
+                })
+                ->count();
+
+            // كل طلب نشط يضيف 10 دقائق
+            $busyTime = $activeOrders * 30;
+
+            // 3. وقت التوصيل (ساعة واحدة)
+            $deliveryTime = 60; // دقيقة
+
+            // 4. وقت احتياطي
+            $bufferTime = 15; // دقيقة
+
+            // 5. حساب الوقت الإجمالي
+            $totalMinutes = $preparationTime + $busyTime + $deliveryTime + $bufferTime;
+
+            // 6. الوقت الأدنى للتسليم
+            $minimumDeliveryTime = now()->addMinutes($totalMinutes);
+
+            // 7. التحقق من الوقت المختار
+            if ($selectedDeliveryTime->lt($minimumDeliveryTime)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'الوقت المحدد مبكر جداً',
+                    'errors' => [
+                        'order_date' => [
+                            'available_time : '. $minimumDeliveryTime->addMinutes(10)->format('Y-m-d H:i')
+                        ]
+                    ],
+                    'minimum_time' => $minimumDeliveryTime->format('Y-m-d H:i:s'),
+                    'selected_time' => $selectedDeliveryTime->format('Y-m-d H:i:s'),
+                    'time_details' => [
+                        'preparation_time' => $preparationTime . ' دقيقة',
+                        'busy_time' => $busyTime . ' دقيقة (' . $activeOrders . ' طلب نشط)',
+                        'delivery_time' => $deliveryTime . ' دقيقة',
+                        'buffer_time' => $bufferTime . ' دقيقة',
+                        'total_time' => $totalMinutes . ' دقيقة'
+                    ]
+                ], 422);
+            }
+
+
+
             // تحديث الحقول الأساسية
             $this->updateBasicFields($order, $request->all());
 
-            $branch = Branch::find($request->branch_id);
+            // $branch = Branch::find($request->branch_id);
 
             // تعيين المطبخ المرتبط بالفرع
             $order->kitchen_id = $branch->kitchen_id;

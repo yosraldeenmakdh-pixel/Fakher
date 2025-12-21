@@ -10,7 +10,7 @@ class Meal extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'description', 'price', 'image', 'is_available','meal_type', 'category_id','average_rating', 'ratings_count'
+        'name', 'description','preparation_minutes', 'price', 'image', 'is_available','meal_type', 'category_id','average_rating', 'ratings_count'
     ];
 
     protected $casts = [

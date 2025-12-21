@@ -52,9 +52,17 @@ class MealsTable
                     })
                     ->label('النوع'),
 
+                TextColumn::make('preparation_minutes')
+                    ->label('وقت التحضير')
+                    ->sortable()
+                    ->formatStateUsing(fn ($state) => $state . ' دقيقة')
+                    ->color(fn ($state) => $state > 30 ? 'warning' : 'success')
+                    ->icon(fn ($state) => $state > 30 ? 'heroicon-o-clock' : 'heroicon-o-bolt'),
+
                 TextColumn::make('price')
                     ->label('السعر')
-                    ->money('usd')
+                    // ->money('usd')
+                    ->prefix('$')
                     ->sortable()
                     ->color('success')
                     ->weight('bold'),

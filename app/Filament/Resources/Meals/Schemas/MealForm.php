@@ -46,6 +46,16 @@ class MealForm
                     ->required()
                     ->columnSpanFull(),
 
+                TextInput::make('preparation_minutes')
+                    ->label('وقت التحضير (دقيقة)')
+                    ->numeric()
+                    ->required()
+                    ->minValue(1)
+                    // ->maxValue(300)
+                    ->default(15)
+                    ->suffix('دقيقة')
+                    ->helperText('الوقت التقريبي لتحضير هذه الوجبة'),
+
                 TextInput::make('price')
                         ->label('السعر')
                         ->required()
