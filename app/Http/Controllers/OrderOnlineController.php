@@ -206,7 +206,7 @@ class OrderOnlineController extends Controller
                     'message' => 'الوقت المحدد مبكر جداً',
                     'errors' => [
                         'order_date' => [
-                            'available_time : '. $minimumDeliveryTime->addMinutes(10)->format('Y-m-d H:i')
+                            'بحسب نوع وعدد الوجبات التي طلبتها فاٍنه لا يمكنك أن تستلم طلبك بوقت قبل  : '. $minimumDeliveryTime->addMinutes(10)->format('Y-m-d H:i')
                         ]
                     ],
                     'minimum_time' => $minimumDeliveryTime->format('Y-m-d H:i:s'),
