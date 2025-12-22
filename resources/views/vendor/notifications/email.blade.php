@@ -9,12 +9,12 @@
         <div style="background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
             <div style="padding: 50px 30px; text-align: center;">
                 <!-- الرسالة الترحيبية -->
-                <p style="font-size: 18px; margin-bottom: 20px; color: #555;">
+                <p style="font-size: 18px; margin-bottom: 20px; color: #555; text-align: center;">
                     عزيزي المستخدم
                 </p>
 
                 <!-- نص التعليمات -->
-                <p style="font-size: 16px; margin-bottom: 35px; color: #555; line-height: 1.8;">
+                <p style="font-size: 16px; margin-bottom: 35px; color: #555; line-height: 1.8; text-align: center;">
                     لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك<br>
                     يرجى النقر على الزر الموضح أدناه لإكمال عملية إعادة التعيين
                 </p>
