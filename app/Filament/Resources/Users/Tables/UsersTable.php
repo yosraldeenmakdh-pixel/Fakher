@@ -65,6 +65,33 @@ class UsersTable
                             ->copyable()
                             ->copyMessage('تم نسخ البريد الإلكتروني')
                             ->copyMessageDuration(1500),
+
+                        TextColumn::make('roles.name')
+                            ->label('الدور')
+                            ->badge()
+                            ->color(fn ($record) => match($record->roles->first()->name) {
+                                'super_admin' => 'danger',
+                                'kitchen' => 'warning',
+                                'user' => 'success',
+                                default => 'gray',
+                            })
+                            ->formatStateUsing(fn ($record) => $record->roles->pluck('name')->map(function ($role) {
+                                // يمكنك تحويل اسم الدور إلى اسم معروض بالعربية إذا أردت
+                                $rolesMap = [
+                                    'super_admin' => 'مدير النظام',
+                                    'kitchen' => 'مسؤول مطبخ',
+                                    'user' => 'مستخدم',
+                                ];
+                                return $rolesMap[$role] ?? $role;
+                            })->join(', '))
+                            ->icon(fn ($record) => match($record->roles->first()->name) {
+                                'super_admin' => 'heroicon-o-shield-check',
+                                'kitchen' => 'heroicon-o-cog',
+                                'user' => 'heroicon-o-user',
+                                default => 'heroicon-o-question-mark-circle',
+                            })
+                            ->grow(false),
+
                     ])->space(1),
 
                     TextColumn::make('created_at')

@@ -74,25 +74,20 @@ class KitchensTable
                     ->sortable(),
 
                 TextColumn::make('Financial_debts')
-                    ->label('الرصيد')
+                    ->label('الرصيد الحالي')
                     ->sortable()
-                    // ->prefix('$')
-                    ->color(fn ($record) => $record->Financial_debts < 0 ? 'danger' : 'success')
-                    // ->weight('bold')s
+                    ->money('USD',locale: 'en') // تنسيق عربي للعملة
+                    ->color('success')
+                    ->icon('heroicon-o-banknotes')
                     ->size('lg')
-                    ->formatStateUsing(function ($state, $record) {
-                        $icon = $state < 0 ? 'heroicon-o-arrow-trending-down' : 'heroicon-o-arrow-trending-up';
-                        $color = $state < 0 ? 'danger' : 'success';
-                        $formatted = number_format($state, 2) ;
-
-                        return "
-                            <div class='flex items-center gap-2 rtl:flex-row-reverse'>
-                                <x-heroicon-o-arrow-trending-up class='w-5 h-5 text-{$color}-500' />
-                                <span class='font-bold text-{$color}-600 text-lg'>$ {$formatted}</span>
-                            </div>
-                        ";
+                    ->weight('bold')
+                    ->alignEnd()
+                    ->color(fn ($record): string => match(true) {
+                        $record->Financial_debts < 0 => 'danger',
+                        $record->Financial_debts > 0 => 'success',
+                        default => 'gray',
                     })
-                    ->html() ,
+                    ->searchable(),
 
                 IconColumn::make('is_active')
                     ->label('الحالة')

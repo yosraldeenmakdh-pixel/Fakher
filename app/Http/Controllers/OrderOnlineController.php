@@ -161,6 +161,25 @@ class OrderOnlineController extends Controller
             }
 
 
+            $validationResult = $this->validateOrderWithDetails($order, $request->branch_id);
+
+            if (!$validationResult['is_valid']) {
+                // بناء رسالة تفصيلية
+                $detailedMessage = $this->buildSimpleUnavailableMessage(
+                    $validationResult['unavailable_items'],
+                    $request->branch_id
+                );
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $detailedMessage,
+                    'unavailable_items' => $validationResult['unavailable_items'],
+                    'branch_info' => $validationResult['branch_info'],
+                    // 'available_items' => $validationResult['available_items']
+                ], 422);
+            }
+
+
             $branch = Branch::find($request->branch_id);
             $kitchenId = $branch->kitchen_id;
             $selectedDeliveryTime = Carbon::parse($request->order_date);
@@ -256,7 +275,64 @@ class OrderOnlineController extends Controller
         }
     }
 
+    private function validateOrderWithDetails(OrderOnline $order, $branchId)
+    {
+        $branch = Branch::find($branchId);
+        $unavailableItems = [];
 
+        // الحصول على جميع الوجبات في الطلب
+        $orderItems = $order->items()->with('meal')->get();
+
+        foreach ($orderItems as $item) {
+            $isAvailable = DB::table('branch_meal')
+                ->where('branch_id', $branchId)
+                ->where('meal_id', $item->meal_id)
+                ->where('is_available', true)
+                ->exists();
+
+            if (!$isAvailable) {
+                $unavailableItems[] = [
+                    'item_id' => $item->id,
+                    'meal_id' => $item->meal_id,
+                    'meal_name' => $item->meal->name ?? 'غير معروف',
+                ];
+            }
+        }
+
+        return [
+            'is_valid' => empty($unavailableItems),
+            'unavailable_items' => $unavailableItems,
+            'branch_info' => $branch ? [
+                'id' => $branch->id,
+                'name' => $branch->name
+            ] : null,
+            'total_items' => count($orderItems),
+            'unavailable_count' => count($unavailableItems)
+        ];
+    }
+
+    private function buildSimpleUnavailableMessage(array $unavailableItems, $branchId)
+    {
+        $branch = Branch::find($branchId);
+        $branchName = $branch ? $branch->name : 'الفرع المحدد';
+
+        if (empty($unavailableItems)) {
+            return 'جميع الوجبات متاحة في الفرع';
+        }
+
+        // بناء قائمة بالوجبات غير المتاحة
+        $unavailableList = [];
+        foreach ($unavailableItems as $item) {
+            // $quantityText = $item['quantity'] > 1 ? " (الكمية: {$item['quantity']})" : "";
+            $unavailableList[] = "{$item['meal_name']}";
+        }
+
+        $message = "عذراً، لا يمكن تأكيد طلبك لأنه يتضمن وجبات غير متاحة في فرع {$branchName} والتي هي : ";
+        $message .= implode(" ، ", $unavailableList);
+        $message .= " ، الرجاء إزالة هذه الوجبات من طلبك أو اختيار فرع آخر ";
+
+        return $message;
+    }
 
     public function myOrders(Request $request)
     {
@@ -333,10 +409,10 @@ class OrderOnlineController extends Controller
                 'sometimes',
                 'required',
                 'date',
-                'after_or_equal:' . now()->addMinutes(30)->toDateTimeString()
+                'after_or_equal:now'
             ]
         ], [
-            'order_date.after_or_equal' => 'يجب أن يكون وقت الاستلام بعد 30 دقيقة على الأقل من الوقت الحالي.',
+            'order_date.after_or_equal' => 'يجب أن يكون وقت الاستلام بعد الوقت الحالي',
             'id.required' => 'معرف الطلب مطلوب',
             'id.integer' => 'معرف الطلب يجب أن يكون رقماً',
             'id.exists' => 'الطلب غير موجود'
@@ -370,6 +446,73 @@ class OrderOnlineController extends Controller
             if ($order->status !== 'pending') {
                 throw new \Exception('لا يمكن تعديل الطلب في حالته الحالية', 422);
             }
+
+
+
+
+            $branch = Branch::find($request->branch_id);
+            $kitchenId = $branch->kitchen_id;
+            $selectedDeliveryTime = Carbon::parse($request->order_date);
+
+            // ====== حساب الحد الأدنى لوقت التسليم ======
+
+            // 1. وقت تحضير الوجبات في الطلب الحالي
+            $preparationTime = 0;
+            foreach ($order->items()->with('meal')->get() as $item) {
+                if ($item->meal && $item->meal->preparation_minutes) {
+                    $preparationTime += $item->meal->preparation_minutes * $item->quantity;
+                }
+            }
+
+            // 2. حساب ازدحام المطبخ (الطلبات النشطة)
+            $activeOrders = OrderOnline::where('kitchen_id', $kitchenId)
+                ->whereIn('status', ['confirmed'])
+                ->where(function($query) {
+                    $query->where('confirmed_at', '>=', now()->subHours(2))
+                        ->orWhere('order_date', '>=', now());
+                })
+                ->count();
+
+            // كل طلب نشط يضيف 10 دقائق
+            $busyTime = $activeOrders * 30;
+
+            // 3. وقت التوصيل (ساعة واحدة)
+            $deliveryTime = 60; // دقيقة
+
+            // 4. وقت احتياطي
+            $bufferTime = 15; // دقيقة
+
+            // 5. حساب الوقت الإجمالي
+            $totalMinutes = $preparationTime + $busyTime + $deliveryTime + $bufferTime;
+
+            // 6. الوقت الأدنى للتسليم
+            $minimumDeliveryTime = now()->addMinutes($totalMinutes);
+
+            // 7. التحقق من الوقت المختار
+            if ($selectedDeliveryTime->lt($minimumDeliveryTime)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'الوقت المحدد مبكر جداً',
+                    'errors' => [
+                        'order_date' => [
+                            'بحسب نوع وعدد الوجبات التي طلبتها فاٍنه لا يمكنك أن تستلم طلبك بوقت قبل  : '. $minimumDeliveryTime->addMinutes(10)->format('Y-m-d الساعة H:i')
+                        ]
+                    ],
+                    'minimum_time' => $minimumDeliveryTime->format('Y-m-d H:i:s'),
+                    'selected_time' => $selectedDeliveryTime->format('Y-m-d H:i:s'),
+                    'time_details' => [
+                        'preparation_time' => $preparationTime . ' دقيقة',
+                        'busy_time' => $busyTime . ' دقيقة (' . $activeOrders . ' طلب نشط)',
+                        'delivery_time' => $deliveryTime . ' دقيقة',
+                        'buffer_time' => $bufferTime . ' دقيقة',
+                        'total_time' => $totalMinutes . ' دقيقة'
+                    ]
+                ], 422);
+            }
+
+
+
+
 
             $this->updateBasicFields($order, $request->all());
 

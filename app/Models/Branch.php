@@ -18,4 +18,9 @@ class Branch extends Model
         return $this->belongsTo(Kitchen::class);
     }
 
+    public function meals()
+    {
+        return $this->belongsToMany(Meal::class) ;
+    }
+
 }

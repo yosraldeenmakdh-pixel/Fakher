@@ -26,6 +26,12 @@ class Meal extends Model
     }
 
 
+    public function branches()
+    {
+        return $this->belongsToMany(Branch::class) ;
+    }
+
+
 
     public function onlineOrderItems()
     {
