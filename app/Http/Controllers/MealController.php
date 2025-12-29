@@ -73,18 +73,22 @@ class MealController extends Controller
                 ], 200);
             }
 
+
+
             // تنسيق البيانات للإرجاع
             $formattedMeals = $meals->map(function ($meal) {
+
+                $formattedPrice = number_format((float) $meal->price, 2, '.', ',');
+
                 return [
                     'id' => $meal->id,
                     'name' => $meal->name,
                     'description' => $meal->description,
-                    'price' => (float) $meal->price,
+                    'price' => $formattedPrice,
                     'image' => $meal->image ? asset('uploads/' . $meal->image) : null,
                     'is_available' => (bool) $meal->is_available,
                     'average_rating' => (float) $meal->average_rating,
                     'ratings_count' => (int) $meal->ratings_count,
-                    // 'stars_text' => $this->generateStarsText($meal->average_rating),
                     'category' => $meal->category ? [
                         'id' => $meal->category->id,
                         'name' => $meal->category->name
