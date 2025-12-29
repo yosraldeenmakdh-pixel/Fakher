@@ -68,9 +68,7 @@ class OrderOnlineController extends Controller
                             ];
                         }),
                         'summary' => [
-                            // 'total_items' => $totalItems,
                             'total_price' => $totalPrice,
-                            // 'items_count' => $order->items->count()
                         ]
                     ]
                 ]
@@ -175,7 +173,6 @@ class OrderOnlineController extends Controller
                     'message' => $detailedMessage,
                     'unavailable_items' => $validationResult['unavailable_items'],
                     'branch_info' => $validationResult['branch_info'],
-                    // 'available_items' => $validationResult['available_items']
                 ], 422);
             }
 
@@ -188,9 +185,39 @@ class OrderOnlineController extends Controller
 
             // 1. وقت تحضير الوجبات في الطلب الحالي
             $preparationTime = 0;
+            $mealGroups = [];
+
+            // تجميع الوجبات حسب النوع
             foreach ($order->items()->with('meal')->get() as $item) {
                 if ($item->meal && $item->meal->preparation_minutes) {
-                    $preparationTime += $item->meal->preparation_minutes * $item->quantity;
+                    $mealId = $item->meal->id;
+                    if (!isset($mealGroups[$mealId])) {
+                        $mealGroups[$mealId] = [
+                            'meal' => $item->meal,
+                            'quantity' => 0
+                        ];
+                    }
+                    $mealGroups[$mealId]['quantity'] += $item->quantity;
+                }
+            }
+
+            // حساب الوقت لكل مجموعة وجبات
+            foreach ($mealGroups as $group) {
+                $quantity = $group['quantity'];
+                $baseTime = $group['meal']->preparation_minutes;
+
+                // حساب الوقت باستخدام منحنى كفاءة
+                if ($quantity <= 1) {
+                    $preparationTime += $baseTime;
+                } elseif ($quantity <= 3) {
+                    // أول 3 وجبات: 100%، 80%، 70% من الوقت
+                    $preparationTime += $baseTime * (1 + 0.8 + 0.7 * ($quantity - 1));
+                } elseif ($quantity <= 10) {
+                    // بعد 3 وجبات: 60% من الوقت لكل وجبة إضافية
+                    $preparationTime += $baseTime * (1 + 0.8 + 0.7 + 0.6 * ($quantity - 3));
+                } else {
+                    // أكثر من 10 وجبات: 50% من الوقت لكل وجبة إضافية
+                    $preparationTime += $baseTime * (1 + 0.8 + 0.7 + 0.6 * 7 + 0.5 * ($quantity - 10));
                 }
             }
 
@@ -245,12 +272,11 @@ class OrderOnlineController extends Controller
             // تحديث الحقول الأساسية
             $this->updateBasicFields($order, $request->all());
 
-            // $branch = Branch::find($request->branch_id);
-
             // تعيين المطبخ المرتبط بالفرع
             $order->kitchen_id = $branch->kitchen_id;
 
             $order->customer_name = Auth::user()->name ;
+
             $order->status = 'pending' ;
 
             // حفظ التغييرات
