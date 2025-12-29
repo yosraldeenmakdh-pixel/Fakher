@@ -323,7 +323,6 @@ class OrderOnlineController extends Controller
         // بناء قائمة بالوجبات غير المتاحة
         $unavailableList = [];
         foreach ($unavailableItems as $item) {
-            // $quantityText = $item['quantity'] > 1 ? " (الكمية: {$item['quantity']})" : "";
             $unavailableList[] = "{$item['meal_name']}";
         }
 

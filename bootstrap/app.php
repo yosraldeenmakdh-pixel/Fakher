@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\UpdateMealPrices;
 use App\Http\Middleware\CheckUserActivity;
 use App\Http\Middleware\CheckUserExists;
 use App\Http\Middleware\CheckUserRole;
@@ -16,6 +17,14 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withCommands([
+        UpdateMealPrices::class
+    ])
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
+
+        $schedule->command('prices:update')->hourly();
+
+    })
     ->withMiddleware(function (Middleware $middleware): void {
 
         $middleware->use([
