@@ -169,12 +169,21 @@ public function getMealById(Request $request)
             ], 404);
         }
 
+        $hasOffer = $meal->hasOffer();
+        $originalPrice = (float) $meal->price;
+        $finalPrice = $hasOffer ? $meal->getDiscountedPrice() : $originalPrice;
+
+        $formattedFinalPrice = number_format($finalPrice, 2, '.', ',');
+        $formattedOriginalPrice = number_format($originalPrice, 2, '.', ',');
+
         // تنسيق البيانات للإرجاع
         $formattedMeal = [
             'id' => $meal->id,
             'name' => $meal->name,
             'description' => $meal->description,
-            'price' => (float) $meal->price,
+            'price' => $formattedFinalPrice, // السعر النهائي (بعد الخصم إذا وجد)
+            'has_offer' => $hasOffer,
+            'original_price' => $hasOffer ? $formattedOriginalPrice : null,
             'image' => $meal->image ? asset('uploads/' . $meal->image) : null, // تأكد من المسار الصحيح
             'is_available' => (bool) $meal->is_available,
             'average_rating' => (float) $meal->average_rating,
