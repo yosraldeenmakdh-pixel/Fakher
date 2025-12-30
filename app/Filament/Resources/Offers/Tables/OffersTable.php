@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Offers\Tables;
 
 use App\Models\Offer;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -13,16 +14,17 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
-
-// use Illuminate\Container\Attributes\Storage;
-// use Illuminate\Support\Facades\Storage as FacadesStorage;
 
 class OffersTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) =>
+                $query->with(['categories', 'meals']) // تحميل العلاقات مسبقاً
+            )
             ->columns([
                 ImageColumn::make('image')
                     ->label('الصورة')
@@ -36,14 +38,19 @@ class OffersTable
                     ->searchable()
                     ->sortable()
                     ->weight('medium') ,
-                    // ->description(fn (Offer $record): string => $record->description ? Str::limit($record->description, 50) : ''),
 
                 TextColumn::make('discount_value')
                     ->label('قيمة الخصم')
-                    // ->money('SAR')
                     ->sortable()
                     ->color('success') ,
-                    // ->icon('heroicon-o-currency-dollar'),
+
+                TextColumn::make('linked_to')
+                    ->label('مرتبط')
+                    ->badge()
+                    ->color(fn ($state) =>
+                        str_contains($state, 'الصنف') ? 'primary' :
+                        (str_contains($state, 'عدد') ? 'warning' : 'gray')
+                    ),
 
                 IconColumn::make('is_active')
                     ->label('الحالة')
@@ -60,11 +67,6 @@ class OffersTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
-                // TextColumn::make('updated_at')
-                //     ->label('آخر تحديث')
-                //     ->dateTime('Y-m-d H:i')
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TernaryFilter::make('is_active')
@@ -75,6 +77,11 @@ class OffersTable
             ])
             ->recordActions([
                 ActionGroup::make([
+                    Action::make('toggle_active')
+                        ->label(fn ($record) => $record->is_active ? 'تعطيل' : 'تفعيل')
+                        ->icon(fn ($record) => $record->is_active ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
+                        ->color(fn ($record) => $record->is_active ? 'danger' : 'success')
+                        ->action(fn ($record) => $record->update(['is_active' => !$record->is_active])),
                     EditAction::make(),
                     DeleteAction::make()
                         ->before(function (Offer $record) {

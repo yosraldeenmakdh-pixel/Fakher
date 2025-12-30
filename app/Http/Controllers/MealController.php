@@ -40,6 +40,7 @@ class MealController extends Controller
         $categoryId = $request->get('category_id');
 
 
+
         try {
             // بناء query الأساسي
             $query = Meal::with(['category' => function($query) {
@@ -80,11 +81,17 @@ class MealController extends Controller
 
                 $formattedPrice = number_format((float) $meal->price, 2, '.', ',');
 
+                $hasOffer = $meal->hasOffer();
+                $discountedPrice = $hasOffer ? $meal->getDiscountedPrice() : $meal->price;
+                $formattedDiscountedPrice = number_format((float) $discountedPrice, 2, '.', ',');
+
                 return [
                     'id' => $meal->id,
                     'name' => $meal->name,
                     'description' => $meal->description,
                     'price' => $formattedPrice,
+                    'has_offer' => $hasOffer,
+                    'discounted_price' => $formattedDiscountedPrice,
                     'image' => $meal->image ? asset('uploads/' . $meal->image) : null,
                     'is_available' => (bool) $meal->is_available,
                     'average_rating' => (float) $meal->average_rating,

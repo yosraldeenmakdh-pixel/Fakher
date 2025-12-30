@@ -16,5 +16,19 @@ class Category extends Model
         return $this->hasMany(Meal::class);
     }
 
+    public function offer()
+    {
+        return $this->belongsToMany(Offer::class, 'category_offer')
+                    ->where('is_active', true)
+                    ->first();
+    }
+
+    // دالة للتحقق إذا كان للصنف عرض
+    public function hasOffer()
+    {
+        return $this->belongsToMany(Offer::class, 'category_offer')
+                   ->where('is_active', true)
+                   ->exists();
+    }
 
 }

@@ -20,6 +20,83 @@ class Meal extends Model
     ];
 
 
+    public function offer()
+    {
+        return $this->belongsToMany(Offer::class, 'meal_offer')
+                    ->where('is_active', true)
+                    ->first(); // نأخذ العرض الأول فقط
+    }
+
+
+
+
+    // دالة للتحقق إذا كان للوجبة عرض
+    public function hasOffer()
+    {
+        // أولاً: نتحقق من وجود عرض مباشر على الوجبة
+        $mealOffer = $this->belongsToMany(Offer::class, 'meal_offer')
+                      ->where('is_active', true)
+                      ->exists();
+
+        if ($mealOffer) {
+            return true;
+        }
+
+        // ثانياً: نتحقق من وجود عرض على الصنف
+        if ($this->category) {
+            $categoryOffer = $this->category->hasOffer();
+            return $categoryOffer;
+        }
+
+        return false;
+    }
+
+    // دالة للحصول على السعر بعد الخصم
+    public function getDiscountedPrice()
+    {
+        // أولاً: نبحث عن عرض مباشر على الوجبة
+        $mealOffer = $this->belongsToMany(Offer::class, 'meal_offer')
+                    ->where('is_active', true)
+                    ->first();
+
+        if ($mealOffer) {
+            return $this->applyDiscount($mealOffer);
+        }
+
+        // ثانياً: نبحث عن عرض على الصنف
+        if ($this->category && $this->category->hasOffer()) {
+            $categoryOffer = $this->category->offer();
+            return $this->applyDiscount($categoryOffer);
+        }
+
+        return $this->price;
+    }
+
+    // دالة تطبيق الخصم
+    private function applyDiscount($offer)
+    {
+        $discount = $offer->discount_value;
+        $originalPrice = $this->price;
+
+        if (empty($discount)) {
+            return $originalPrice;
+        }
+
+        if (str_contains($discount, '%')) {
+            $percentage = (float) str_replace('%', '', $discount);
+            return $originalPrice * (1 - ($percentage / 100));
+        }
+
+        if (str_contains($discount, '$')) {
+            $fixedAmount = (float) str_replace('$', '', $discount);
+            return max(0, $originalPrice - $fixedAmount);
+        }
+
+        $percentage = (float) $discount;
+        return $originalPrice * (1 - ($percentage / 100));
+    }
+
+
     public function category()
     {
         return $this->belongsTo(Category::class);
