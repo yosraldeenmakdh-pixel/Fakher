@@ -59,12 +59,12 @@ class EditOffer extends EditRecord
             $data['category_id'] = $record->categories()->first()->id;
         } elseif ($record->meals()->count() > 0) {
             $data['link_type'] = 'meals';
-            $data['meal_ids'] = $record->meals()->pluck('id')->toArray();
+            // إصلاح: تحديد الجدول لعمود id
+            $data['meal_ids'] = $record->meals()->pluck('meals.id')->toArray();
         } else {
             $data['link_type'] = 'category';
         }
 
         $this->form->fill($data);
     }
-
 }

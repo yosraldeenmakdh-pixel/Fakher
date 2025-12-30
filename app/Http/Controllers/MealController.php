@@ -78,31 +78,31 @@ class MealController extends Controller
 
             // تنسيق البيانات للإرجاع
             $formattedMeals = $meals->map(function ($meal) {
+            $hasOffer = $meal->hasOffer();
+            $originalPrice = (float) $meal->price;
+            $finalPrice = $hasOffer ? $meal->getDiscountedPrice() : $originalPrice;
 
-                $formattedPrice = number_format((float) $meal->price, 2, '.', ',');
+            $formattedFinalPrice = number_format($finalPrice, 2, '.', ',');
+            $formattedOriginalPrice = number_format($originalPrice, 2, '.', ',');
 
-                $hasOffer = $meal->hasOffer();
-                $discountedPrice = $hasOffer ? $meal->getDiscountedPrice() : $meal->price;
-                $formattedDiscountedPrice = number_format((float) $discountedPrice, 2, '.', ',');
-
-                return [
-                    'id' => $meal->id,
-                    'name' => $meal->name,
-                    'description' => $meal->description,
-                    'price' => $formattedPrice,
-                    'has_offer' => $hasOffer,
-                    'discounted_price' => $formattedDiscountedPrice,
-                    'image' => $meal->image ? asset('uploads/' . $meal->image) : null,
-                    'is_available' => (bool) $meal->is_available,
-                    'average_rating' => (float) $meal->average_rating,
-                    'ratings_count' => (int) $meal->ratings_count,
-                    'category' => $meal->category ? [
-                        'id' => $meal->category->id,
-                        'name' => $meal->category->name
-                    ] : null,
-                    'created_at' => $meal->created_at->toISOString(),
-                    'updated_at' => $meal->updated_at->toISOString()
-                ];
+            return [
+                'id' => $meal->id,
+                'name' => $meal->name,
+                'description' => $meal->description,
+                'price' => $formattedFinalPrice, // السعر النهائي (بعد الخصم إذا وجد)
+                'has_offer' => $hasOffer,
+                'original_price' => $hasOffer ? $formattedOriginalPrice : null, // السعر الأصلي فقط إذا كان هناك عرض
+                'image' => $meal->image ? asset('uploads/' . $meal->image) : null,
+                'is_available' => (bool) $meal->is_available,
+                'average_rating' => (float) $meal->average_rating,
+                'ratings_count' => (int) $meal->ratings_count,
+                'category' => $meal->category ? [
+                    'id' => $meal->category->id,
+                    'name' => $meal->category->name
+                ] : null,
+                'created_at' => $meal->created_at->toISOString(),
+                'updated_at' => $meal->updated_at->toISOString()
+            ];
             });
 
             DB::commit();
