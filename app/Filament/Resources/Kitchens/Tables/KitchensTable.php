@@ -76,10 +76,27 @@ class KitchensTable
                 TextColumn::make('Financial_debts')
                     ->label('الرصيد الحالي')
                     ->sortable()
-                    ->money('USD',locale: 'en') // تنسيق عربي للعملة
-                    ->color('success')
+                    ->formatStateUsing(function ($state) {
+                        if (is_null($state) || $state === '') {
+                            return 'غير محدد';
+                        }
+
+                        // التحقق إذا كان الرقم سالبًا
+                        $isNegative = $state < 0;
+                        $absoluteValue = abs($state);
+
+                        // تنسيق الرقم مع فواصل الآلاف ومنزلتين عشريتين
+                        $formatted = number_format($absoluteValue, 2, '.', ',');
+
+                        // إذا كان سالبًا نضع الإشارة بعد الرقم
+                        if ($isNegative) {
+                            return $formatted . '- ل.س';
+                        }
+
+                        return $formatted . ' ل.س';
+                    })
                     ->icon('heroicon-o-banknotes')
-                    ->size('lg')
+                    ->size('md')
                     ->weight('bold')
                     ->alignEnd()
                     ->color(fn ($record): string => match(true) {
@@ -198,7 +215,8 @@ class KitchensTable
                     EditAction::make()
                         ->label('تعديل'),
                     PrintFinancialStatementAction::make('financialStatement')
-                        ->label('كشف الحساب المالي'),
+                        ->label('كشف الحساب المالي')
+                        ->visible(Auth::user()->hasRole('kitchen')),
                 ])
                 ->label('الإجراءات')
                 ->icon('heroicon-o-cog-6-tooth')

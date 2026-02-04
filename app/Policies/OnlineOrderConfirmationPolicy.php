@@ -11,7 +11,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class OnlineOrderConfirmationPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:OnlineOrderConfirmation');
@@ -24,7 +24,8 @@ class OnlineOrderConfirmationPolicy
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:OnlineOrderConfirmation');
+        // return $authUser->can('Create:OnlineOrderConfirmation');
+        return false ;
     }
 
     public function update(AuthUser $authUser, OnlineOrderConfirmation $onlineOrderConfirmation): bool

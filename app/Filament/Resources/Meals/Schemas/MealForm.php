@@ -3,10 +3,12 @@
 namespace App\Filament\Resources\Meals\Schemas;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
 
@@ -60,7 +62,7 @@ class MealForm
                         ->label('السعر')
                         ->required()
                         ->numeric()
-                        ->prefix('$')
+                        // ->prefix('ل.س')
                         ->step(0.01),
 
                 Toggle::make('is_available')
@@ -86,6 +88,56 @@ class MealForm
                         }
                     })
 
+                // Section::make('وسائط الوجبة')
+                //     ->description('أضف صور وفيديوهات للوجبة')
+                //     ->collapsible()
+                //     ->schema([
+                //         Repeater::make('media')
+                //             ->relationship('media')
+                //             ->label('')
+                //             ->reorderable()
+                //             ->cloneable()
+                //             ->collapsible()
+                //             ->itemLabel(fn (array $state): ?string =>
+                //                 $state['file_url'] ?? 'وسيط جديد'
+                //             )
+                //             ->schema([
+                //                 FileUpload::make('file_url')
+                //                     ->label('الملف')
+                //                     ->required()
+                //                     ->disk('public')
+                //                     ->directory('meal-media')
+                //                     ->preserveFilenames()
+                //                     ->acceptedFileTypes(['image/*', 'video/*'])
+                //                     ->maxSize(30720)
+                //                     ->multiple() // إضافة هذه الخاصية
+                //                     ->maxFiles(10) // الحد الأقصى
+                //                     ->reorderable()
+                //                     ->storeFileNamesIn('original_filenames') // هذه مهمة
+                //                     ->uploadingMessage('جاري الرفع...')
+                //                     ->uploadProgressIndicatorPosition('left')
+                //                     ->visibility('public'),
+
+                //                 Select::make('type')
+                //                     ->label('النوع')
+                //                     ->options([
+                //                         'image' => 'صورة',
+                //                         'video' => 'فيديو',
+                //                     ])
+                //                     ->required()
+                //                     ->default('image'),
+
+                //                 Toggle::make('is_primary')
+                //                     ->label('صورة رئيسية'),
+
+                //                 TextInput::make('order')
+                //                     ->label('الترتيب')
+                //                     ->numeric()
+                //                     ->default(0),
+                //             ])
+                //             ->defaultItems(0)
+                //             ->columnSpanFull(),
+                //     ]),
 
             ]);
     }

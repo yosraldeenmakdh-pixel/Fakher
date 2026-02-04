@@ -11,7 +11,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class OrderOnlinePolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:OrderOnline');
@@ -24,7 +24,8 @@ class OrderOnlinePolicy
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:OrderOnline');
+        // return $authUser->can('Create:OrderOnline');
+        return false ;
     }
 
     public function update(AuthUser $authUser, OrderOnline $orderOnline): bool

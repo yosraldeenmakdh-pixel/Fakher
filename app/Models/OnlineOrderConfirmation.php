@@ -104,6 +104,16 @@ class OnlineOrderConfirmation extends Model
                     $lockedKitchen->Financial_debts = $newBudget;
                     $lockedKitchen->save();
 
+                    KitchenFinancialTransaction::create([
+                        'kitchen_id' => $kitchen->id,
+                        'transaction_type' => 'online_order',
+                        'amount' => $orderAmount ,
+                        'balance_before' => $budgetBefore,
+                        'balance_after' => $newBudget,
+                        'status' => 'completed',
+                        'transaction_date' => now(),
+                    ]);
+
 
 
                 } catch (\Exception $e) {

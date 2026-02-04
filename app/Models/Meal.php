@@ -10,7 +10,7 @@ class Meal extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'description','preparation_minutes', 'price', 'image', 'is_available','meal_type', 'category_id','average_rating', 'ratings_count'
+        'name', 'description','preparation_minutes', 'price','is_available','meal_type', 'category_id','average_rating', 'ratings_count'
     ];
 
     protected $casts = [
@@ -18,6 +18,31 @@ class Meal extends Model
         'average_rating' => 'decimal:1',
         'ratings_count' => 'integer'
     ];
+
+
+
+
+    // public function media()
+    // {
+    //     return $this->hasMany(MealMedia::class)->orderBy('order');
+    // }
+
+    // public function images()
+    // {
+    //     return $this->hasMany(MealMedia::class)->where('type', 'image')->orderBy('order');
+    // }
+
+    // public function videos()
+    // {
+    //     return $this->hasMany(MealMedia::class)->where('type', 'video')->orderBy('order');
+    // }
+
+    // public function primaryImage()
+    // {
+    //     return $this->hasOne(MealMedia::class)->where('type', 'image')->where('is_primary', true);
+    // }
+
+
 
 
     public function offer()

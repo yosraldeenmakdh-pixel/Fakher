@@ -3,393 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كشف الحساب المالي - {{ $kitchen->name }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <title>كشف حساب - {{ $kitchen->name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* إعدادات الطباعة */
+        /* إعدادات الطباعة الذكية */
         @media print {
             @page {
                 size: A4;
-                margin: 0;
+                margin: 1cm; /* تقليل الهوامش لاستغلال المساحة */
             }
             body {
-                margin: 1.6cm;
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
-            .no-print {
-                display: none !important;
+            .no-print { display: none !important; }
+            .report-container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                max-width: 100% !important;
             }
-            .print-only {
-                display: block !important;
-            }
+            tr { page-break-inside: avoid; } /* منع انقسام الصف بين صفحتين */
         }
 
-        /* تنسيقات عامة */
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
-            font-family: 'Cairo', 'Arial', sans-serif;
+            font-family: 'Cairo', sans-serif;
             direction: rtl;
-            text-align: right;
-            line-height: 1.6;
-            color: #000;
-            background: #fff;
+            line-height: 1.4;
+            color: #333;
+            background: #f4f4f4;
             margin: 0;
             padding: 20px;
+            font-size: 13px; /* خط أصغر قليلاً للطباعة المكثفة */
         }
 
         .report-container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ddd;
+            padding: 15px;
             background: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        /* رأس التقرير */
+        /* الرأس الرشيق */
         .report-header {
-            text-align: center;
-            border-bottom: 3px solid #27ae60;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        .report-title {
-            color: #27ae60;
-            font-size: 32px;
-            margin: 0 0 10px 0;
-        }
-
-        .report-subtitle {
-            font-size: 18px;
-            color: #666;
-        }
-
-        /* معلومات المطبخ */
-        .kitchen-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            border-right: 4px solid #27ae60;
-        }
-
-        .info-row {
             display: flex;
-            margin-bottom: 8px;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        .info-label {
-            font-weight: bold;
-            min-width: 150px;
-            color: #333;
+        .report-title-area h1 {
+            color: #27ae60;
+            font-size: 22px;
+            margin: 0;
         }
 
-        .info-value {
-            color: #555;
-        }
-
-        /* الإحصائيات */
-        .stats-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 25px 0;
-        }
-
-        .stat-card {
-            background: #e8f4ff;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #2c5aa0;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            color: #2c5aa0;
-            font-weight: bold;
-        }
-
-        .stat-label {
-            font-size: 14px;
+        .report-meta {
+            text-align: left;
+            font-size: 11px;
             color: #666;
         }
 
-        /* جدول الحركات */
+        /* تخطيط ذكي للمعلومات (عرضي بدلاً من طولي) */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 10px;
+            border-right: 3px solid #27ae60;
+            border-radius: 4px;
+        }
+
+        .info-item {
+            display: flex;
+            margin-bottom: 4px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 2px;
+        }
+
+        .info-label { font-weight: bold; width: 110px; color: #555; }
+
+        /* الإحصائيات المختصرة */
+        .stats-inline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+        }
+
+        .stat-box {
+            background: #eef7f1;
+            padding: 8px;
+            text-align: center;
+            border-radius: 4px;
+            border: 1px solid #c8e6c9;
+        }
+
+        .stat-box .val {
+            display: block;
+            font-weight: 700;
+            color: #27ae60;
+            font-size: 16px;
+        }
+        .stat-box .lbl { font-size: 10px; color: #666; }
+
+        /* الجدول المكثف */
         .transactions-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 25px 0;
-            font-size: 14px;
+            margin: 10px 0;
         }
 
         .transactions-table th {
             background: #27ae60;
             color: white;
-            padding: 12px 15px;
-            text-align: center;
-            font-weight: bold;
-            border: 1px solid #ddd;
+            padding: 6px 8px;
+            font-size: 12px;
+            border: 1px solid #219150;
         }
 
         .transactions-table td {
-            padding: 10px 15px;
-            border: 1px solid #ddd;
+            padding: 5px 8px;
+            border: 1px solid #eee;
             text-align: center;
+            font-size: 11.5px;
         }
 
-        .transactions-table tr:nth-child(even) {
-            background: #f9f9f9;
-        }
+        .transactions-table tr:nth-child(even) { background: #fafafa; }
 
-        /* تذييل التقرير */
-        .report-footer {
-            margin-top: 40px;
-            padding-top: 20px;
+        /* تنسيقات المبالغ */
+        .amt-pos { color: #27ae60; font-weight: bold; }
+        .amt-neg { color: #e74c3c; font-weight: bold; }
+
+        .footer-note {
+            margin-top: 15px;
+            font-size: 10px;
+            color: #999;
+            text-align: center;
             border-top: 1px solid #eee;
-            text-align: center;
-            color: #666;
-            font-size: 13px;
+            padding-top: 5px;
         }
 
-        /* أزرار التحكم */
-        .controls {
-            text-align: center;
-            margin: 30px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
+        .controls { text-align: center; margin-top: 20px; }
         .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            margin: 0 10px;
-            font-size: 16px;
-            font-weight: bold;
-            text-decoration: none;
-            border-radius: 5px;
+            padding: 8px 25px;
+            font-family: 'Cairo';
             cursor: pointer;
             border: none;
-            transition: all 0.3s;
-            font-family: 'Cairo', sans-serif;
+            border-radius: 4px;
+            font-weight: 600;
         }
-
-        .btn-print {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-print:hover {
-            background: #1e8449;
-        }
-
-        .btn-close {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-close:hover {
-            background: #c82333;
-        }
-
-        /* رسالة الطباعة */
-        .print-message {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        /* في حالة الطباعة فقط */
-        .print-only {
-            display: none;
-        }
-
-        /* تنسيق الأرقام */
-        .amount-positive {
-            color: #27ae60;
-            font-weight: bold;
-        }
-
-        .amount-negative {
-            color: #e74c3c;
-            font-weight: bold;
-        }
+        .btn-print { background: #27ae60; color: white; }
     </style>
 </head>
 <body>
+
     <div class="report-container">
-        <!-- رأس التقرير -->
-        <div class="report-header">
-            <h1 class="report-title">كشف الحساب المالي</h1>
-            <div class="report-subtitle">
-                <strong>المطبخ: </strong> {{ $kitchen->name }}
+        <header class="report-header">
+            <div class="report-title-area">
+                <h1>كشف حساب مالي</h1>
+                <span style="font-size: 14px;">{{ $kitchen->name }}</span>
             </div>
-            <div class="report-date">
-                <strong>الفترة: </strong>
-                @if($data['start_date'])
-                    {{ \Carbon\Carbon::parse($data['start_date'])->format('d/m/Y') }}
-                @else
-                    البداية
-                @endif
-                -
-                @if($data['end_date'])
-                    {{ \Carbon\Carbon::parse($data['end_date'])->format('d/m/Y') }}
-                @else
-                    {{ \Carbon\Carbon::now()->format('d/m/Y') }}
-                @endif
+            <div class="report-meta">
+                <div>تاريخ التقرير: {{ \Carbon\Carbon::now()->translatedFormat('d/m/Y') }}</div>
+                <div>الفترة: {{ $data['start_date'] ? \Carbon\Carbon::parse($data['start_date'])->format('d/m/Y') : 'البداية' }} - {{ $data['end_date'] ? \Carbon\Carbon::parse($data['end_date'])->format('d/m/Y') : 'الآن' }}</div>
+            </div>
+        </header>
+
+        <div class="summary-grid">
+            <div class="info-card">
+                <div class="info-item">
+                    <span class="info-label">نوع الحركة:</span>
+                    <span>{{ $data['transaction_type'] == 'all' ? 'الكل' : ($data['transaction_type'] == 'online_order' ? 'طلبات' : 'دفعات') }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">الرصيد الحالي:</span>
+                    <span class="amt-pos" style="color:#2c5aa0">
+                        {{ number_format(abs($kitchen->Financial_debts), 2) }}
+                        {{ $kitchen->Financial_debts < 0 ? '-' : '' }} ل.س
+                    </span>
+                </div>
+            </div>
+
+            <div class="stats-inline">
+                @foreach($transaction_types as $type => $count)
+                    <div class="stat-box">
+                        <span class="val">{{ $count }}</span>
+                        <span class="lbl">{{ $type == 'payment' ? 'دفعات' : 'طلبات' }}</span>
+                    </div>
+                @endforeach
+                <div class="stat-box" style="background: #e3f2fd; border-color: #bbdefb;">
+                    <span class="val">{{ $transactions->count() }}</span>
+                    <span class="lbl">إجمالي الحركات</span>
+                </div>
             </div>
         </div>
 
-        <!-- معلومات التقرير -->
-        <div class="kitchen-info">
-            <div class="info-row">
-                <span class="info-label">نوع الحركات: </span>
-                <span class="info-value">
-                    @if($data['transaction_type'] == 'all')
-                        جميع الحركات
-                    @elseif($data['transaction_type'] == 'online_order')
-                        طلبات إلكترونية
-                    @else
-                        دفعات
-                    @endif
-                </span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">تاريخ الإنشاء: </span>
-                <span class="info-value">{{ \Carbon\Carbon::now()->locale('ar')->translatedFormat('j/m/Y h:i A') }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">الرصيد الحالي: </span>
-                <span class="info-value" style="font-weight: bold; color: #2c5aa0;">
-                    $ {{ number_format($kitchen->Financial_debts, 2) }}
-                </span>
-            </div>
-        </div>
+        <table class="transactions-table">
+            <thead>
+                <tr>
+                    <th width="15%">التاريخ</th>
+                    <th width="15%">النوع</th>
+                    <th width="18%">الرصيد السابق</th>
+                    <th width="14%">المبلغ</th>
+                    <th width="18%">الرصيد الحالي</th>
+                    <th>الوصف</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($transactions as $transaction)
+                <tr>
+                    <td>{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d/m/Y H:i') }}</td>
+                    <td>{{ $transaction->transaction_type == 'payment' ? 'دفعة' : 'طلب إلكتروني' }}</td>
+                    <td>{{ number_format(abs($transaction->balance_before), 2) }}{{ $transaction->balance_before < 0 ? '-' : '' }}</td>
+                    <td class="{{ $transaction->amount >= 0 ? 'amt-pos' : 'amt-neg' }}">
+                        {{ number_format(abs($transaction->amount), 2) }}{{ $transaction->amount < 0 ? '-' : '' }}
+                    </td>
+                    <td>{{ number_format(abs($transaction->balance_after), 2) }}{{ $transaction->balance_after < 0 ? '-' : '' }}</td>
+                    <td style="text-align: right; font-size: 10px;">{{ $transaction->description ?? '-' }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
 
-        <!-- إحصائيات -->
-        {{-- <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-value">{{ $total_transactions }}</div>
-                <div class="stat-label">إجمالي الحركات</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value amount-positive">$ {{ number_format($total_income, 2) }}</div>
-                <div class="stat-label">إجمالي الإيرادات</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value amount-negative">$ {{ number_format($total_expenses, 2) }}</div>
-                <div class="stat-label">إجمالي المصروفات</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">
-                    @if($net_flow >= 0)
-                        <span class="amount-positive">+$ {{ number_format($net_flow, 2) }}</span>
-                    @else
-                        <span class="amount-negative">-$ {{ number_format(abs($net_flow), 2) }}</span>
-                    @endif
-                </div>
-                <div class="stat-label">صافي التدفق</div>
-            </div>
-        </div> --}}
-
-        <!-- تفصيل أنواع الحركات -->
-        <h3>تفصيل أنواع الحركات</h3>
-        <div class="stats-section">
-            @foreach($transaction_types as $type => $count)
-                @php
-                    $percentage = $total_transactions > 0
-                        ? round(($count / $total_transactions) * 100, 1)
-                        : 0;
-                    $typeName = $type == 'payment' ? 'دفعات' : ($type == 'online_order' ? 'طلبات إلكترونية' : $type);
-                @endphp
-                <div class="stat-card">
-                    <div class="stat-value">{{ $count }}</div>
-                    <div class="stat-label">{{ $typeName }}</div>
-                    <div style="font-size: 12px; color: #999;">({{ $percentage }}%)</div>
-                </div>
-            @endforeach
-        </div>
-
-        <!-- جدول الحركات -->
-        <h3>الحركات المالية ({{ $transactions->count() }} حركة)</h3>
-        @if($transactions->count() > 0)
-            <table class="transactions-table">
-                <thead>
-                    <tr>
-                        <th width="15%">التاريخ</th>
-                        <th width="25%">نوع الحركة</th>
-                        <th width="20%">المبلغ</th>
-                        <th width="20%">الرصيد بعد الحركة</th>
-                        <th width="20%">الوصف</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($transactions as $transaction)
-                        @php
-                            $transactionDate = is_string($transaction->transaction_date)
-                                ? \Carbon\Carbon::parse($transaction->transaction_date)
-                                : $transaction->transaction_date;
-
-                            $typeName = $transaction->transaction_type == 'payment'
-                                ? 'دفعة'
-                                : ($transaction->transaction_type == 'online_order'
-                                    ? 'طلب إلكتروني'
-                                    : $transaction->transaction_type);
-                        @endphp
-                        <tr>
-                            <td>{{ $transactionDate->format('d/m/Y H:i') }}</td>
-                            <td>{{ $typeName }}</td>
-                            <td class="{{ $transaction->amount >= 0 ? 'amount-positive' : 'amount-negative' }}">
-                                @if($transaction->amount >= 0)
-                                    +$ {{ number_format($transaction->amount, 2) }}
-                                @else
-                                    -$ {{ number_format(abs($transaction->amount), 2) }}
-                                @endif
-                            </td>
-                            <td>$ {{ number_format($transaction->balance_after, 2) }}</td>
-                            <td>{{ $transaction->description ?? 'بدون وصف' }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <!-- ملخص الحركات -->
-            <div class="kitchen-info" style="margin-top: 30px;">
-                <h4>ملخص الحركات</h4>
-                <div class="info-row">
-                    <span class="info-label">أول حركة: </span>
-                    <span class="info-value">{{ $transactions->last()->transaction_date->format('d/m/Y H:i') }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">آخر حركة: </span>
-                    <span class="info-value">{{ $transactions->first()->transaction_date->format('d/m/Y H:i') }}</span>
-                </div>
-            </div>
-        @else
-            <div class="print-message">
-                ⚠️ لا توجد حركات مالية في الفترة المحددة
-            </div>
-        @endif
-
-        <!-- تذييل التقرير -->
-        <div class="report-footer">
-            <p>هذا التقرير تم إنشاؤه تلقائياً بواسطة النظام</p>
-            <p class="print-only">تاريخ الطباعة: {{ \Carbon\Carbon::now()->locale('ar')->translatedFormat('j/m/Y h:i A') }}</p>
-        </div>
+        <footer class="footer-note">
+            <p>تم استخراج هذا الكشف آلياً - نظام الإدارة المالية | تاريخ الطباعة: {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}</p>
+        </footer>
     </div>
 
     <div class="controls no-print">
-        <button class="btn btn-print" onclick="window.print()">
-            🖨️ طباعة التقرير
-        </button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة كشف الحساب</button>
     </div>
+
 </body>
 </html>

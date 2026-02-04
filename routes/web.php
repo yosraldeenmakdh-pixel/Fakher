@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\QrController;
 use App\Models\Kitchen;
 use App\Models\KitchenFinancialTransaction;
 use Illuminate\Support\Facades\Route;
@@ -43,3 +44,7 @@ Route::get('/financial-statement/{kitchen}/print', function (Kitchen $kitchen, \
 
     ]);
 })->name('financial.statement.print');
+
+
+
+Route::get('/qr/{code}', [QrController::class, 'redirect']);

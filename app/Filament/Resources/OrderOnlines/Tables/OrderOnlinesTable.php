@@ -80,8 +80,16 @@ class OrderOnlinesTable
 
                 TextColumn::make('total')
                     ->label('المبلغ الإجمالي')
-                    ->prefix('$')
+                    // ->prefix('$')
                     ->visible(!$user->hasRole('kitchen'))
+                    ->label('السعر')
+                    ->formatStateUsing(fn ($state): string =>
+                        $state ? $state . ' ل.س' : 'غير محدد'
+                    )
+                    ->sortable()
+                    ->color('success')
+                    ->weight('bold')
+
                     ->sortable(),
 
                 TextColumn::make('confirmed_at')
@@ -194,9 +202,11 @@ class OrderOnlinesTable
 
                             foreach ($items as $item) {
                                 $mealName = $item->meal->name ?? 'وجبة غير معروفة';
+                                $mealDescription = $item->meal->description ?? 'لا يوجد وصف';
                                 $html .= '<div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-primary-500">
                                             <span class="font-medium text-gray-800 dark:text-white">' . $mealName . '</span>
-                                            <span class="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300 px-3 py-1 rounded-full font-bold">' . $item->quantity . '</span>
+                                            <span class="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300 px-3 py-1 rounded-full font-bold">عدد ( ' . $item->quantity . ' ) :</span>
+                                            <span class="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300 px-3 py-1 rounded-full font-bold">' . $mealDescription . '</span>
                                         </div>';
                             }
 

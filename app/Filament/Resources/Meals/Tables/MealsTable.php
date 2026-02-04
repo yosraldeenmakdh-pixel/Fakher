@@ -61,11 +61,13 @@ class MealsTable
 
                 TextColumn::make('price')
                     ->label('السعر')
-                    // ->money('usd')
-                    ->prefix('$')
+                    ->formatStateUsing(fn ($state): string =>
+                        $state ? number_format($state, 0, '.', ',') . ' ل.س' : 'غير محدد'
+                    )
                     ->sortable()
                     ->color('success')
                     ->weight('bold'),
+
 
                 IconColumn::make('is_available')
                     ->label('متاح')
