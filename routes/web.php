@@ -41,9 +41,8 @@ Route::get('/financial-statement/{kitchen}/print', function (Kitchen $kitchen, \
             'end_date' => $endDate,
             'transaction_type' => $transactionType,
         ]
-
     ]);
-})->name('financial.statement.print');
+})->name('financial.statement.print')->middleware(['auth', 'can:super_admin']);
 
 
 
