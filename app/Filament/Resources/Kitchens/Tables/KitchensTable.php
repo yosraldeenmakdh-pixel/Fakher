@@ -216,7 +216,7 @@ class KitchensTable
                         ->label('تعديل'),
                     PrintFinancialStatementAction::make('financialStatement')
                         ->label('كشف الحساب المالي')
-                        ->visible(Auth::user()->hasRole('kitchen')),
+                        ->visible(Auth::user()->hasRole('kitchen') || Auth::user()->hasRole('super_admin')),
                 ])
                 ->label('الإجراءات')
                 ->icon('heroicon-o-cog-6-tooth')
