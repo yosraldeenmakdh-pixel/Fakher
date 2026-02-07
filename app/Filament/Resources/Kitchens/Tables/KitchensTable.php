@@ -216,6 +216,7 @@ class KitchensTable
                         ->label('تعديل'),
                     PrintFinancialStatementAction::make('financialStatement')
                         ->label('كشف الحساب المالي')
+                        ->openUrlInNewTab()
                         ->visible(Auth::user()->hasRole('kitchen') || Auth::user()->hasRole('super_admin')),
                 ])
                 ->label('الإجراءات')
