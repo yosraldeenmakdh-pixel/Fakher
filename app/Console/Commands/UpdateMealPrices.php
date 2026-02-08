@@ -134,11 +134,18 @@ class UpdateMealPrices extends Command
     private function updateMealPrices($rate)
     {
         try {
-            // تحديث جميع الوجبات التي لها price_USD
-            $updated = Meal::whereNotNull('price_USD')
-                ->update(['price' => DB::raw('ROUND(price_USD * ' . $rate . ')')]);
+            $newRate = $rate / 100;
 
-            Log::info("تم تحديث $updated وجبة بسعر $rate");
+            // 2. تحديث جميع الوجبات بناءً على السعر المعدل
+            // ملاحظة: إذا كنت تريد الاحتفاظ بالقروش (مثل 10.5 ليرة)، استخدم ROUND(..., 2)
+            // أما إذا كنت تريد أرقاماً صحيحة فقط، ابقِها كما هي.
+            $updated = Meal::whereNotNull('price_USD')
+                ->update([
+                    'price' => DB::raw('ROUND(price_USD * ' . $newRate . ', 2)')
+                ]);
+
+            Log::info("تم تحديث $updated وجبة. السعر الخام: $rate | السعر الجديد المعتمد: $newRate");
+
             return $updated;
 
         } catch (\Exception $e) {
