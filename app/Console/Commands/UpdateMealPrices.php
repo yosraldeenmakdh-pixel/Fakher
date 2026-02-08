@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 class UpdateMealPrices extends Command
 {
 
-     protected $signature = 'prices:update';
+    protected $signature = 'prices:update';
     protected $description = 'Update SYP prices based on current exchange rate';
 
     public function handle()
@@ -45,52 +45,91 @@ class UpdateMealPrices extends Command
         return 0;
     }
 
+
     private function getExchangeRate()
     {
         try {
             $response = Http::withHeaders([
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            ])->timeout(10)->get('https://sp-today.com');
+            ])->timeout(15)->get('https://sp-today.com');
 
-            if ($response->successful()) {
-                $html = $response->body();
+            if (!$response->successful()) return null;
 
-                // بناءً على الهيكل الذي رأيناه:
-                // <td><strong>11700</strong></td> ← سعر الشراء
-                // <td><strong>11750</strong></td> ← سعر المبيع
+            $html = $response->body();
 
-                // استخراج سعر المبيع (11750)
-                if (preg_match('/دولار أمريكي.*?<td><strong>([\d,]+)<\/strong><\/td>\s*<td><strong>([\d,]+)<\/strong><\/td>/s', $html, $matches)) {
-                    // $matches[1] = سعر الشراء (11700)
-                    // $matches[2] = سعر المبيع (11750)
-                    return (int) str_replace(',', '', $matches[2]); // نأخذ سعر المبيع
-                }
+            // البحث عن النص "سعر الدولار الأمريكي" ثم جلب أول رقمين يظهران بعده
+            // هذا النمط يبحث عن النص ثم يتجاهل أي وسوم HTML حتى يصل للأرقام
+            // (\d{1,2}(?:,\d{3})+) -> هذا الجزء يلتقط الأرقام التي تحتوي على فاصلة مثل 11,650
+            if (preg_match('/سعر الدولار الأمريكي.*?(\d{1,2}(?:,\d{3})+).*?(\d{1,2}(?:,\d{3})+)/s', $html, $matches)) {
 
-                // طريقة بديلة: ابحث عن أول رقمين بعد "دولار أمريكي"
-                if (preg_match('/دولار أمريكي.*?<strong>([\d,]+)<\/strong>.*?<strong>([\d,]+)<\/strong>/s', $html, $matches)) {
-                    return (int) str_replace(',', '', $matches[2]);
-                }
+                // حسب الصورة: الرقم الأول الكبير هو المبيع (11,650) والثاني هو الشراء (11,580)
+                $sellPrice = (int) str_replace(',', '', $matches[1]);
+                $buyPrice = (int) str_replace(',', '', $matches[2]);
 
-                // طريقة أبسط: ابحث عن أي <strong> يحتوي على رقم من 5 أرقام
-                if (preg_match_all('/<strong>(\d{5})<\/strong>/', $html, $matches)) {
-                    foreach ($matches[1] as $price) {
-                        $price = (int) $price;
-                        // تحقق أنه في النطاق المنطقي لسعر الصرف
-                        if ($price > 9000 && $price < 15000) {
-                            return $price; // أول سعر يطابق النطاق
-                        }
-                    }
-                }
+                // نختار السعر الأعلى (المبيع) لتحديث أسعار الوجبات
+                return max($sellPrice, $buyPrice);
+            }
+
+            // محاولة إضافية في حال كان الهيكل مختلفاً (البحث عن كلمة USD)
+            if (preg_match('/USD.*?(\d{1,2}(?:,\d{3})+)/s', $html, $matches)) {
+                return (int) str_replace(',', '', $matches[1]);
             }
 
             return null;
 
         } catch (\Exception $e) {
-            Log::error('فشل جلب سعر الصرف: ' . $e->getMessage());
+            Log::error('خطأ في جلب سعر الدولار: ' . $e->getMessage());
             return null;
         }
     }
+
+
+    // private function getExchangeRate()
+    // {
+    //     try {
+    //         $response = Http::withHeaders([
+    //             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    //             'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    //         ])->timeout(10)->get('https://sp-today.com');
+
+    //         if ($response->successful()) {
+    //             $html = $response->body();
+
+    //             // بناءً على الهيكل الذي رأيناه:
+    //             // <td><strong>11700</strong></td> ← سعر الشراء
+    //             // <td><strong>11750</strong></td> ← سعر المبيع
+
+    //             // استخراج سعر المبيع (11750)
+    //             if (preg_match('/سعر الدولار الأمريكي.*?<td><strong>([\d,]+)<\/strong><\/td>\s*<td><strong>([\d,]+)<\/strong><\/td>/s', $html, $matches)) {
+    //                 // $matches[1] = سعر الشراء (11700)
+    //                 // $matches[2] = سعر المبيع (11750)
+    //                 return (int) str_replace(',', '', $matches[2]); // نأخذ سعر المبيع
+    //             }
+
+    //             // طريقة بديلة: ابحث عن أول رقمين بعد "دولار أمريكي"
+    //             if (preg_match('/دولار أمريكي.*?<strong>([\d,]+)<\/strong>.*?<strong>([\d,]+)<\/strong>/s', $html, $matches)) {
+    //                 return (int) str_replace(',', '', $matches[2]);
+    //             }
+
+    //             // طريقة أبسط: ابحث عن أي <strong> يحتوي على رقم من 5 أرقام
+    //             if (preg_match_all('/<strong>(\d{5})<\/strong>/', $html, $matches)) {
+    //                 foreach ($matches[1] as $price) {
+    //                     $price = (int) $price;
+    //                     // تحقق أنه في النطاق المنطقي لسعر الصرف
+    //                     if ($price > 9000 && $price < 15000) {
+    //                         return $price; // أول سعر يطابق النطاق
+    //                     }
+    //                 }
+    //             }
+    //         }
+
+    //         return null;
+
+    //     } catch (\Exception $e) {
+    //         Log::error('فشل جلب سعر الصرف: ' . $e->getMessage());
+    //         return null;
+    //     }
+    // }
 
     private function updateMealPrices($rate)
     {
