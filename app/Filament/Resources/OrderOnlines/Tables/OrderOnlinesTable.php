@@ -45,7 +45,7 @@ class OrderOnlinesTable
                 TextColumn::make('order_number')
                     ->label('رقم الطلب')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    // ->toggleable(isToggledHiddenByDefault: true)
                     ->copyable()
                     ->description(fn($record) => $record->created_at->diffForHumans())
                     ->sortable(),
