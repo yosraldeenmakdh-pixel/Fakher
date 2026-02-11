@@ -29,7 +29,7 @@ class UserForm
                             ->badge(fn ($state) => empty($state) ? 'مطلوب' : null)
                             ->badgeColor('danger')
                             ->schema([
-                                Grid::make(2)
+                                Grid::make()
                                     ->schema([
                                         TextInput::make('name')
                                             ->label('الاسم الكامل')
@@ -37,7 +37,7 @@ class UserForm
                                             ->prefixIconColor('primary')
                                             ->required()
                                             ->maxLength(255)
-                                            ->columnSpan(1)
+                                            // ->columnSpanFull(1)
                                             ->live(onBlur: true)
                                             ->hintIcon('heroicon-o-information-circle', tooltip: 'أدخل الاسم الثلاثي')
                                             ->hintColor('primary')
@@ -54,7 +54,7 @@ class UserForm
                                             ->required()
                                             ->unique(ignoreRecord: true)
                                             ->maxLength(255)
-                                            ->columnSpan(1)
+                                            // ->columnSpanFull(1)
                                             ->suffixIcon('heroicon-o-at-symbol')
                                             ->suffixIconColor('gray')
                                             ->validationMessages([
@@ -63,20 +63,23 @@ class UserForm
                                                 'unique' => 'هذا البريد الإلكتروني مسجل مسبقاً',
                                                 'max' => 'البريد الإلكتروني يجب أن لا يتجاوز 255 حرف',
                                             ]),
-                                    ]),
 
-                                Select::make('roles')
-                                    ->label('دور المستخدم')
-                                    ->relationship('roles', 'name')
-                                    ->multiple()
-                                    ->preload()
-                                    ->searchable()
-                                    ->native(false)
-                                    ->placeholder('اختر الأدوار')
-                                    ->columnSpanFull()
-                                    ->hintIcon('heroicon-o-shield-check', tooltip: 'يمكن اختيار أكثر من دور') ,
+                                        Select::make('roles')
+                                            ->label('دور المستخدم')
+                                            ->relationship('roles', 'name')
+                                            ->multiple()
+                                            ->preload()
+                                            ->searchable()
+                                            ->native(false)
+                                            ->placeholder('اختر الأدوار')
+                                            ->columnSpanFull(2)
+                                            ->hintIcon('heroicon-o-shield-check', tooltip: 'يمكن اختيار أكثر من دور') ,
+                                    ])
 
-                            ])->columns(2),
+
+                            ])->columns(1),
+
+
 
                         Tab::make('🔐 الأمان والصلاحيات')
                             ->icon('heroicon-o-lock-closed')
