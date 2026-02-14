@@ -19,6 +19,7 @@ class OrderOnline extends Model
         'total',
         'status',
         'order_date',
+        'pending_at',
         'confirmed_at',
         'delivered_at',
         'special_instructions',
