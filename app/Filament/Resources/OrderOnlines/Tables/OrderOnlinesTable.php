@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OrderOnlines\Tables;
 
 use App\Models\OrderOnline;
+use Carbon\Carbon;
 use DeepCopy\Filter\Filter;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -45,9 +46,8 @@ class OrderOnlinesTable
                 TextColumn::make('order_number')
                     ->label('رقم الطلب')
                     ->searchable()
-                    // ->toggleable(isToggledHiddenByDefault: true)
                     ->copyable()
-                    ->description(fn($record) => $record->pending_at?->diffForHumans() ?? '')
+                    ->description(fn($record) => $record->pending_at ? Carbon::parse($record->pending_at)->diffForHumans() : '')
                     ->sortable(),
 
                 TextColumn::make('customer_name')

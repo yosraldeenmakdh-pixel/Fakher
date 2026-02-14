@@ -31,6 +31,13 @@ class OrderOnline extends Model
         'longitude',
     ];
 
+    protected $casts = [
+        'pending_at' => 'datetime',
+        'confirmed_at' => 'datetime',
+        'delivered_at' => 'datetime',
+        // حقول أخرى مثل created_at, updated_at إلخ
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
