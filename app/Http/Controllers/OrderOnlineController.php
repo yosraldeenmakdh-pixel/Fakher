@@ -279,6 +279,8 @@ class OrderOnlineController extends Controller
 
             $order->status = 'pending' ;
 
+            $order->pending_at = now();
+
             // حفظ التغييرات
             $order->save();
 
