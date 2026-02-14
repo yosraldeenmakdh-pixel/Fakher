@@ -37,7 +37,7 @@ class OnlineOrderConfirmationsTable
                 TextColumn::make('order_number')
                     ->label('رقم الطلب')
                     ->searchable()
-                    ->description(fn($record) => $record->confirmed_at ? Carbon::parse($record->confirmed_at)->diffForHumans() : '')
+                    ->description(fn($record) => $record->order->confirmed_at ? Carbon::parse($record->order->confirmed_at)->diffForHumans() : '')
                     ->sortable()
                     ->weight('bold')
                     ->color('primary'),
