@@ -475,6 +475,22 @@ class OrderOnlineController extends Controller
             }
 
 
+            $validationResult = $this->validateOrderWithDetails($order, $request->branch_id);
+
+            if (!$validationResult['is_valid']) {
+                // بناء رسالة تفصيلية
+                $detailedMessage = $this->buildSimpleUnavailableMessage(
+                    $validationResult['unavailable_items'],
+                    $request->branch_id
+                );
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $detailedMessage,
+                    'unavailable_items' => $validationResult['unavailable_items'],
+                    'branch_info' => $validationResult['branch_info'],
+                ], 422);
+            }
 
 
             $branch = Branch::find($request->branch_id);
