@@ -47,7 +47,7 @@ class OrderOnlinesTable
                     ->searchable()
                     // ->toggleable(isToggledHiddenByDefault: true)
                     ->copyable()
-                    ->description(fn($record) => $record->created_at->diffForHumans())
+                    ->description(fn($record) => $record->pending_at->diffForHumans())
                     ->sortable(),
 
                 TextColumn::make('customer_name')
